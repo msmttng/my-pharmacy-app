@@ -17,12 +17,17 @@
         .tabs button { background: #eee; color: #666; font-size: 12px; white-space: nowrap; }
         .tabs button.active { background: var(--primary-color); color: white; }
         #result { margin-top: 20px; }
-        .card { background: #fff; border: 1px solid #eee; padding: 10px; margin-bottom: 10px; border-radius: 4px; border-left: 5px solid var(--accent-color); }
-        .card-title { font-weight: bold; font-size: 1.1rem; margin-bottom: 5px; }
-        .card-detail { font-size: 0.9rem; color: #666; display: flex; justify-content: space-between; }
-        .loading { text-align: center; padding: 20px; color: #999; }
-        .shelf-group { margin-top: 20px; border-top: 2px solid #eee; padding-top: 10px; }
-        .shelf-name { background: #e8f5e9; padding: 5px 10px; font-weight: bold; border-radius: 4px; display: inline-block; margin-bottom: 10px; }
+        .card { background: #fff; border: 1px solid #ddd; padding: 15px; margin-bottom: 12px; border-radius: 8px; border-left: 6px solid var(--accent-color); transition: transform 0.2s; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .card.alternative { border-left-color: #f39c12; background-color: #fdfbf7; }
+        .card-title { font-weight: bold; font-size: 1.15rem; margin-bottom: 8px; color: #2c3e50; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .badge { font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; color: white; background: #e74c3c; font-weight: normal; }
+        .badge-alt { background: #f39c12; }
+        .card-detail { font-size: 0.95rem; color: #555; display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 8px; border-radius: 4px; margin-top: 5px; }
+        .stock-highlight { font-size: 1.1rem; font-weight: bold; color: var(--accent-color); }
+        .loading { text-align: center; padding: 30px; color: #7f8c8d; font-weight: bold; font-size: 1.1rem; }
+        .shelf-group { margin-top: 25px; border-top: 2px solid #ecf0f1; padding-top: 15px; }
+        .shelf-name { background: #e8f5e9; color: #2e7d32; padding: 6px 12px; font-weight: bold; border-radius: 4px; display: inline-block; margin-bottom: 15px; font-size: 1.1rem; }
     </style>
 </head>
 <body>
@@ -59,6 +64,9 @@
         try {
             const response = await fetch(GAS_URL, {
                 method: "POST",
+                headers: {
+                    "Content-Type": "text/plain;charset=utf-8"
+                },
                 body: JSON.stringify({
                     action: action,
                     query: query,
@@ -80,7 +88,7 @@
         resultDiv.innerHTML = '';
 
         if (!data || (Array.isArray(data) && data.length === 0)) {
-            resultDiv.innerHTML = '該当するデータが見つかりませんでした。';
+            resultDiv.innerHTML = '<div style="text-align:center; padding: 20px;">該当するデータが見つかりませんでした。</div>';
             return;
         }
 
@@ -92,9 +100,9 @@
                 groupDiv.innerHTML = `<div class="shelf-name">${group.shelf}</div>`;
                 group.items.forEach(item => {
                     groupDiv.innerHTML += `
-                        <div class="card" style="border-left-color: #3498db">
-                            <div class="card-title">${item.name}</div>
-                            <div class="card-detail"><span>在庫: ${item.stock}</span></div>
+                        <div class="card" style="border-left-color: #3498db; padding: 10px;">
+                            <div class="card-title" style="font-size:1rem;">${item.name}</div>
+                            <div class="card-detail" style="padding: 4px;"><span>在庫: <strong>${item.stock}</strong></span></div>
                         </div>`;
                 });
                 resultDiv.appendChild(groupDiv);
@@ -104,16 +112,37 @@
 
         // 通常のリスト（検索、返品、不動、Live）の表示
         const list = data.items || data;
+        let hasAlternatives = false;
+
         list.forEach(item => {
+            const isAlt = item.isPrimary === false;
+            
+            // はじめて代替薬が登場したときにヘッダーを挿入
+            if (isAlt && !hasAlternatives && action === 'search') {
+                hasAlternatives = true;
+                const altHeader = document.createElement('h3');
+                altHeader.style.marginTop = "30px";
+                altHeader.style.color = "#7f8c8d";
+                altHeader.style.borderBottom = "2px solid #eee";
+                altHeader.style.paddingBottom = "5px";
+                altHeader.innerText = "💡 代替薬（同一成分・同規格）の候補";
+                resultDiv.appendChild(altHeader);
+            }
+
             const card = document.createElement('div');
-            card.className = 'card';
+            card.className = isAlt ? 'card alternative' : 'card';
+            
+            const badgeHtml = isAlt ? `<span class="badge badge-alt">代替薬</span>` : '';
+            const typeHtml = item.type ? `<span style="font-size:12px; color:#7f8c8d; font-weight:normal;">(${item.type})</span>` : '';
+            
             card.innerHTML = `
-                <div class="card-title">${item.name}</div>
+                <div class="card-title">${item.name} ${typeHtml} ${badgeHtml}</div>
                 <div class="card-detail">
-                    <span>在庫: <strong>${item.stock || item.quantity || 0}</strong></span>
-                    <span>棚番: ${item.shelf || '-'}</span>
+                    <span>在庫: <strong class="stock-highlight">${item.stock || item.quantity || 0}</strong></span>
+                    <span>棚番: <strong>${item.shelf || '-'}</strong></span>
                 </div>
-                ${item.expiry ? `<div style="font-size:11px; color:red; margin-top:5px;">期限: ${item.expiry} (Lot: ${item.lot})</div>` : ''}
+                ${item.yjCode ? `<div style="font-size:11px; color:#95a5a6; margin-top:6px;">YJコード: ${item.yjCode}</div>` : ''}
+                ${item.expiry ? `<div style="font-size:11px; color:#e74c3c; margin-top:4px;">期限: ${item.expiry} (Lot: ${item.lot})</div>` : ''}
             `;
             resultDiv.appendChild(card);
         });
@@ -122,10 +151,16 @@
     // 初回読み込み時に更新日時を取得
     window.onload = async () => {
         try {
-            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "lastUpdated" }) });
+            const res = await fetch(GAS_URL, { 
+                method: "POST", 
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({ action: "lastUpdated" }) 
+            });
             const data = await res.json();
             document.getElementById('status-bar').innerText = "最終データ更新: " + (data.time || "未設定");
-        } catch(e) {}
+        } catch(e) {
+            console.error("Failed to load lastUpdated:", e);
+        }
     };
 </script>
 
