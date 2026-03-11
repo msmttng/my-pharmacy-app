@@ -23,10 +23,11 @@
     .status-success { background-color: #dcfce7; color: #166534; border: 1px solid rgba(22, 101, 52, 0.1); }
     .status-warning { background-color: #fef3c7; color: #b45309; border: 1px solid rgba(180, 83, 9, 0.1); }
     .card-header { padding: 0.75rem 1rem; color: white; font-weight: 600; }
+    [v-cloak] { display: none; }
   </style>
 </head>
 <body class="antialiased text-gray-800">
-  <div id="app" class="min-h-screen flex flex-col items-center p-4 sm:p-6 md:p-8">
+  <div id="app" v-cloak class="min-h-screen flex flex-col items-center p-4 sm:p-6 md:p-8">
     <header class="w-full max-w-6xl mb-6 text-center">
       <h1 class="text-3xl font-bold text-indigo-700 flex items-center justify-center gap-3">
         <i class="fa-solid fa-pills"></i> 医薬品調達・在庫ダッシュボード
@@ -34,13 +35,16 @@
       <p class="text-gray-400 text-xs mt-2">最終更新: 2026-03-11 15:06:47</p>
     </header>
 
-    <nav class="w-full max-w-3xl mb-6">
+    <nav class="w-full max-w-5xl mb-6">
       <div class="glass-card rounded-xl p-1 flex gap-1">
         <button @click="activeTab = 'dashboard'" :class="activeTab === 'dashboard' ? 'bg-indigo-600 text-white shadow' : 'text-gray-500 hover:bg-gray-100'" class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-1">
           <i class="fa-solid fa-chart-line"></i> 統合
         </button>
         <button @click="activeTab = 'search'" :class="activeTab === 'search' ? 'bg-indigo-600 text-white shadow' : 'text-gray-500 hover:bg-gray-100'" class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-1">
           <i class="fa-solid fa-magnifying-glass"></i> 薬を探す
+        </button>
+        <button @click="switchTab('live')" :class="activeTab === 'live' ? 'bg-indigo-600 text-white shadow' : 'text-gray-500 hover:bg-gray-100'" class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-1">
+          <i class="fa-solid fa-clock-rotate-left"></i> リアルタイム在庫
         </button>
       </div>
     </nav>
@@ -52,7 +56,7 @@
         <section class="glass-card rounded-2xl overflow-hidden flex flex-col h-[700px]">
           <div class="card-header bg-sky-400 flex justify-between">
             <span>Collabo Portal</span>
-            <span class="text-xs bg-white/20 px-2 rounded-full">{{ pharmaData.collabo?.length || 0 }}件</span>
+            <span class="text-xs bg-white/20 px-2 rounded-full">{{ pharmaData.collabo ? pharmaData.collabo.length : 0 }}件</span>
           </div>
           <div class="overflow-y-auto p-2 space-y-2">
             <div v-for="item in pharmaData.collabo" class="p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
@@ -73,94 +77,15 @@
         <section class="glass-card rounded-2xl overflow-hidden flex flex-col h-[700px]">
           <div class="card-header bg-green-600 flex justify-between">
             <span>MEDIPAL</span>
-            <span class="text-xs bg-white/20 px-2 rounded-full">{{ pharmaData.medipal?.length || 0 }}件</span>
-          </div>
-          <div class="overflow-y-auto p-2 space-y-2">
-            <div v-for="item in pharmaData.medipal" class="p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
-              <div class="text-[10px] text-gray-400 font-bold mb-1">{{ item.maker }}</div><!DOCTYPE html>
-<html lang="ja">
-<head>
-  <base target="_top">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>医薬品調達・在庫ダッシュボード</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-    .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
-    .spinner { animation: spin 1s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .fade-in { animation: fadeIn 0.4s ease-in-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    .alternative-card { background: linear-gradient(to right, #ffffff, #f0fdf4); border-left-color: #10b981 !important; }
-    .badge-alt { background-color: #10b981; color: white; font-size: 0.7rem; padding: 0.15rem 0.4rem; border-radius: 4px; margin-right: 0.5rem; font-weight: bold; }
-    .status-badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
-    .status-danger { background-color: #fee2e2; color: #b91c1c; border: 1px solid rgba(185, 28, 28, 0.1); }
-    .status-success { background-color: #dcfce7; color: #166534; border: 1px solid rgba(22, 101, 52, 0.1); }
-    .status-warning { background-color: #fef3c7; color: #b45309; border: 1px solid rgba(180, 83, 9, 0.1); }
-    .card-header { padding: 0.75rem 1rem; color: white; font-weight: 600; }
-  </style>
-</head>
-<body class="antialiased text-gray-800">
-  <div id="app" class="min-h-screen flex flex-col items-center p-4 sm:p-6 md:p-8">
-    <header class="w-full max-w-6xl mb-6 text-center">
-      <h1 class="text-3xl font-bold text-indigo-700 flex items-center justify-center gap-3">
-        <i class="fa-solid fa-pills"></i> 医薬品調達・在庫ダッシュボード
-      </h1>
-      <p class="text-gray-400 text-xs mt-2">最終更新: 2026-03-11 15:06:47</p>
-    </header>
-
-    <nav class="w-full max-w-3xl mb-6">
-      <div class="glass-card rounded-xl p-1 flex gap-1">
-        <button @click="activeTab = 'dashboard'" :class="activeTab === 'dashboard' ? 'bg-indigo-600 text-white shadow' : 'text-gray-500 hover:bg-gray-100'" class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-1">
-          <i class="fa-solid fa-chart-line"></i> 統合
-        </button>
-        <button @click="activeTab = 'search'" :class="activeTab === 'search' ? 'bg-indigo-600 text-white shadow' : 'text-gray-500 hover:bg-gray-100'" class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-1">
-          <i class="fa-solid fa-magnifying-glass"></i> 薬を探す
-        </button>
-      </div>
-    </nav>
-
-    <main class="w-full max-w-7xl">
-      <!-- Dashboard Tab -->
-      <div v-if="activeTab === 'dashboard'" class="grid grid-cols-1 md:grid-cols-3 gap-6 fade-in">
-        <!-- Collabo Card -->
-        <section class="glass-card rounded-2xl overflow-hidden flex flex-col h-[700px]">
-          <div class="card-header bg-sky-400 flex justify-between">
-            <span>Collabo Portal</span>
-            <span class="text-xs bg-white/20 px-2 rounded-full">{{ pharmaData.collabo?.length || 0 }}件</span>
-          </div>
-          <div class="overflow-y-auto p-2 space-y-2">
-            <div v-for="item in pharmaData.collabo" class="p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
-              <div class="text-[10px] text-gray-400 font-bold mb-1">{{ item.maker }}</div>
-              <div class="font-bold text-sm text-gray-800 mb-1 leading-tight">{{ item.name }}</div>
-              <div class="flex justify-between items-center mt-2">
-                <span :class="getStatusClass(item.status)" class="status-badge">{{ item.status }}</span>
-                <span class="text-[10px] text-gray-400">{{ item.date }}</span>
-              </div>
-              <div v-if="item.remarks" class="mt-2 text-[10px] text-amber-600 bg-amber-50 p-1.5 rounded border-l-2 border-amber-300">
-                {{ item.remarks }}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Medipal Card -->
-        <section class="glass-card rounded-2xl overflow-hidden flex flex-col h-[700px]">
-          <div class="card-header bg-green-600 flex justify-between">
-            <span>MEDIPAL</span>
-            <span class="text-xs bg-white/20 px-2 rounded-full">{{ pharmaData.medipal?.length || 0 }}件</span>
+            <span class="text-xs bg-white/20 px-2 rounded-full">{{ pharmaData.medipal ? pharmaData.medipal.length : 0 }}件</span>
           </div>
           <div class="overflow-y-auto p-2 space-y-2">
             <div v-for="item in pharmaData.medipal" class="p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
               <div class="text-[10px] text-gray-400 font-bold mb-1">{{ item.maker }}</div>
               <div class="font-bold text-sm text-gray-800 mb-1 leading-tight">{{ item.name }}</div>
               <div class="mt-2">
-                <span :class="item.remarks?.includes('調整') ? 'status-danger' : 'status-success'" class="status-badge">
-                  {{ item.remarks?.includes('調整') ? '出荷調整' : '通常' }}
+                <span :class="item.remarks && item.remarks.includes('調整') ? 'status-danger' : 'status-success'" class="status-badge">
+                  {{ item.remarks && item.remarks.includes('調整') ? '出荷調整' : '通常' }}
                 </span>
                 <p class="text-[10px] text-gray-500 mt-1">{{ item.remarks }}</p>
               </div>
@@ -172,7 +97,7 @@
         <section class="glass-card rounded-2xl overflow-hidden flex flex-col h-[700px]">
           <div class="card-header bg-blue-500 flex justify-between">
             <span>ALF-Web</span>
-            <span class="text-xs bg-white/20 px-2 rounded-full">{{ pharmaData.alfweb?.length || 0 }}件</span>
+            <span class="text-xs bg-white/20 px-2 rounded-full">{{ pharmaData.alfweb ? pharmaData.alfweb.length : 0 }}件</span>
           </div>
           <div class="overflow-y-auto p-2 space-y-2">
             <div v-for="item in pharmaData.alfweb" class="p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
@@ -195,7 +120,10 @@
               <i class="fa-solid fa-magnifying-glass"></i>
             </div>
             <input v-model="query" @keyup.enter="performLocalSearch" class="h-full w-full outline-none text-gray-700 text-lg font-medium pl-2" type="text" placeholder="薬の名前を入力...">
-            <button @click="performLocalSearch" class="bg-indigo-600 text-white h-full px-8 font-semibold hover:bg-indigo-700 transition-colors">検索</button>
+            <button @click="performLocalSearch" class="bg-indigo-600 text-white h-full px-8 font-semibold hover:bg-indigo-700 transition-colors">
+              <span v-if="searching" class="flex items-center gap-2"><i class="fa-solid fa-circle-notch spinner"></i> 検索中</span>
+              <span v-else>検索</span>
+            </button>
           </div>
         </div>
 
@@ -209,21 +137,64 @@
                 </div>
                 <h3 class="text-xl font-bold text-gray-900 leading-tight">{{ item.name }}</h3>
                 <div class="mt-3 flex gap-4">
-                  <div v-if="item.shelf" class="bg-indigo-50 px-3 py-1 rounded border border-indigo-100 text-sm">
+                  <div class="bg-indigo-50 px-3 py-1 rounded border border-indigo-100 text-sm">
                     <span class="text-xs text-indigo-400 block font-bold">棚番</span>
-                    <span class="font-bold text-indigo-800">{{ item.shelf }}</span>
+                    <span class="font-bold text-indigo-800">{{ item.shelf || '-' }}</span>
                   </div>
                   <div class="bg-gray-50 px-3 py-1 rounded border border-gray-100 text-sm">
                     <span class="text-xs text-gray-400 block font-bold">在庫</span>
-                    <span class="font-bold text-gray-800">{{ item.stock !== '' ? item.stock : '-' }}</span>
+                    <span class="font-bold text-gray-800">{{ item.stock !== '' && item.stock !== undefined ? item.stock : '-' }}</span>
+                  </div>
+                  <div v-if="item.source" class="bg-gray-100 px-3 py-1 rounded border border-gray-200 text-sm">
+                    <span class="text-xs text-gray-400 block font-bold">情報源</span>
+                    <span class="font-medium text-gray-600 uppercase">{{ item.source }}</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div v-else-if="hasSearched" class="glass-card rounded-2xl p-10 text-center text-gray-400">
+        <div v-else-if="hasSearched && !searching" class="glass-card rounded-2xl p-10 text-center text-gray-400">
           <p>「{{ lastQuery }}」に一致する結果はありませんでした。</p>
+        </div>
+      </div>
+
+      <!-- Real-time Stock Tab -->
+      <div v-if="activeTab === 'live'" class="max-w-7xl mx-auto fade-in">
+        <div class="glass-card rounded-2xl p-4 mb-6 flex justify-between items-center bg-indigo-50">
+          <h2 class="text-lg font-bold text-indigo-800 flex items-center gap-2">
+            <i class="fa-solid fa-signal"></i> 在庫一覧 (LIVE)
+          </h2>
+          <button @click="fetchLiveStocks" class="text-indigo-600 hover:text-indigo-800 text-sm font-bold flex items-center gap-1 transition-all">
+            <i class="fa-solid fa-arrows-rotate" :class="{ 'spinner': loadingLive }"></i> 更新
+          </button>
+        </div>
+
+        <div v-if="loadingLive" class="p-20 text-center">
+          <i class="fa-solid fa-circle-notch spinner text-4xl text-indigo-600"></i>
+          <p class="mt-4 text-gray-500 font-medium">GASバックエンドからデータを取得中...</p>
+        </div>
+
+        <div v-else-if="liveStocks.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div v-for="item in liveStocks" class="glass-card rounded-xl p-4 border border-gray-100 hover:border-indigo-200 transition-all">
+            <div class="flex justify-between items-start mb-2">
+              <span class="text-[10px] font-bold text-gray-400">{{ item.maker || '不明' }}</span>
+              <span class="bg-indigo-100 text-indigo-700 text-[10px] px-2 py-0.5 rounded font-bold">{{ item.shelf || '棚番無' }}</span>
+            </div>
+            <h4 class="font-bold text-gray-800 text-sm leading-tight mb-3">{{ item.name }}</h4>
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-gray-500">JAN: {{ item.code || '-' }}</span>
+              <span class="text-lg font-bold" :class="Number(item.stock) <= 1 ? 'text-red-500' : 'text-gray-700'">
+                {{ item.stock }}
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        <div v-else-if="!loadingLive" class="glass-card rounded-2xl p-20 text-center text-gray-400">
+          <i class="fa-solid fa-box-open text-4xl mb-4 block"></i>
+          <p>在庫データがありません。</p>
+          <button @click="fetchLiveStocks" class="mt-4 bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-indigo-700 transition-all">データを取得する</button>
         </div>
       </div>
     </main>
@@ -234,7 +205,44 @@
   </div>
 
   <script>
-    const { createApp, ref } = Vue;
+    // --- GAS Polyfill for GitHub Pages ---
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwDhj91LpWaF6OWhTmr6hbYLgScu0tlBcs2Y4nyXvg2WAwybHYGd5-V579tf0I5_H2dCQ/exec';
+    if (typeof google === 'undefined') {
+      window.google = { script: { run: {} } };
+      const createRun = () => {
+        return {
+          _onSuccess: null,
+          _onFailure: null,
+          withSuccessHandler(h) { this._onSuccess = h; return this; },
+          withFailureHandler(h) { this._onFailure = h; return this; },
+          _execute(action, params) {
+            const hSuccess = this._onSuccess;
+            const hFailure = this._onFailure;
+            fetch(GAS_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify({ action: action, params: params })
+            })
+            .then(res => res.json())
+            .then(data => {
+              if (data.error && hFailure) hFailure(data.error);
+              else if (hSuccess) hSuccess(data.result !== undefined ? data.result : data);
+            })
+            .catch(err => {
+              if (hFailure) hFailure(err);
+              else console.error('GAS Error:', err);
+            });
+          },
+          searchMedicine(q) { this._execute('search', q); },
+          getLiveStocks(p) { this._execute('live', p); }
+        };
+      };
+      Object.defineProperty(window.google.script, 'run', { get: createRun });
+    }
+
+    // --- Vue Application ---
+    const createApp = Vue.createApp;
+    const ref = Vue.ref;
     const pharmaData = {"collabo": [{"date": "03/11 13:25", "code": "4987155635010", "maker": "東和薬品", "name": "ｱﾑﾛｼﾞﾋﾟﾝOD錠2.5mgﾄ-ﾜ     　     2.5mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/12", "status": "出荷準備中", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/11 13:25", "code": "4987188487006", "maker": "久光製薬", "name": "ｱﾚｻｶﾞﾃ-ﾌﾟ4mg             　            4mg 70枚", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/13", "status": "出荷準備中", "remarks": ""}, {"date": "03/11 13:25", "code": "4987155121087", "maker": "東和薬品", "name": "ｳﾙｿﾃﾞｵｷｼｺ-ﾙ酸錠100MGﾄ-ﾜ  　     100mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/12", "status": "出荷準備中", "remarks": ""}, {"date": "03/11 13:25", "code": "4987443386501", "maker": "ノバルティス", "name": "ｴﾅｼﾞｱ吸入用ｶﾌﾟｾﾙ中用     　  量ﾌﾞﾘ-ｽﾞﾍﾗ-ﾂｷ14CAP", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/12", "status": "出荷準備中", "remarks": ""}, {"date": "03/11 13:25", "code": "4987190021304", "maker": "ニプロファマ", "name": "ﾌﾛｾﾐﾄﾞ錠40mg｢NP｣         　      40mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/12", "status": "出荷準備中", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/11 13:25", "code": "4987081100316", "maker": "第一三共", "name": "ﾛｷｿﾆﾝﾃ-ﾌﾟ100mg           　      10X14cm 7枚X10", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/12", "status": "出荷準備中", "remarks": ""}, {"date": "03/11 12:19", "code": "4987312126634", "maker": "ミヤリサン製", "name": "ﾐﾔBM錠                   　           PTP  400T", "order_qty": "2", "deliv_qty": "2", "deliv_date": "", "status": "調達中", "remarks": "限定出荷品 (出荷調整品)　ﾒｰｶｰ入荷未定 注文取消時 要連絡"}, {"date": "03/11 11:53", "code": "4987035574613", "maker": "大塚製薬", "name": "ｴﾋﾞﾘﾌｧｲ内用液0.1%        　            1MLX28包", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/11", "status": "配達中", "remarks": ""}, {"date": "03/11 11:08", "code": "4987167005481", "maker": "ニチバン", "name": "ｽﾋﾟ-ﾙ膏M                 　      SPM16 25c?X6枚", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "出荷準備中", "remarks": ""}, {"date": "03/11 10:15", "code": "4987080737414", "maker": "沢井製薬", "name": "ｲｺｻﾍﾟﾝﾄ酸ｴﾁﾙ粒状ｶﾌﾟｾﾙ    　    900mg｢ｻﾜｲ｣  84包", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "配達中", "remarks": ""}, {"date": "03/10 18:11", "code": "4987128326358", "maker": "田辺ファーマ", "name": "ﾙﾊﾟﾌｨﾝ錠10mg             　       10mg PTP 500T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 13:11", "code": "4987155100037", "maker": "東和薬品", "name": "ﾍﾞﾀﾋｽﾁﾝﾒｼﾙ酸塩錠12mg     　     ｢ﾄ-ﾜ｣ PTP  100T", "order_qty": "3", "deliv_qty": "3", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 13:11", "code": "4987155400021", "maker": "東和薬品", "name": "ﾗﾍﾞﾌﾟﾗｿﾞ-ﾙNａ錠10MGﾄ-ﾜ   　      10mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 13:11", "code": "4987155144116", "maker": "東和薬品", "name": "ｶﾙﾍﾞｼﾞﾛ-ﾙ錠2.5mg｢ﾄ-ﾜ｣    　     2.5mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 13:01", "code": "4987155361018", "maker": "東和薬品", "name": "ｱﾄﾙﾊﾞｽﾀﾁﾝ錠10mg｢ﾄ-ﾜ｣     　      10mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 13:01", "code": "4987443384415", "maker": "ノバルティス", "name": "ｴﾝﾚｽﾄ錠100mg             　     100mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 13:01", "code": "4987190021205", "maker": "ニプロファマ", "name": "ﾌﾛｾﾐﾄﾞ錠20mg｢NP｣         　      20mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/10 13:01", "code": "4987213118011", "maker": "マルホ", "name": "ﾗﾋﾟﾌｫ-ﾄﾜｲﾌﾟ2.5%          　         2.5% 1包X28", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 11:13", "code": "4987616001712", "maker": "ノボノルディ", "name": "ﾉﾎﾞﾗﾋﾟｯﾄﾞ30ﾐｯｸｽ注ﾌﾚｯｸｽ   　   ﾍﾟﾝ 300単位 3MLX2", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 10:25", "code": "4987080117018", "maker": "沢井製薬", "name": "ｴﾊﾞｽﾁﾝOD錠5mg｢ｻﾜｲ｣       　       5mg PTP  100T", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/12", "status": "出荷準備中", "remarks": ""}, {"date": "03/10 10:11", "code": "4987155849011", "maker": "東和薬品", "name": "ｱﾑﾛｼﾞﾋﾟﾝ錠5mg｢ﾄ-ﾜ｣       　       5mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 10:11", "code": "4987080737414", "maker": "沢井製薬", "name": "ｲｺｻﾍﾟﾝﾄ酸ｴﾁﾙ粒状ｶﾌﾟｾﾙ    　    900mg｢ｻﾜｲ｣  84包", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 10:11", "code": "4987224057279", "maker": "持田製薬", "name": "ｼﾞｴﾉｹﾞｽﾄ錠0.5mg｢ﾓﾁﾀﾞ｣    　     0.5mg PTP  140T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 10:11", "code": "4987792100070", "maker": "日本ジェネリ", "name": "ﾋﾞｿﾌﾟﾛﾛ-ﾙﾌﾏﾙ酸塩錠2.5MG  　      ｢JG｣ PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 10:11", "code": "4987080538110", "maker": "沢井製薬", "name": "ﾌｧﾓﾁｼﾞﾝD錠20mg｢ｻﾜｲ｣      　      20mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 10:11", "code": "4987641082403", "maker": "帝國製薬", "name": "ﾛﾍﾟﾐﾝｶﾌﾟｾﾙ1mg            　     1mg PTP  100CAP", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "", "code": "4987672957640", "maker": "ヤンセンファ", "name": "ﾛﾍﾟﾐﾝｶﾌﾟｾﾙ1mg            　     1mg PTP  100CAP", "order_qty": "", "deliv_qty": "0", "deliv_date": "", "status": "保留", "remarks": "1本保留　新ｺｰﾄﾞ有 4987641082403 再入力予定"}, {"date": "03/10 10:02", "code": "4987443384446", "maker": "ノバルティス", "name": "ｴﾝﾚｽﾄ錠200mg             　     200mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 09:23", "code": "4987155121131", "maker": "東和薬品", "name": "ｵﾛﾊﾟﾀｼﾞﾝ塩酸塩顆粒0.5%   　    ｢ﾄ-ﾜ｣0.5gX200包", "order_qty": "2", "deliv_qty": "2", "deliv_date": "", "status": "調達中", "remarks": "限定出荷品 (出荷調整品)　ﾒｰｶｰ入荷未定 注文取消時 要連絡"}, {"date": "03/09 19:24", "code": "4987173018185", "maker": "日本新薬", "name": "ｴﾘｻﾞｽｶﾌﾟｾﾙ外用400μg      　ﾂｲﾝﾗｲｻﾞ-ﾂｷ PTP 70CAP", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/09 18:16", "code": "4987155095142", "maker": "東和薬品", "name": "ｵﾛﾊﾟﾀｼﾞﾝ塩酸塩OD錠5MG    　     ｢ﾄ-ﾜ｣ PTP  500T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/09 17:40", "code": "4987080117018", "maker": "沢井製薬", "name": "ｴﾊﾞｽﾁﾝOD錠5mg｢ｻﾜｲ｣       　       5mg PTP  100T", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/09 13:59", "code": "4987155121131", "maker": "東和薬品", "name": "ｵﾛﾊﾟﾀｼﾞﾝ塩酸塩顆粒0.5%   　    ｢ﾄ-ﾜ｣0.5gX200包", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/09 13:59", "code": "4987306066182", "maker": "大正製薬", "name": "ﾋﾞｵﾌｪﾙﾐﾝ錠剤             　           PTP  126T", "order_qty": "4", "deliv_qty": "4", "deliv_date": "03/10", "status": "納品済", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/09 10:30", "code": "4987155148107", "maker": "東和薬品", "name": "ﾌﾟﾚｶﾞﾊﾞﾘﾝOD錠75mgﾄ-ﾜ     　      75mg PTP  100T", "order_qty": "3", "deliv_qty": "3", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/09 10:16", "code": "4987155636017", "maker": "東和薬品", "name": "ｱﾑﾛｼﾞﾋﾟﾝOD錠5mg｢ﾄ-ﾜ｣     　       5mg PTP  100T", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/09 10:16", "code": "4987155849011", "maker": "東和薬品", "name": "ｱﾑﾛｼﾞﾋﾟﾝ錠5mg｢ﾄ-ﾜ｣       　       5mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/09 10:00", "code": "4987155150360", "maker": "東和薬品", "name": "ﾚﾎﾞｾﾁﾘｼﾞﾝ塩酸塩錠5MGﾄ-ﾜ  　       5mg PTP  500T", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 13:29", "code": "4987035637912", "maker": "大塚製薬", "name": "ﾓｲｾﾞﾙﾄ軟膏0.3%           　      0.3% 10gX10本", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/07 13:29", "code": "4987155635010", "maker": "東和薬品", "name": "ｱﾑﾛｼﾞﾋﾟﾝOD錠2.5mgﾄ-ﾜ     　     2.5mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/07 13:29", "code": "4987476113327", "maker": "陽進堂", "name": "ﾄﾗﾈｷｻﾑ酸錠250mg｢YD｣      　     250mg PTP 1000T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 13:05", "code": "4987158328506", "maker": "鳥居薬品", "name": "ｺﾚｸﾁﾑ軟膏0.5%            　         0.5% 5gX10", "order_qty": "4", "deliv_qty": "4", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 13:05", "code": "4987476113327", "maker": "陽進堂", "name": "ﾄﾗﾈｷｻﾑ酸錠250mg｢YD｣      　     250mg PTP 1000T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 13:05", "code": "4987188493014", "maker": "久光製薬", "name": "ﾊｲﾁｵ-ﾙ錠80               　           PTP  500T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 13:05", "code": "4987158325406", "maker": "鳥居薬品", "name": "ﾘｵﾅ錠250mg               　     250mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 13:05", "code": "4987155149166", "maker": "東和薬品", "name": "ﾚﾎﾞｾﾁﾘｼﾞﾝ塩酸塩ｼﾛｯﾌﾟ     　    0.05%｢ﾄ-ﾜ｣ 200ML", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 10:59", "code": "4987155361018", "maker": "東和薬品", "name": "ｱﾄﾙﾊﾞｽﾀﾁﾝ錠10mg｢ﾄ-ﾜ｣     　      10mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 10:59", "code": "4987155095142", "maker": "東和薬品", "name": "ｵﾛﾊﾟﾀｼﾞﾝ塩酸塩OD錠5MG    　     ｢ﾄ-ﾜ｣ PTP  500T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 10:59", "code": "4987306066182", "maker": "大正製薬", "name": "ﾋﾞｵﾌｪﾙﾐﾝ錠剤             　           PTP  126T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "", "status": "調達中", "remarks": "限定出荷品 (出荷調整品)　ﾒｰｶｰ入荷未定 注文取消時 要連絡"}, {"date": "03/07 10:59", "code": "4987155875010", "maker": "東和薬品", "name": "ﾒﾄﾄﾚｷｻ-ﾄｶﾌﾟｾﾙ2mg｢ﾄ-ﾜ｣    　     2mg PTP   20CAP", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": "限定出荷品 (出荷調整品)"}], "medipal": [{"code": "14987376798058", "maker": "日医工", "name": "ﾍﾞﾗﾊﾟﾐﾙ塩酸塩錠40MG ｢ﾀｲﾖ-｣   PTP   40MG    100T", "remarks": "通常"}, {"code": "14987792102262", "maker": "日本ジェネリッ", "name": "ｴｾﾞﾁﾐﾌﾞ錠10MG ｢JG｣   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987120269704", "maker": "高田製薬", "name": "ﾀｸﾛﾘﾑｽ軟膏0.1% ｢ﾀｶﾀ｣        0.1%    5GX10", "remarks": "通常"}, {"code": "14987792103252", "maker": "日本ジェネリッ", "name": "ﾌｪﾌﾞｷｿｽﾀｯﾄ錠20MG ｢JG｣   PTP   20MG    100T", "remarks": "通常"}, {"code": "14987376616215", "maker": "日医工", "name": "ﾍﾊﾟﾘﾝ類似物質油性ｸﾘ-ﾑ 0.3% ｢ﾆﾁｲｺｳ｣       25GX10", "remarks": "通常"}, {"code": "14987123409695", "maker": "武田薬品工業", "name": "ﾍﾞﾗﾊﾟﾐﾙ塩酸塩錠40MG ｢ﾀｲﾖ-｣   PTP   40MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987042357312", "maker": "科研製薬", "name": "ﾛｷｿﾌﾟﾛﾌｪﾝNAﾃ-ﾌﾟ100MG ｢科研｣   10CMX14CM   7ﾏｲX10", "remarks": "通常"}, {"code": "14987190067309", "maker": "ニプロ医薬", "name": "ﾒﾄﾎﾙﾐﾝ塩酸塩錠250MG MT｢ﾆﾌﾟﾛ｣   PTP  250MG    100T", "remarks": "通常"}, {"code": "14987190067309", "maker": "ニプロ医薬", "name": "ﾒﾄﾎﾙﾐﾝ塩酸塩錠250MG MT｢ﾆﾌﾟﾛ｣   PTP  250MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987312126631", "maker": "ミヤリサン製薬", "name": "ﾐﾔ BM錠   PTP           400T", "remarks": "通常"}, {"code": "", "maker": "パターン表外仕様：", "name": "パターン表No：48", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987035032318", "maker": "大塚製薬", "name": "ｴﾋﾞﾘﾌｧｲ内用液0.1%        0.1% 3MLX28ﾎｳ", "remarks": "通常"}, {"code": "14987792101951", "maker": "日本ジェネリッ", "name": "ｱﾄﾓｷｾﾁﾝ内用液0.4% ｢JG｣        0.4%  100MLX1", "remarks": "通常"}, {"code": "14987173016362", "maker": "日本新薬", "name": "ｱｽﾞﾉ-ﾙ軟膏0.033%      0.033%   20GX10", "remarks": "通常"}, {"code": "14987376711002", "maker": "日医工", "name": "ﾍﾞﾀﾋｽﾁﾝﾒｼﾙ酸塩錠6MG｢日医工 P｣ PTP   6MG    100T", "remarks": "通常"}, {"code": "14987376712153", "maker": "日医工", "name": "D-ｸﾛﾙﾌｪﾆﾗﾐﾝﾏﾚｲﾝ酸塩錠2MG｢NI G｣ PTP   2MG   1000T", "remarks": "通常"}, {"code": "14987158290527", "maker": "鳥居薬品", "name": "ｼﾀﾞｷｭｱ ｽｷﾞ花粉舌下錠5000JAU ﾌﾞﾘｽﾀ- 5000JAU  100T", "remarks": "通常"}, {"code": "14987167005488", "maker": "ニチバン", "name": "ｽﾋﾟ-ﾙ膏M (病院用)  SPM16 25ﾍｲﾎｳｾﾝﾁ 6ﾏｲ", "remarks": "通常"}, {"code": "14987138801736", "maker": "ツムラ", "name": "017 ﾂﾑﾗ ｺﾞﾚｲｻﾝ      ｶﾐﾊﾞｺ  2.5GX189", "remarks": "通常"}, {"code": "14987103011818", "maker": "ゼリア新薬工業", "name": "ｱｼﾉﾝ錠75MG   PTP   75MG    100T", "remarks": "通常"}, {"code": "14987978707007", "maker": "天藤製薬直", "name": "ﾎﾞﾗｻﾞ G坐剤                  50ｺ", "remarks": "通常"}, {"code": "14987286205165", "maker": "健栄製薬", "name": "ｸﾞﾘｾﾘﾝ   ｶﾞﾗｽ瓶     500ML", "remarks": "通常"}, {"code": "14987286205165", "maker": "健栄製薬", "name": "ｸﾞﾘｾﾘﾝ   ｶﾞﾗｽ瓶     500ML", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987770528800", "maker": "興和", "name": "ｱﾃﾞﾎｽ ｺ-ﾜ顆粒10%         10%   1GX600", "remarks": "通常"}, {"code": "14987954600209", "maker": "オルガノン", "name": "ﾅｿﾞﾈｯｸｽ点鼻液50μG 56ﾌﾝﾑﾖｳ          5MG   10GX5", "remarks": "通常"}, {"code": "14987954600216", "maker": "オルガノン", "name": "ﾅｿﾞﾈｯｸｽ点鼻液50μG 112ﾌﾝﾑ ﾖｳ       9MG   18GX5", "remarks": "通常"}, {"code": "14987650650102", "maker": "アストラゼネカ", "name": "ｸﾚｽﾄ-ﾙ錠2.5MG (ｱｽﾄﾗｾﾞﾈｶ)   PTP  2.5MG    100T", "remarks": "通常"}, {"code": "14987443386461", "maker": "ノバルティスフ", "name": "ｱﾃｷｭﾗ吸入用ｶﾌﾟｾﾙ中用量   PTP            14P", "remarks": "通常"}, {"code": "14987123875247", "maker": "武田薬品工業", "name": "ﾌﾛｾﾐﾄﾞ錠20MG ｢NIG｣   PTP   20MG    100T", "remarks": "通常"}, {"code": "14987188402068", "maker": "久光製薬", "name": "ｴｸﾗ- ﾌﾟﾗｽﾀ- 20μG/CM2 (ｼﾝ)   7.5CMX10CM    50ﾏｲ", "remarks": "通常"}, {"code": "14987138811438", "maker": "ツムラ", "name": "114 ﾂﾑﾗ ｻｲﾚｲﾄｳ      ｶﾐﾊﾞｺ    3GX189", "remarks": "通常"}, {"code": "14987123127124", "maker": "武田薬品工業", "name": "25MG ｱﾘﾅﾐﾝ F糖衣錠   PTP   25MG    100T", "remarks": "通常"}, {"code": "14987035030819", "maker": "大塚製薬", "name": "ｴﾋﾞﾘﾌｧｲ錠6MG   PTP    6MG    100T", "remarks": "通常"}, {"code": "14987080506017", "maker": "沢井製薬", "name": "ｴﾝﾍﾟﾗｼﾝ配合錠   PTP           100T", "remarks": "通常"}, {"code": "14987028213403", "maker": "エーザイ", "name": "ﾀﾝﾎﾞｺ-ﾙ錠50MG   PTP   50MG    100T", "remarks": "通常"}, {"code": "14987060307191", "maker": "杏林製薬", "name": "ﾓﾝﾃﾙｶｽﾄ錠10MG ｢KM｣   PTP   10MG    500T", "remarks": "通常"}, {"code": "14987084316315", "maker": "参天製薬", "name": "ｴﾋﾟﾅｽﾁﾝ塩酸塩LX点眼液0.1% ｢SEC｣  0.1%   5MLX10", "remarks": "通常"}, {"code": "14987954807172", "maker": "オルガノン", "name": "ｼﾝｸﾞﾚｱ錠10MG   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987792295582", "maker": "日本ジェネリッ", "name": "ｵﾙﾃｸｻ-口腔用軟膏0.1%        0.1%       5G", "remarks": "通常"}, {"code": "14987699058938", "maker": "ＥＡファーマ", "name": "ｾﾙﾍﾞｯｸｽ ｶﾌﾟｾﾙ 50MG   PTP   50MG    100P", "remarks": "通常"}, {"code": "14987080198113", "maker": "沢井製薬", "name": "ｴﾙﾃﾞｶﾙｼﾄ-ﾙ ｶﾌﾟｾﾙ0.75μG｢ｻﾜｲ｣   PTP 0.75μG 100P", "remarks": "通常"}, {"code": "14987341107847", "maker": "バイエル薬品", "name": "ｱﾀﾞﾗ-ﾄ CR錠40MG   PTP   40MG    100T", "remarks": "通常"}, {"code": "14987158290206", "maker": "鳥居薬品", "name": "ﾐﾃｨｷｭｱ ﾀﾞﾆ舌下錠3300JAU ﾌﾞﾘｽﾀ- 3300JAU    7T", "remarks": "通常"}, {"code": "14987028266522", "maker": "エーザイ", "name": "ﾒﾁｺﾊﾞ-ﾙ錠500μG   PTP  0.5MG   1000T", "remarks": "通常"}, {"code": "14987123158845", "maker": "武田薬品工業", "name": "ﾒﾙｶｿﾞ-ﾙ錠5MG   PTP    5MG    500T", "remarks": "通常"}, {"code": "14987770525700", "maker": "興和", "name": "ｱﾘﾄﾞﾈ ﾊﾟｯﾁ 27.5MG       27.5MG    28ﾏｲ", "remarks": "通常"}, {"code": "14987047211404", "maker": "サンファーマ", "name": "ﾗﾐｼ-ﾙ ｸﾘ-ﾑ 1%          1%   10GX10", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987792101869", "maker": "日本ジェネリッ", "name": "ﾌﾟﾚｶﾞﾊﾞﾘﾝ OD錠25MG ｢JG｣   PTP   25MG    100T", "remarks": "通常"}, {"code": "14987770529203", "maker": "興和", "name": "ｲｿﾊﾞｲﾄﾞ ｼﾛｯﾌﾟ 70%分包30ML         70%  30MLX21", "remarks": "通常"}, {"code": "14987060004830", "maker": "杏林製薬", "name": "ﾑｺﾀﾞｲﾝ錠500MG   PTP  500MG   1000T", "remarks": "通常"}, {"code": "14987080008214", "maker": "沢井製薬", "name": "ｾﾌｶﾍﾟﾝ ﾋﾟﾎﾞｷｼﾙ塩酸塩錠100MG ｢SW｣ PTP 100MG  100T", "remarks": "通常"}, {"code": "14987084154245", "maker": "参天製薬", "name": "ﾌﾙﾒﾄﾛﾝ点眼液0.1%        0.1%   5MLX10", "remarks": "通常"}, {"code": "14987084154245", "maker": "参天製薬", "name": "ﾌﾙﾒﾄﾛﾝ点眼液0.1%        0.1%   5MLX10", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987057522477", "maker": "協和キリン", "name": "ﾊﾟﾀﾉ-ﾙ点眼液0.1%        0.1%   5MLX10", "remarks": "通常"}, {"code": "14987116212219", "maker": "住友ファーマ", "name": "ｶﾞｽﾓﾁﾝ錠5MG   PTP    5MG    100T", "remarks": "通常"}, {"code": "14987138806236", "maker": "ツムラ", "name": "062 ﾂﾑﾗ ﾎﾞｳﾌｳﾂｳｼｮｳｻﾝ      ｶﾐﾊﾞｺ  2.5GX189", "remarks": "通常"}, {"code": "14987387592164", "maker": "三笠製薬", "name": "ﾌｪﾙﾋﾞﾅｸｽﾁｯｸ軟膏3% ｢三笠｣          3%   40GX10", "remarks": "通常"}, {"code": "14987376564516", "maker": "日医工", "name": "ｸﾞﾘｾﾘﾝ浣腸｢ｵｦﾀ｣小児用30         50%  30MLX20", "remarks": "通常"}, {"code": "14987443374574", "maker": "ノバルティスフ", "name": "ｱｿﾞﾙｶﾞ配合懸濁性点眼液               5MLX10", "remarks": "通常"}, {"code": "14987123003305", "maker": "武田薬品工業", "name": "ﾄﾞﾛｴﾁ配合錠｢あすか｣   PTP    1ｼ-ﾄ(28T)X3", "remarks": "通常"}, {"code": "14987158701566", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘ-配合錠   PTP         21TX30", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987306066189", "maker": "大正製薬", "name": "ﾋﾞｵﾌｪﾙﾐﾝ錠剤   PTP          21TX6", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987084315387", "maker": "参天製薬", "name": "ｴﾋﾟﾅｽﾁﾝ塩酸塩点眼液0.05% ｢S EC｣   0.05%   5MLX10", "remarks": "通常"}, {"code": "14987045654203", "maker": "クラシエ薬品", "name": "KB-23 ｸﾗｼｴ ﾄｳｷｼｬｸﾔｸｻﾝﾘｮｳ ｴｷｽｻ ｲﾘｭｳ         3GX28ﾎｳ", "remarks": "通常"}, {"code": "14987376726686", "maker": "日医工", "name": "ｴﾋﾟﾅｽﾁﾝ塩酸塩錠20MG ｢NIG｣   PTP   20MG    100T", "remarks": "通常"}, {"code": "14987028205637", "maker": "エーザイ", "name": "ﾃﾞｴﾋﾞｺﾞ錠5MG   PTP    5MG    100T", "remarks": "通常"}, {"code": "14987174186019", "maker": "日本臓器製薬", "name": "ﾂ-ﾄﾗﾑ錠50MG   PTP   50MG    100T", "remarks": "通常"}, {"code": "14987376244401", "maker": "日医工", "name": "ﾌﾟﾘﾝﾍﾟﾗﾝ錠5   PTP    5MG    100T", "remarks": "通常"}, {"code": "14987123409268", "maker": "武田薬品工業", "name": "ｱﾝﾌﾞﾛｷｿ-ﾙ塩酸塩錠15MG｢ﾀｲﾖ-｣   PTP   15MG    100T", "remarks": "通常"}, {"code": "14987123873724", "maker": "武田薬品工業", "name": "ｴﾋﾟﾅｽﾁﾝ塩酸塩錠20MG ｢NIG｣   PTP   20MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987376559826", "maker": "日医工", "name": "ﾍﾊﾟﾘﾝ類似物質ｸﾘ-ﾑ0.3%｢ﾆﾁｲｺｳ｣                 100G", "remarks": "通常"}, {"code": "14987376156209", "maker": "日医工", "name": "ｹﾄﾌﾟﾛﾌｪﾝﾃ-ﾌﾟ 40MG ｢日医工｣    10CMX14CM    70ﾏｲ", "remarks": "通常"}, {"code": "14987376156209", "maker": "日医工", "name": "ｹﾄﾌﾟﾛﾌｪﾝﾃ-ﾌﾟ 40MG ｢日医工｣    10CMX14CM    70ﾏｲ", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987173018298", "maker": "日本新薬", "name": "ｴﾘｻﾞｽ点鼻粉末200μG 28ﾌﾝﾑ ﾖｳ     5.6MG    10ﾎﾝ", "remarks": "通常"}, {"code": "14987123002094", "maker": "武田薬品工業", "name": "ﾌﾙﾁｶｿﾞﾝﾌﾗﾝｶﾙﾎﾞﾝｻﾝｴｽﾃﾙ ﾃﾝﾋﾞ27.5 UG｢ﾀｹﾀﾞﾃﾊﾞ｣ 56ﾌﾝﾑ 6G", "remarks": "通常"}, {"code": "14987123873281", "maker": "武田薬品工業", "name": "ﾒｷﾀｼﾞﾝ錠3MG ｢NIG｣   PTP    3MG    100T", "remarks": "通常"}, {"code": "14987120131209", "maker": "高田製薬", "name": "ｵﾛﾊﾟﾀｼﾞﾝ点眼液0.1% ｢ﾀｶﾀ｣        0.1%   5MLX10", "remarks": "通常"}, {"code": "14987114936308", "maker": "ファイザー", "name": "ｱﾙﾀﾞｸﾄﾝ A錠25MG   PTP   25MG    100T", "remarks": "通常"}, {"code": "14987114818406", "maker": "ファイザー", "name": "ﾌﾟﾛﾍﾞﾗ錠2.5MG   ﾋ-ﾄ  2.5MG    100T", "remarks": "通常"}, {"code": "14987213109061", "maker": "マルホ", "name": "ｱｽﾀｯﾄ軟膏1%          1%   10GX10", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987301160431", "maker": "小太郎漢方製薬", "name": "N023 ｺﾀﾛ-当帰芍薬散料ｴｷｽ  細粒        3GX42", "remarks": "通常"}, {"code": "14987376738566", "maker": "日医工", "name": "ｼﾞｸﾛﾌｪﾅｸNA錠25MG ｢NIG｣   PTP   25MG    100T", "remarks": "通常"}, {"code": "14987138802337", "maker": "ツムラ", "name": "023 ﾂﾑﾗ ﾄｳｷｼｬｸﾔｸｻﾝ      ｶﾐﾊﾞｺ  2.5GX189", "remarks": "通常"}, {"code": "14987080008610", "maker": "沢井製薬", "name": "ｾﾌｼﾞﾄﾚﾝ ﾋﾟﾎﾞｷｼﾙ錠100MG ｢SW｣   PTP  100MG    100T", "remarks": "通常"}, {"code": "14987114076202", "maker": "ファイザー", "name": "ﾋﾞﾌﾞﾗﾏｲｼﾝ錠50MG   PTP   50MG    100T", "remarks": "通常"}, {"code": "14987792214118", "maker": "日本ジェネリッ", "name": "ｹﾄｺﾅｿﾞ-ﾙ ﾛ-ｼｮﾝ 2% ｢JG｣          2%   10GX10", "remarks": "通常"}, {"code": "14987792214118", "maker": "日本ジェネリッ", "name": "ｹﾄｺﾅｿﾞ-ﾙ ﾛ-ｼｮﾝ 2% ｢JG｣          2%   10GX10", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987020018952", "maker": "岩城製薬", "name": "ﾆｿﾞﾗ-ﾙ ﾛ-ｼｮﾝ 2%          2%   10GX10", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987190002447", "maker": "ニプロ医薬", "name": "ｱﾄﾞﾅ錠30MG   PTP   30MG    100T", "remarks": "通常"}, {"code": "14987128207609", "maker": "田辺ファーマ", "name": "ﾏﾝｼﾞｬﾛ皮下注2.5MG ｱﾃｵｽ     2.5MG 0.5MLX2ｷｯﾄ", "remarks": "通常"}, {"code": "14987158290404", "maker": "鳥居薬品", "name": "ｼﾀﾞｷｭｱ ｽｷﾞ花粉舌下錠2000JAU ﾌﾞﾘｽﾀ- 2000JAU    7T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987128305213", "maker": "田辺ファーマ", "name": "ﾏﾝｼﾞｬﾛ皮下注5MG ｱﾃｵｽ       5MG 0.5MLX2ｷｯﾄ", "remarks": "通常"}, {"code": "14987376711002", "maker": "日医工", "name": "ﾍﾞﾀﾋｽﾁﾝﾒｼﾙ酸塩錠6MG｢日医工 P｣ PTP   6MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987128320018", "maker": "田辺ファーマ", "name": "ﾌﾞﾛﾁｿﾞﾗﾑ錠0.25MG ｢ﾖｼﾄﾐ｣   PTP 0.25MG    100T", "remarks": "通常"}, {"code": "14987123001301", "maker": "武田薬品工業", "name": "ﾌﾙｵﾛﾒﾄﾛﾝ点眼液0.1% ｢ｾﾝｼﾞｭ｣        0.1%   5MLX10", "remarks": "通常"}, {"code": "14987084319545", "maker": "参天製薬", "name": "ｱﾚｼﾞｵﾝ眼瞼ｸﾘ-ﾑ 0.5% (ﾁｭ-ﾌﾞｲﾘ) 0.5% 2GX10", "remarks": "通常"}, {"code": "14987080690112", "maker": "沢井製薬", "name": "ｾﾁﾘｼﾞﾝ塩酸塩錠10MG ｢ｻﾜｲ｣   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987138803730", "maker": "ツムラ", "name": "037 ﾂﾑﾗ ﾊﾝｹﾞﾋﾞｬｸｼﾞｭﾂﾃﾝﾏﾄｳ      ｶﾐﾊﾞｺ  2.5GX189", "remarks": "通常"}, {"code": "14987042373015", "maker": "科研製薬", "name": "ｾﾁﾘｼﾞﾝ塩酸塩錠10MG ｢科研｣   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987809157216", "maker": "ビオメディクス", "name": "ｱﾙﾌｧｶﾙｼﾄﾞ-ﾙ ｶﾌﾟｾﾙ0.5μG｢BMD｣   PTP  0.5μG 100P", "remarks": "通常"}, {"code": "14987376854358", "maker": "日医工", "name": "ｼﾞﾌｪﾆﾄﾞ-ﾙ塩酸塩錠25MG ｢NIG｣   PTP   25MG    100T", "remarks": "通常"}, {"code": "14987376725764", "maker": "日医工", "name": "ｴﾁｿﾞﾗﾑ錠1MG ｢NIG｣   PTP    1MG    100T", "remarks": "通常"}, {"code": "14987376850206", "maker": "日医工", "name": "ﾃﾞﾊﾟｹﾝ R錠200MG   PTP  200MG    100T", "remarks": "通常"}, {"code": "14987123873755", "maker": "武田薬品工業", "name": "ｼﾞﾌｪﾆﾄﾞ-ﾙ塩酸塩錠25MG ｢NIG｣   PTP   25MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987116155028", "maker": "住友ファーマ", "name": "ｱﾑﾛｼﾞﾝ錠10MG   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987809157216", "maker": "ビオメディクス", "name": "ｱﾙﾌｧｶﾙｼﾄﾞ-ﾙ ｶﾌﾟｾﾙ0.5μG｢BMD｣   PTP  0.5μG 100P", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987123875483", "maker": "武田薬品工業", "name": "ｴﾁｿﾞﾗﾑ錠1MG ｢NIG｣   PTP    1MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987123159033", "maker": "武田薬品工業", "name": "ｷｬﾌﾞﾋﾟﾘﾝ配合錠   PTP           100T", "remarks": "通常"}, {"code": "14987057592623", "maker": "協和キリン", "name": "ﾃﾞﾊﾟｹﾝ R錠200MG   PTP  200MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987080004117", "maker": "沢井製薬", "name": "ﾊﾞﾙｻﾙﾀﾝ錠80MG ｢ｻﾜｲ｣   PTP   80MG    100T", "remarks": "通常"}, {"code": "14987035143816", "maker": "大塚製薬", "name": "ﾌﾟﾚﾀ-ﾙ OD錠100MG   PTP  100MG    100T", "remarks": "通常"}, {"code": "14987020020894", "maker": "岩城製薬", "name": "ﾍﾞﾀﾒﾀｿﾞﾝ吉草酸ｴｽﾃﾙﾅﾝｺｳ 0.12% ｢ｲﾜｷ｣ 0.12%    5GX10", "remarks": "通常"}, {"code": "14987080260018", "maker": "沢井製薬", "name": "ﾘｾﾄﾞﾛﾝ酸NA錠17.5MG ｢ｻﾜｲ｣   PTP 17.5MG     20T", "remarks": "通常"}, {"code": "14987376042410", "maker": "日医工", "name": "ﾘｾﾄﾞﾛﾝ酸NA錠75MG ｢ﾆﾁｲｺｳ｣ (ﾊﾟｯｹ-ｼﾞｲﾘ) PTP  10T", "remarks": "通常"}, {"code": "14987123406779", "maker": "武田薬品工業", "name": "ﾛﾌﾗｾﾞﾌﾟ酸ｴﾁﾙ錠2MG ｢SN｣   PTP    2MG    100T", "remarks": "通常"}, {"code": "14987080158117", "maker": "沢井製薬", "name": "ﾌﾟｿﾌｪｷ配合錠｢ｻﾜｲ｣   PTP           100T", "remarks": "通常"}, {"code": "14987120223805", "maker": "高田製薬", "name": "ｶﾙﾎﾞｼｽﾃｲﾝ DS 50% ｢ﾀｶﾀ｣         50%     100G", "remarks": "通常"}, {"code": "14987058054038", "maker": "共和薬品工業", "name": "ｵﾗﾝｻﾞﾋﾟﾝ錠5MG ｢ｱﾒﾙ｣   PTP    5MG    100T", "remarks": "通常"}, {"code": "14987138803938", "maker": "ツムラ", "name": "039 ﾂﾑﾗ ﾘｮｳｹｲｼﾞｭｯｶﾝﾄｳ      ｶﾐﾊﾞｺ  2.5GX189", "remarks": "通常"}, {"code": "14987084121230", "maker": "参天製薬", "name": "ｻﾝﾃｿﾞ-ﾝ 0.05%眼軟膏       0.05%  3.5GX10", "remarks": "通常"}, {"code": "14987081186010", "maker": "第一三共", "name": "ﾌﾟﾗｽｸﾞﾚﾙ錠3.75MG ｢DSEP｣   PTP 3.75MG    100T", "remarks": "通常"}, {"code": "14987497305623", "maker": "日東メディック", "name": "ｼｱﾉｺﾊﾞﾗﾐﾝ点眼液0.02% ｢ﾆｯﾄ-｣       0.02%   5MLX10", "remarks": "通常"}, {"code": "14987497305616", "maker": "日東メディック", "name": "ｼｱﾉｺﾊﾞﾗﾐﾝ点眼液0.02% ｢ﾆｯﾄ-｣       0.02%    5MLX5", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987128103499", "maker": "田辺ファーマ", "name": "ｶﾅｸﾞﾙ OD錠100MG   PTP  100MG    100T", "remarks": "通常"}, {"code": "14987901117903", "maker": "ヴィアトリス製", "name": "ﾌｽｺﾃﾞ配合錠   PTP           100T", "remarks": "通常"}, {"code": "14987042231001", "maker": "科研製薬", "name": "ﾒﾘｽﾛﾝ錠6MG   PTP    6MG    100T", "remarks": "通常"}, {"code": "14987123003459", "maker": "武田薬品工業", "name": "ｱｼﾞﾙｻﾙﾀﾝ錠20MG ｢武田ﾃﾊﾞ｣   PTP   20MG    100T", "remarks": "通常"}, {"code": "14987301324437", "maker": "小太郎漢方製薬", "name": "N324 ｺﾀﾛ-桔梗石膏ｴｷｽ細粒                2GX42", "remarks": "通常"}, {"code": "14987116530412", "maker": "住友ファーマ", "name": "ﾂｲﾐ-ｸﾞ錠500MG   PTP  500MG    100T", "remarks": "通常"}, {"code": "14987123154588", "maker": "武田薬品工業", "name": "ﾄﾘﾝﾃﾘｯｸｽ錠10MG   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987123149409", "maker": "武田薬品工業", "name": "ﾈｼ-ﾅ錠25MG   PTP   25MG    100T", "remarks": "通常"}, {"code": "14987846101517", "maker": "ノーベルファー", "name": "ﾉﾍﾞﾙｼﾞﾝ錠25MG   PTP   25MG    100T", "remarks": "通常"}, {"code": "14987128009630", "maker": "田辺ファーマ", "name": "ﾘ-ｾﾞ錠10MG   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987128255716", "maker": "田辺ファーマ", "name": "ﾏﾝｼﾞｬﾛ皮下注7.5MG ｱﾃｵｽ     7.5MG 0.5MLX2ｷｯﾄ", "remarks": "通常"}, {"code": "14987170020416", "maker": "日本化薬", "name": "ﾃﾞｷｻﾒﾀｿﾞﾝ口腔用軟膏0.1%｢NK｣        0.1%    5GX10", "remarks": "通常"}, {"code": "14987028242861", "maker": "エーザイ", "name": "ﾆﾄﾛ-ﾙ R ｶﾌﾟｾﾙ 20MG   PTP   20MG    100P", "remarks": "通常"}, {"code": "14987042231001", "maker": "科研製薬", "name": "ﾒﾘｽﾛﾝ錠6MG   PTP    6MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987901118009", "maker": "ヴィアトリス製", "name": "ﾌｽｺﾃﾞ配合錠   PTP          1000T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987123003503", "maker": "武田薬品工業", "name": "ｱｼﾞﾙｻﾙﾀﾝ錠40MG ｢武田ﾃﾊﾞ｣   PTP   40MG    100T", "remarks": "通常"}, {"code": "14987224032853", "maker": "持田製薬", "name": "ｴﾊﾟﾃﾞ-ﾙEM ｶﾌﾟｾﾙ 2G          2G     56ﾎｳ", "remarks": "通常"}, {"code": "14987080008214", "maker": "沢井製薬", "name": "ｾﾌｶﾍﾟﾝ ﾋﾟﾎﾞｷｼﾙ塩酸塩錠100MG ｢SW｣ PTP 100MG  100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987080509018", "maker": "沢井製薬", "name": "ﾋﾞﾀﾀﾞﾝ配合錠   PTP           100T", "remarks": "通常"}, {"code": "14987387592577", "maker": "三笠製薬", "name": "ﾌｪﾙﾋﾞﾅｸ ﾃ-ﾌﾟ 70MG ｢三笠｣   10CMX14CM  14ﾏｲX20", "remarks": "通常"}, {"code": "14987058566036", "maker": "共和薬品工業", "name": "ﾌﾙﾆﾄﾗｾﾞﾊﾟﾑ錠2MG ｢ｱﾒﾙ｣   PTP    2MG    100T", "remarks": "通常"}, {"code": "14987123002100", "maker": "武田薬品工業", "name": "ﾌﾙﾁｶｿﾞﾝﾌﾗﾝｶﾙﾎﾞﾝｻﾝｴｽﾃﾙ ﾃﾝﾋﾞ27.5 UG｢ﾀｹﾀﾞﾃﾊﾞ｣120ﾌﾝﾑ10G", "remarks": "通常"}, {"code": "14987387591426", "maker": "三笠製薬", "name": "ｽﾁｯｸ ｾﾞﾉ-ﾙ A               40GX10", "remarks": "通常"}, {"code": "14987128064134", "maker": "田辺ファーマ", "name": "ﾀﾘｵﾝ錠10MG   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987222710029", "maker": "ＭｅｉｊｉＳｅ", "name": "ﾄﾞﾈﾍﾟｼﾞﾙ塩酸塩OD錠5MG ｢ﾒｲ ｼﾞ｣ PTP  5MG   14TX4", "remarks": "通常"}, {"code": "14987376037416", "maker": "日医工", "name": "ｼﾛｽﾀｿﾞ-ﾙ錠100MG ｢日医工｣   PTP  100MG    100T", "remarks": "通常"}, {"code": "14987123158951", "maker": "武田薬品工業", "name": "ﾙﾃｳﾑ膣用坐剤400MG                 4ｺX7", "remarks": "通常"}, {"code": "14987138809039", "maker": "ツムラ", "name": "090 ﾂﾑﾗ ｾｲﾊｲﾄｳ      ｶﾐﾊﾞｺ    3GX189", "remarks": "通常"}, {"code": "14987399026374", "maker": "テイカ製薬", "name": "ﾄﾗﾆﾗｽﾄ点眼液0.5%｢TS｣         25MG   5MLX5", "remarks": "通常"}, {"code": "14987045651400", "maker": "クラシエ薬品", "name": "KB-25 ｸﾗｼｴ ｹｲｼﾌﾞｸﾘｮｳｶﾞﾝﾘｮｳ ｴｷｽ ｻｲﾘｭｳ        3GX28ﾎｳ", "remarks": "通常"}, {"code": "14987814002013", "maker": "ミノファーゲン", "name": "ｸﾞﾘﾁﾛﾝ配合錠   PTP           100T", "remarks": "通常"}, {"code": "14987051901322", "maker": "キッセイ薬品工", "name": "ﾘｻﾞﾍﾞﾝ ｶﾌﾟｾﾙ 100MG   PTP  100MG    100P", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987901011904", "maker": "ヴィアトリス製", "name": "ﾘﾘｶ OD錠75MG   PTP   75MG    100T", "remarks": "通常"}, {"code": "14987120447430", "maker": "高田製薬", "name": "ﾓﾝﾃﾙｶｽﾄ ﾁｭｱﾌﾞﾙ錠5MG ｢ﾀｶﾀ｣   PTP    5MG  14TX10", "remarks": "通常"}, {"code": "14987901117507", "maker": "ヴィアトリス製", "name": "ﾌｪﾛ･ｸﾞﾗﾃﾞｭﾒｯﾄ錠105MG   PTP           100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987288435294", "maker": "吉田製薬", "name": "酸化ﾏｸﾞﾈｼｳﾑ錠330MG ｢ﾖｼﾀﾞ｣   PTP  330MG    100T", "remarks": "通常"}, {"code": "14987136118980", "maker": "中外製薬", "name": "ｴﾃﾞｨﾛ-ﾙ ｶﾌﾟｾﾙ0.75μG(ﾁｭｳｶﾞｲ)   PTP 0.75μG 100P", "remarks": "通常"}, {"code": "14987123136348", "maker": "武田薬品工業", "name": "ﾌﾞﾛﾌﾟﾚｽ錠4   PTP    4MG    100T", "remarks": "通常"}, {"code": "14987084309041", "maker": "参天製薬", "name": "ｱﾚｼﾞｵﾝLX点眼液0.1%        0.1%   5MLX10", "remarks": "通常"}, {"code": "14987306014500", "maker": "大正製薬", "name": "ﾛｺｱﾃ-ﾌﾟ (ﾀｲｼｮｳ)   10CMX14CM   7ﾏｲX10", "remarks": "通常"}, {"code": "14987120447430", "maker": "高田製薬", "name": "ﾓﾝﾃﾙｶｽﾄ ﾁｭｱﾌﾞﾙ錠5MG ｢ﾀｶﾀ｣   PTP    5MG  14TX10", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987028203060", "maker": "エーザイ", "name": "ﾄﾗﾍﾞﾙﾐﾝ配合錠   PTP           100T", "remarks": "通常"}, {"code": "14987497308853", "maker": "日東メディック", "name": "ﾍﾊﾟﾘﾝ類似物質ﾛ-ｼｮﾝ0.3%｢NIT｣               50GX10", "remarks": "通常"}, {"code": "14987190117738", "maker": "ニプロ医薬", "name": "ﾍﾊﾟﾘﾝ類似物質油性ｸﾘ-ﾑ 0.3% ｢ﾆﾌﾟﾛ｣          100G", "remarks": "通常"}, {"code": "14987376394724", "maker": "日医工", "name": "ｴﾍﾟﾘｿﾞﾝ塩酸塩錠50MG｢日医工 ｣  PTP  50MG   1000T", "remarks": "通常"}, {"code": "14987919100508", "maker": "ＬＴＬファーマ", "name": "ｶﾞｽﾀ-錠10MG   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987376559802", "maker": "日医工", "name": "ﾍﾊﾟﾘﾝ類似物質ｸﾘ-ﾑ0.3%｢ﾆﾁｲｺｳ｣               25GX10", "remarks": "通常"}, {"code": "14987376559802", "maker": "日医工", "name": "ﾍﾊﾟﾘﾝ類似物質ｸﾘ-ﾑ0.3%｢ﾆﾁｲｺｳ｣               25GX10", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987328145473", "maker": "ジェイドルフ製", "name": "ﾈﾘｻﾞ坐剤                  28ｺ", "remarks": "通常"}, {"code": "14987045650281", "maker": "クラシエ薬品", "name": "KB-3 ｸﾗｼｴ ｵﾂｼﾞﾄｳ ｴｷｽｻｲﾘｭｳ              3GX28ﾎｳ", "remarks": "通常"}, {"code": "14987173017321", "maker": "日本新薬", "name": "ｴﾋﾞﾌﾟﾛｽﾀｯﾄ配合錠DB   PTP           100T", "remarks": "通常"}, {"code": "14987376244401", "maker": "日医工", "name": "ﾌﾟﾘﾝﾍﾟﾗﾝ錠5   PTP    5MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987058201036", "maker": "共和薬品工業", "name": "ﾉﾊﾞﾐﾝ錠5MG   PTP    5MG    100T", "remarks": "通常"}, {"code": "14987497307320", "maker": "日東メディック", "name": "ﾚﾎﾞﾌﾛｷｻｼﾝ点眼液1.5% ｢ﾆｯﾄ-｣        1.5%   5MLX10", "remarks": "通常"}, {"code": "14987792103238", "maker": "日本ジェネリッ", "name": "ﾌｪﾌﾞｷｿｽﾀｯﾄ錠10MG ｢JG｣   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987123401828", "maker": "武田薬品工業", "name": "ﾂﾛﾌﾞﾃﾛ-ﾙﾃ-ﾌﾟ 0.5MG ｢QQ｣        0.5MG    70ﾏｲ", "remarks": "通常"}, {"code": "14987020020603", "maker": "岩城製薬", "name": "ｸﾛﾍﾞﾀｿﾞﾝ酪酸ｴｽﾃﾙ軟膏0.05% ｢ｲﾜｷ｣ 0.05%    5GX10", "remarks": "通常"}, {"code": "14987080553110", "maker": "沢井製薬", "name": "ﾆﾌｪｼﾞﾋﾟﾝ CR錠20MG ｢ｻﾜｲ｣   PTP   20MG    100T", "remarks": "通常"}, {"code": "14987035378911", "maker": "大塚製薬", "name": "ｻﾑｽｶ OD錠30MG   PTP   30MG     10T", "remarks": "通常"}, {"code": "14987274082655", "maker": "アルフレッサフ", "name": "ﾄﾌﾗﾆ-ﾙ錠10MG   PTP   10MG    300T", "remarks": "通常"}, {"code": "14987306066929", "maker": "大正製薬", "name": "ﾋﾞｵﾌｪﾙﾐﾝ R散                 500G", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987114175707", "maker": "ファイザー", "name": "ｴﾘｷｭ-ｽ錠2.5MG   PTP  2.5MG  14TX10", "remarks": "通常"}, {"code": "14987080086519", "maker": "沢井製薬", "name": "酢酸亜鉛錠50MG ｢ｻﾜｲ｣   PTP   50MG    100T", "remarks": "通常"}, {"code": "14987846101616", "maker": "ノーベルファー", "name": "ﾉﾍﾞﾙｼﾞﾝ錠50MG   PTP   50MG    100T", "remarks": "通常"}, {"code": "14987222697412", "maker": "ＭｅｉｊｉＳｅ", "name": "SP ﾄﾛ-ﾁ 0.25MG ｢明治｣   PTP 0.25MG   1200T", "remarks": "通常"}, {"code": "14987376709221", "maker": "日医工", "name": "ﾛﾌﾗｾﾞﾌﾟ酸ｴﾁﾙ錠1MG ｢SN｣   PTP    1MG    100T", "remarks": "通常"}, {"code": "14987123406755", "maker": "武田薬品工業", "name": "ﾛﾌﾗｾﾞﾌﾟ酸ｴﾁﾙ錠1MG ｢SN｣   PTP    1MG    100T", "remarks": "通常"}, {"code": "14987138802436", "maker": "ツムラ", "name": "024 ﾂﾑﾗ ｶﾐｼｮｳﾖｳｻﾝ      ｶﾐﾊﾞｺ  2.5GX189", "remarks": "通常"}, {"code": "14987909121810", "maker": "クリニジェン・", "name": "ｴﾋﾞｽﾀ錠60MG   PTP   60MG    100T", "remarks": "通常"}, {"code": "14987274044653", "maker": "アルフレッサフ", "name": "ｱﾅﾌﾗﾆ-ﾙ錠10MG   PTP   10MG    300T", "remarks": "通常"}, {"code": "14987116155110", "maker": "住友ファーマ", "name": "ｱﾑﾛｼﾞﾝ OD錠2.5MG   PTP  2.5MG    100T", "remarks": "通常"}, {"code": "14987116156582", "maker": "住友ファーマ", "name": "ｱﾑﾛｼﾞﾝ錠5MG   PTP    5MG    100T", "remarks": "通常"}, {"code": "14987428416527", "maker": "日本イーライリ", "name": "ｴﾋﾞｽﾀ錠60MG (ｲ-ﾗｲﾘﾘ-)   PTP   60MG  14TX10", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987114176001", "maker": "ファイザー", "name": "ｴﾘｷｭ-ｽ錠5MG   PTP    5MG    100T", "remarks": "通常"}, {"code": "14987057654550", "maker": "協和キリン", "name": "ｵﾙｹﾃﾞｨｱ錠4MG   PTP    4MG    100T", "remarks": "通常"}, {"code": "14987428447910", "maker": "日本イーライリ", "name": "ｵﾙﾐｴﾝﾄ錠4MG   PTP    4MG    7TX4", "remarks": "通常"}, {"code": "14987171792107", "maker": "日本ケミファ", "name": "ｶﾝﾃﾞｻﾙﾀﾝ錠4MG ｢ｹﾐﾌｧ｣   PTP    4MG    100T", "remarks": "通常"}, {"code": "14987919100393", "maker": "ＬＴＬファーマ", "name": "ｶﾞｽﾀ- D錠20MG   PTP   20MG    100T", "remarks": "通常"}, {"code": "14987028234781", "maker": "エーザイ", "name": "ｻｲﾚ-ｽ錠1MG   PTP    1MG    100T", "remarks": "通常"}, {"code": "14987123875902", "maker": "武田薬品工業", "name": "ｼﾞｸﾛﾌｪﾅｸNA錠25MG ｢NIG｣   PTP   25MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987138804331", "maker": "ツムラ", "name": "043 ﾂﾑﾗ ﾘｯｸﾝｼﾄｳ      ｶﾐﾊﾞｺ  2.5GX189", "remarks": "通常"}, {"code": "14987138805437", "maker": "ツムラ", "name": "054 ﾂﾑﾗ ﾖｸｶﾝｻﾝ      ｶﾐﾊﾞｺ  2.5GX189", "remarks": "通常"}, {"code": "14987138804133", "maker": "ツムラ", "name": "041 ﾂﾑﾗ ﾎﾁｭｳｴｯｷﾄｳ      ｶﾐﾊﾞｺ  2.5GX189", "remarks": "通常"}, {"code": "14987138802931", "maker": "ツムラ", "name": "029 ﾂﾑﾗ ﾊﾞｸﾓﾝﾄﾞｳﾄｳ      ｶﾐﾊﾞｺ    3GX189", "remarks": "通常"}, {"code": "14987128006509", "maker": "田辺ファーマ", "name": "ﾃﾞﾊﾟｽ錠1MG   PTP    1MG    100T", "remarks": "通常"}, {"code": "14987173018557", "maker": "日本新薬", "name": "ﾄﾗﾏ-ﾙ OD錠25MG   PTP   25MG    100T", "remarks": "通常"}, {"code": "14987341103078", "maker": "バイエル薬品", "name": "ﾊﾞｲｱｽﾋﾟﾘﾝ錠100MG   PTP  100MG    500T", "remarks": "通常"}, {"code": "14987199323536", "maker": "サノフィ", "name": "ﾌﾞｽｺﾊﾟﾝ錠10MG   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987222000014", "maker": "ＭｅｉｊｉＳｅ", "name": "ﾐﾙﾀｻﾞﾋﾟﾝ錠15MG ｢明治｣   PTP   15MG    100T", "remarks": "通常"}, {"code": "14987128148124", "maker": "田辺ファーマ", "name": "ﾒｲﾝﾃ-ﾄ錠2.5MG   PTP  2.5MG    100T", "remarks": "通常"}, {"code": "14987058690038", "maker": "共和薬品工業", "name": "ﾘｽﾐ-錠1MG   PTP    1MG    100T", "remarks": "通常"}, {"code": "14987233101137", "maker": "アステラス製薬", "name": "ﾚｸﾞﾅｲﾄ錠300MG   PTP  300MG   14TX4", "remarks": "通常"}, {"code": "14987376004210", "maker": "日医工", "name": "ﾛｷｿﾌﾟﾛﾌｪﾝﾅﾄﾘｳﾑ ﾊﾟｯﾌﾟ100MG｢ﾆﾁｲ ｺｳ｣ 10CMX14CM 7ﾏｲX10", "remarks": "通常"}, {"code": "14987080085512", "maker": "沢井製薬", "name": "酢酸亜鉛錠25MG ｢ｻﾜｲ｣   PTP   25MG    100T", "remarks": "通常"}, {"code": "14987123875551", "maker": "武田薬品工業", "name": "D-ｸﾛﾙﾌｪﾆﾗﾐﾝﾏﾚｲﾝ酸塩錠2MG｢NI G｣ PTP   2MG   1000T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987080268441", "maker": "沢井製薬", "name": "ｵｾﾙﾀﾐﾋﾞﾙ DS 3% ｢ｻﾜｲ｣          3%      30G", "remarks": "通常"}, {"code": "14987120110204", "maker": "高田製薬", "name": "ﾀﾞｲｱｯﾌﾟ坐剤6          6MG     50ｺ", "remarks": "通常"}, {"code": "14987476123729", "maker": "陽進堂", "name": "ｺ-ﾙﾀｲｼﾞﾝ点鼻液              15MLX10", "remarks": "通常"}, {"code": "14987792103559", "maker": "日本ジェネリッ", "name": "ｴｾﾞｱﾄ配合錠HD ｢JG｣   PTP           100T", "remarks": "通常"}, {"code": "14987306066981", "maker": "大正製薬", "name": "ﾋﾞｵﾌｪﾙﾐﾝ R錠   PTP           100T", "remarks": "通常"}, {"code": "14987306066981", "maker": "大正製薬", "name": "ﾋﾞｵﾌｪﾙﾐﾝ R錠   PTP           100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987138806748", "maker": "ツムラ", "name": "067 ﾂﾑﾗ ﾆｮｼﾝｻﾝ            2.5GX42ﾎｳ", "remarks": "通常"}, {"code": "14987792216112", "maker": "日本ジェネリッ", "name": "ｱﾛﾁﾉﾛ-ﾙ塩酸塩錠5MG ｢JG｣   PTP    5MG    100T", "remarks": "通常"}, {"code": "14987792216112", "maker": "日本ジェネリッ", "name": "ｱﾛﾁﾉﾛ-ﾙ塩酸塩錠5MG ｢JG｣   PTP    5MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987190015737", "maker": "ニプロ医薬", "name": "ｴｽｿﾞﾋﾟｸﾛﾝ錠2MG ｢ﾆﾌﾟﾛ｣   PTP    2MG    100T", "remarks": "通常"}, {"code": "14987123412237", "maker": "武田薬品工業", "name": "ｶﾃﾞﾁｱ配合錠LD ｢ﾃﾊﾞ｣   PTP           100T", "remarks": "通常"}, {"code": "14987792100091", "maker": "日本ジェネリッ", "name": "ﾋﾞｿﾌﾟﾛﾛ-ﾙﾌﾏﾙ酸塩錠5MG ｢JG｣   PTP    5MG    100T", "remarks": "通常"}, {"code": "14987080196119", "maker": "沢井製薬", "name": "ｴﾙﾃﾞｶﾙｼﾄ-ﾙ ｶﾌﾟｾﾙ 0.5μG｢ｻﾜｲ｣   PTP  0.5μG 100P", "remarks": "通常"}, {"code": "14987047211183", "maker": "サンファーマ", "name": "ﾃｸﾞﾚﾄ-ﾙ錠100MG   PTP  100MG    100T", "remarks": "通常"}, {"code": "4987035675921", "maker": "大塚製薬", "name": "ｵ-ｴｽﾜﾝ(OS-1) ｾﾞﾘ- ｱｯﾌﾟﾙ風味   \\1200    200GX6ﾌｸﾛ", "remarks": "通常"}, {"code": "14987155161417", "maker": "東和薬品本社", "name": "ｵｾﾙﾀﾐﾋﾞﾙ DS 3% ｢ﾄ-ﾜ｣          3%      30G", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987376104927", "maker": "日医工", "name": "ﾍﾟﾘｱｸﾁﾝ ｼﾛｯﾌﾟ 0.04%       0.04%    500ML", "remarks": "通常"}, {"code": "14987080561115", "maker": "沢井製薬", "name": "ﾄｽﾌﾛｷｻｼﾝﾄｼﾙ酸塩錠150MG｢ｻﾜｲ｣   PTP  150MG    100T", "remarks": "通常"}, {"code": "", "maker": "商品が特定できませんでした（発注コード：4987185806961）", "name": "商品が特定できませんでした（発注コード：4987185806961）", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987028205606", "maker": "エーザイ", "name": "ﾃﾞｴﾋﾞｺﾞ錠2.5MG   PTP  2.5MG    100T", "remarks": "通常"}, {"code": "14987233012938", "maker": "アステラス製薬", "name": "ﾊﾙﾅ-ﾙ D錠0.2MG   PTP  0.2MG  14TX10", "remarks": "通常"}, {"code": "14987080770074", "maker": "沢井製薬", "name": "ﾀﾑｽﾛｼﾝ塩酸塩OD錠0.1MG｢ｻﾜｲ｣   PTP  0.1MG  14TX10", "remarks": "通常"}, {"code": "14987376593615", "maker": "日医工", "name": "ﾍﾊﾟﾘﾝ類似物質外用ｽﾌﾟﾚ- 0.3% ｢ﾆﾁｲｺｳ｣      100GX10", "remarks": "通常"}, {"code": "14987925119723", "maker": "太陽ファルマ", "name": "ﾋﾟﾄﾞｷｻ-ﾙ錠20MG   PTP   20MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987792101586", "maker": "日本ジェネリッ", "name": "ﾋﾟﾘﾄﾞｷｻ-ﾙ錠20MG ｢ﾂﾙﾊﾗ｣   PTP   20MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987020020627", "maker": "岩城製薬", "name": "ｸﾛﾍﾞﾀｿﾞﾝ酪酸ｴｽﾃﾙ軟膏0.05% ｢ｲﾜｷ｣ 0.05%   10GX10", "remarks": "通常"}, {"code": "14987117773214", "maker": "大鵬薬品工業", "name": "ﾒｻﾃﾞﾙﾑ軟膏0.1%        0.1%    5GX10", "remarks": "通常"}, {"code": "14987387597725", "maker": "三笠製薬", "name": "ｾﾞｽﾀｯｸ ｸﾘ-ﾑ               25GX10", "remarks": "通常"}, {"code": "14987387597725", "maker": "三笠製薬", "name": "ｾﾞｽﾀｯｸ ｸﾘ-ﾑ               25GX10", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987123401835", "maker": "武田薬品工業", "name": "ﾂﾛﾌﾞﾃﾛ-ﾙﾃ-ﾌﾟ 1MG ｢QQ｣          1MG    70ﾏｲ", "remarks": "通常"}, {"code": "14987123161067", "maker": "武田薬品工業", "name": "ﾌﾘｳｪﾙ配合錠ULD ｢あすか｣   PTP          21TX3", "remarks": "通常"}, {"code": "14987316122035", "maker": "佐藤製薬", "name": "ﾍﾞﾄﾉﾊﾞ-ﾙ G軟膏0.12%                5GX50", "remarks": "通常"}, {"code": "14987792103788", "maker": "日本ジェネリッ", "name": "ﾘﾊﾞ-ﾛｷｻﾊﾞﾝ OD錠15MG ｢JG｣   PTP   15MG    100T", "remarks": "通常"}, {"code": "14987925670101", "maker": "太陽ファルマ", "name": "ｲﾝﾃﾞﾗﾙ錠10MG   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987138800135", "maker": "ツムラ", "name": "001 ﾂﾑﾗ ｶｯｺﾝﾄｳ      ｶﾐﾊﾞｺ  2.5GX189", "remarks": "通常"}, {"code": "14987128144324", "maker": "田辺ファーマ", "name": "ﾃﾈﾘｱ錠20MG   PTP   20MG    100T", "remarks": "通常"}, {"code": "14987116530108", "maker": "住友ファーマ", "name": "ﾒﾄｸﾞﾙｺ錠500MG   PTP  500MG    100T", "remarks": "通常"}, {"code": "14987199102674", "maker": "サノフィ", "name": "ｱﾋﾟﾄﾞﾗ注ｿﾛｽﾀ-      300ﾀﾝｲ 3MLX2ｷｯﾄ", "remarks": "通常"}, {"code": "14987081160270", "maker": "第一三共", "name": "ｱ-ﾁｽﾄ錠2.5MG   PTP  2.5MG    100T", "remarks": "通常"}, {"code": "14987087043164", "maker": "塩野義製薬", "name": "ｸ-ﾋﾞﾋﾞｯｸ錠50MG   PTP   50MG    100T", "remarks": "通常"}, {"code": "14987473602364", "maker": "富士フイルム富", "name": "ｵｾﾞｯｸｽ細粒小児用15%       15% 0.5GX100ﾎｳ", "remarks": "通常"}, {"code": "14987120269810", "maker": "高田製薬", "name": "ﾏｷｻｶﾙｼﾄ-ﾙ軟膏25μG/G｢ﾀｶﾀ｣     0.0025%   10GX10", "remarks": "通常"}, {"code": "14987288447136", "maker": "吉田製薬", "name": "酸化ﾏｸﾞﾈｼｳﾑ錠500MG ｢ﾖｼﾀﾞ｣   PTP  500MG    100T", "remarks": "通常"}, {"code": "14987190015638", "maker": "ニプロ医薬", "name": "ｴｽｿﾞﾋﾟｸﾛﾝ錠1MG ｢ﾆﾌﾟﾛ｣   PTP    1MG    100T", "remarks": "通常"}, {"code": "14987919100348", "maker": "ＬＴＬファーマ", "name": "ｶﾞｽﾀ- D錠10MG   PTP   10MG  14TX10", "remarks": "通常"}, {"code": "14987294394226", "maker": "帝人ファーマ", "name": "ﾌｪﾌﾞﾘｸ錠20MG   PTP   20MG    100T", "remarks": "通常"}, {"code": "14987190067408", "maker": "ニプロ医薬", "name": "ﾒﾄﾎﾙﾐﾝ塩酸塩錠500MG MT｢ﾆﾌﾟﾛ｣   PTP  500MG    100T", "remarks": "通常"}, {"code": "14987123139189", "maker": "武田薬品工業", "name": "2MG ｾﾙｼﾝ錠   PTP    2MG    100T", "remarks": "通常"}, {"code": "14987128006493", "maker": "田辺ファーマ", "name": "ﾃﾞﾊﾟｽ錠0.5MG   PTP  0.5MG    100T", "remarks": "通常"}, {"code": "14987114553406", "maker": "ファイザー", "name": "ﾜｲﾊﾟｯｸｽ錠0.5   PTP  0.5MG    100T", "remarks": "通常"}, {"code": "14987306300016", "maker": "大正製薬", "name": "ｼﾞｪﾆﾅｯｸ錠200MG   PTP  200MG    100T", "remarks": "通常"}, {"code": "14987473602524", "maker": "富士フイルム富", "name": "ｵｾﾞｯｸｽ錠小児用60MG   PTP   60MG    100T", "remarks": "通常"}, {"code": "14987792286016", "maker": "日本ジェネリッ", "name": "ﾄﾞﾝﾍﾟﾘﾄﾞﾝ錠10MG ｢JG｣   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987080030314", "maker": "沢井製薬", "name": "ｸﾛﾁｱｾﾞﾊﾟﾑ錠5MG ｢ｻﾜｲ｣   PTP    5MG    100T", "remarks": "通常"}, {"code": "14987087025559", "maker": "塩野義製薬", "name": "ﾒｼﾞｺﾝ錠15MG   PTP   15MG    100T", "remarks": "通常"}, {"code": "14987123412268", "maker": "武田薬品工業", "name": "ｶﾃﾞﾁｱ配合錠HD ｢ﾃﾊﾞ｣   PTP           100T", "remarks": "通常"}, {"code": "14987080406119", "maker": "沢井製薬", "name": "ﾗﾛｷｼﾌｪﾝ塩酸塩錠60MG ｢ｻﾜｲ｣   PTP   60MG    100T", "remarks": "通常"}, {"code": "14987042231087", "maker": "科研製薬", "name": "ﾒﾘｽﾛﾝ錠12MG   PTP   12MG    100T", "remarks": "通常"}, {"code": "14987087025559", "maker": "塩野義製薬", "name": "ﾒｼﾞｺﾝ錠15MG   PTP   15MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987919100737", "maker": "ＬＴＬファーマ", "name": "ｻﾜｼﾘﾝ ｶﾌﾟｾﾙ 250   PTP  250MG    100P", "remarks": "通常"}, {"code": "14987306300023", "maker": "大正製薬", "name": "ｼﾞｪﾆﾅｯｸ錠200MG   PTP  200MG    500T", "remarks": "通常"}, {"code": "14987123873755", "maker": "武田薬品工業", "name": "ｼﾞﾌｪﾆﾄﾞ-ﾙ塩酸塩錠25MG ｢NIG｣   PTP   25MG    100T", "remarks": "通常"}, {"code": "14987376351611", "maker": "日医工", "name": "ｹﾄﾁﾌｪﾝ ｼﾛｯﾌﾟ 0.02% ｢日医工｣      0.02% 3MLX144ﾎｳ", "remarks": "通常"}, {"code": "14987376026908", "maker": "日医工", "name": "ﾋﾟﾘﾄﾞｷｻ-ﾙ錠30MG ｢ﾂﾙﾊﾗ｣   PTP   30MG    100T", "remarks": "通常"}, {"code": "4987350607935", "maker": "テルモ", "name": "ﾅﾉﾊﾟｽﾆ-ﾄﾞﾙ 2 TN-3404 34GX4MM 70ﾎﾝ", "remarks": "通常"}, {"code": "14987770515800", "maker": "興和", "name": "ﾗｯｸﾋﾞ-錠   PTP           100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987901117507", "maker": "ヴィアトリス製", "name": "ﾌｪﾛ･ｸﾞﾗﾃﾞｭﾒｯﾄ錠105MG   PTP           100T", "remarks": "通常"}, {"code": "14987080333118", "maker": "沢井製薬", "name": "ｿﾘﾌｪﾅｼﾝｺﾊｸ酸塩錠2.5MG ｢ｻﾜｲ｣   PTP  2.5MG    100T", "remarks": "通常"}, {"code": "14987138805239", "maker": "ツムラ", "name": "052 ﾂﾑﾗ ﾖｸｲﾆﾝﾄｳ      ｶﾐﾊﾞｺ  2.5GX189", "remarks": "通常"}, {"code": "14987045480086", "maker": "クラシエ薬品", "name": "ｸﾘﾝﾀﾞﾏｲｼﾝ ﾘﾝ酸ｴｽﾃﾙｹﾞﾙ 1%｢ｸﾗ ｼｴ｣      1%   10GX10", "remarks": "通常"}, {"code": "14987271158759", "maker": "鶴原製薬", "name": "ﾋﾟﾘﾄﾞｷｻ-ﾙ錠30MG ｢ﾂﾙﾊﾗ｣   PTP   30MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987376056837", "maker": "日医工", "name": "ﾌﾟﾗﾝﾙｶｽﾄ ｶﾌﾟｾﾙ 112.5MG｢ﾆﾁｲｺｳ｣  PTP 112.5MG  14PX30", "remarks": "通常"}, {"code": "4987035545620", "maker": "大塚製薬", "name": "ｴｸｴﾙ ﾊﾟｳﾁ   \\12000    120ﾂﾌﾞX3", "remarks": "通常"}], "alfweb": [{"date": "03/11 13:16", "maker": "鳥居薬品", "name": "ｼﾀﾞｷｭｱｽｷﾞ花粉舌下錠2000", "order_qty": "10", "status": "出荷停止・入荷未定"}, {"date": "03/10 10:07", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合錠", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "03/09 11:25", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合錠", "order_qty": "2", "status": "出荷停止・入荷未定"}, {"date": "03/06 16:40", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合錠", "order_qty": "2", "status": "出荷停止・入荷未定"}, {"date": "03/06 09:50", "maker": "マルホ", "name": "ｱｽﾀｯﾄ軟膏1%", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "03/05 13:26", "maker": "共和薬品", "name": "ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "03/04 09:32", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合錠", "order_qty": "2", "status": "出荷停止・入荷未定"}, {"date": "03/03 18:41", "maker": "鳥居薬品", "name": "ｼﾀﾞｷｭｱｽｷﾞ花粉舌下錠2000", "order_qty": "10", "status": "出荷停止・入荷未定"}, {"date": "03/03 10:40", "maker": "参天製薬", "name": "ｻﾝﾍﾞﾀｿﾞﾝ眼耳鼻科用液0.1%", "order_qty": "3", "status": "出荷停止・入荷未定"}, {"date": "03/02 19:15", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合錠", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "03/02 19:11", "maker": "沢井製薬", "name": "ﾌﾟｿﾌｪｷ配合錠｢ｻﾜｲ｣", "order_qty": "2", "status": "出荷停止・入荷未定"}, {"date": "02/28 11:15", "maker": "沢井製薬", "name": "ﾌﾟｿﾌｪｷ配合錠｢ｻﾜｲ｣", "order_qty": "2", "status": "出荷停止・入荷未定"}, {"date": "02/27 18:10", "maker": "沢井製薬", "name": "ﾌﾟｿﾌｪｷ配合錠｢ｻﾜｲ｣", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "02/25 10:16", "maker": "共和薬品", "name": "ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "02/25 09:30", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合OD錠", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "02/25 09:30", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合錠", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "02/17 10:01", "maker": "共和薬品", "name": "ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "02/09 09:40", "maker": "共和薬品", "name": "ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "02/03 12:51", "maker": "沢井製薬", "name": "ﾌﾟｿﾌｪｷ配合錠｢ｻﾜｲ｣", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "01/31 12:16", "maker": "共和薬品", "name": "ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "01/30 14:15", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合錠", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "01/30 14:15", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合錠", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "01/30 12:26", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合OD錠", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "01/30 12:26", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合錠", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "01/29 16:47", "maker": "沢井製薬", "name": "ﾌﾟｿﾌｪｷ配合錠｢ｻﾜｲ｣", "order_qty": "3", "status": "出荷停止・入荷未定"}, {"date": "01/27 10:06", "maker": "ﾉﾎﾞﾉﾙﾃﾞｨｽｸ", "name": "ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ", "order_qty": "2", "status": "出荷停止・入荷未定"}, {"date": "01/23 09:41", "maker": "共和薬品", "name": "ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "01/22 11:41", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合OD錠", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "01/22 11:41", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合錠", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "01/20 11:17", "maker": "ﾉﾎﾞﾉﾙﾃﾞｨｽｸ", "name": "ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ", "order_qty": "3", "status": "出荷停止・入荷未定"}, {"date": "01/15 19:06", "maker": "共和薬品", "name": "ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "01/13 14:46", "maker": "ﾉﾎﾞﾉﾙﾃﾞｨｽｸ", "name": "ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "01/06 14:06", "maker": "共和薬品", "name": "ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "01/05 09:25", "maker": "ﾉﾎﾞﾉﾙﾃﾞｨｽｸ", "name": "ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ", "order_qty": "3", "status": "出荷停止・入荷未定"}, {"date": "12/19 11:11", "maker": "ﾉﾎﾞﾉﾙﾃﾞｨｽｸ", "name": "ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "12/15 10:47", "maker": "ﾉﾎﾞﾉﾙﾃﾞｨｽｸ", "name": "ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "12/11 18:55", "maker": "共和薬品", "name": "ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "12/10 09:15", "maker": "ﾉﾎﾞﾉﾙﾃﾞｨｽｸ", "name": "ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "12/08 14:11", "maker": "参天製薬", "name": "ｻﾝﾍﾞﾀｿﾞﾝ眼耳鼻科用液0.1%", "order_qty": "3", "status": "出荷停止・入荷未定"}, {"date": "12/05 19:11", "maker": "日東ﾒﾃﾞｨｯｸ", "name": "ﾍﾊﾟﾘﾝ類似物質ﾛｰｼｮﾝ0.3%", "order_qty": "3", "status": "出荷停止・入荷未定"}, {"date": "12/05 11:51", "maker": "ﾉﾎﾞﾉﾙﾃﾞｨｽｸ", "name": "ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ", "order_qty": "1", "status": "出荷停止・入荷未定"}], "updated_at": "2026-03-11 15:06:47"};
 
     createApp({
@@ -244,12 +252,15 @@
         const lastQuery = ref('');
         const results = ref([]);
         const hasSearched = ref(false);
+        const searching = ref(false);
+        const liveStocks = ref([]);
+        const loadingLive = ref(false);
 
         const getStatusClass = (status) => {
           if (!status) return 'status-warning';
           const s = status.toLowerCase();
-          if (s.includes('辞退') || s.includes('停止') || s.includes('未定') || s.includes('欠品')) return 'status-danger';
-          if (s.includes('納品済') || s.includes('準備中') || s.includes('中') || s.includes('済')) return 'status-success';
+          if (s.indexOf('辞退') !== -1 || s.indexOf('停止') !== -1 || s.indexOf('未定') !== -1 || s.indexOf('欠品') !== -1) return 'status-danger';
+          if (s.indexOf('納品済') !== -1 || s.indexOf('準備中') !== -1 || s.indexOf('中') !== -1 || s.indexOf('済') !== -1) return 'status-success';
           return 'status-warning';
         };
 
@@ -257,21 +268,22 @@
           const q = query.value.trim().toLowerCase();
           if (!q) return;
           lastQuery.value = query.value;
+          hasSearched.value = true;
+          searching.value = true;
           
-          const res = [];
-          ['collabo', 'medipal', 'alfweb'].forEach(key => {
+          const localRes = [];
+          ['collabo', 'medipal', 'alfweb'].forEach(function(key) {
             if (pharmaData[key]) {
-              pharmaData[key].forEach(item => {
-                const nameMatch = item.name && item.name.toLowerCase().includes(q);
-                const makerMatch = item.maker && item.maker.toLowerCase().includes(q);
-                const codeMatch = item.code && item.code.toLowerCase().includes(q);
-                const remarksMatch = item.remarks && item.remarks.toLowerCase().includes(q);
+              pharmaData[key].forEach(function(item) {
+                var nameMatch = item.name && item.name.toLowerCase().indexOf(q) !== -1;
+                var makerMatch = item.maker && item.maker.toLowerCase().indexOf(q) !== -1;
                 
-                if (nameMatch || makerMatch || codeMatch || remarksMatch) {
-                  res.push({
+                if (nameMatch || makerMatch) {
+                  localRes.push({
                     name: item.name,
                     shelf: item.shelf || '',
                     stock: item.stock || item.quantity || item.order_qty || item.deliv_qty || '',
+                    source: key,
                     isPrimary: true
                   });
                 }
@@ -279,92 +291,65 @@
             }
           });
           
-          results.value = res;
-          hasSearched.value = true;
+          results.value = localRes;
+
+          // Call GAS for deeper inventory search
+          google.script.run
+            .withSuccessHandler(function(gasResults) {
+              if (gasResults && gasResults.length > 0) {
+                gasResults.forEach(function(gi) {
+                  var exists = results.value.some(r => r.name === gi.name);
+                  if (!exists) {
+                    results.value.push({
+                      name: gi.name,
+                      shelf: gi.shelf,
+                      stock: gi.stock,
+                      source: 'inventory',
+                      isPrimary: true
+                    });
+                  } else {
+                    // Update existing with shelf/stock if missing
+                    var matching = results.value.find(r => r.name === gi.name);
+                    if (!matching.shelf) matching.shelf = gi.shelf;
+                    if (!matching.stock) matching.stock = gi.stock;
+                  }
+                });
+              }
+              searching.value = false;
+            })
+            .withFailureHandler(function() {
+              searching.value = false;
+            })
+            .searchMedicine(query.value);
         };
 
-        return { activeTab, pharmaData, query, lastQuery, results, hasSearched, getStatusClass, performLocalSearch };
+        const fetchLiveStocks = () => {
+          loadingLive.value = true;
+          google.script.run
+            .withSuccessHandler(function(data) {
+              liveStocks.value = data || [];
+              loadingLive.value = false;
+            })
+            .withFailureHandler(function() {
+              loadingLive.value = false;
+            })
+            .getLiveStocks(1); // Fetch first page
+        };
+
+        const switchTab = (tab) => {
+          activeTab.value = tab;
+          if (tab === 'live' && liveStocks.value.length === 0) {
+            fetchLiveStocks();
+          }
+        };
+
+        return { 
+          activeTab, pharmaData, query, lastQuery, results, hasSearched, 
+          searching, liveStocks, loadingLive, 
+          getStatusClass, performLocalSearch, fetchLiveStocks, switchTab 
+        };
       }
     }).mount('#app');
   </script>
 </body>
 </html>
-              <div class="font-bold text-sm text-gray-800 mb-1 leading-tight">{{ item.name }}</div>
-              <div class="mt-2">
-                <span :class="item.remarks?.includes('調整') ? 'status-danger' : 'status-success'" class="status-badge">
-                  {{ item.remarks?.includes('調整') ? '出荷調整' : '通常' }}
-                </span>
-                <p class="text-[10px] text-gray-500 mt-1">{{ item.remarks }}</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- AlfWeb Card -->
-        <section class="glass-card rounded-2xl overflow-hidden flex flex-col h-[700px]">
-          <div class="card-header bg-blue-500 flex justify-between">
-            <span>ALF-Web</span>
-            <span class="text-xs bg-white/20 px-2 rounded-full">{{ pharmaData.alfweb?.length || 0 }}件</span>
-          </div>
-          <div class="overflow-y-auto p-2 space-y-2">
-            <div v-for="item in pharmaData.alfweb" class="p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
-              <div class="text-[10px] text-gray-400 font-bold mb-1">{{ item.maker }}</div>
-              <div class="font-bold text-sm text-gray-800 mb-1 leading-tight">{{ item.name }}</div>
-              <div class="flex justify-between items-center mt-2">
-                <span class="status-badge status-danger">{{ item.status || '入荷未定' }}</span>
-                <span v-if="item.date" class="text-[10px] text-gray-400">更新: {{ item.date }}</span>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <!-- Search Tab -->
-      <div v-if="activeTab === 'search'" class="max-w-3xl mx-auto fade-in">
-        <div class="glass-card rounded-2xl p-6 mb-6">
-          <div class="relative flex items-center w-full h-14 rounded-xl bg-white overflow-hidden border-2 border-indigo-100 focus-within:border-indigo-500 transition-all">
-            <div class="grid place-items-center h-full w-12 text-indigo-400">
-              <i class="fa-solid fa-magnifying-glass"></i>
-            </div>
-            <input v-model="query" @keyup.enter="performLocalSearch" class="h-full w-full outline-none text-gray-700 text-lg font-medium pl-2" type="text" placeholder="薬の名前を入力...">
-            <button @click="performLocalSearch" class="bg-indigo-600 text-white h-full px-8 font-semibold hover:bg-indigo-700 transition-colors">検索</button>
-          </div>
-        </div>
-
-        <div v-if="results.length > 0" class="space-y-4">
-          <div v-for="item in results" :class="item.isPrimary === false ? 'alternative-card' : ''" class="glass-card rounded-xl p-5 border-l-4 border-indigo-500">
-            <div class="flex justify-between items-start gap-4">
-              <div class="flex-1">
-                <div class="flex items-center gap-2 mb-1">
-                  <span v-if="item.isPrimary === false" class="badge-alt">代替提案</span>
-                  <span class="text-[10px] font-bold text-indigo-500 uppercase">薬品名</span>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 leading-tight">{{ item.name }}</h3>
-                <div class="mt-3 flex gap-4">
-                  <div v-if="item.shelf" class="bg-indigo-50 px-3 py-1 rounded border border-indigo-100 text-sm">
-                    <span class="text-xs text-indigo-400 block font-bold">棚番</span>
-                    <span class="font-bold text-indigo-800">{{ item.shelf }}</span>
-                  </div>
-                  <div class="bg-gray-50 px-3 py-1 rounded border border-gray-100 text-sm">
-                    <span class="text-xs text-gray-400 block font-bold">在庫</span>
-                    <span class="font-bold text-gray-800">{{ item.stock !== '' ? item.stock : '-' }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div v-else-if="hasSearched" class="glass-card rounded-2xl p-10 text-center text-gray-400">
-          <p>「{{ lastQuery }}」に一致する結果はありませんでした。</p>
-        </div>
-      </div>
-    </main>
-
-    <footer class="mt-10 pb-6 text-center text-xs text-gray-400">
-      <p>© 2026 薬の在庫・棚番検索システム (GitHub Pages版)</p>
-    </footer>
-  </div>
-
-  <script>
-    const { createApp, ref } = Vue;
-    const pharmaData = {"collabo": [{"date": "03/11 13:25", "code": "4987155635010", "maker": "東和薬品", "name": "ｱﾑﾛｼﾞﾋﾟﾝOD錠2.5mgﾄ-ﾜ     　     2.5mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/12", "status": "出荷準備中", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/11 13:25", "code": "4987188487006", "maker": "久光製薬", "name": "ｱﾚｻｶﾞﾃ-ﾌﾟ4mg             　            4mg 70枚", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/13", "status": "出荷準備中", "remarks": ""}, {"date": "03/11 13:25", "code": "4987155121087", "maker": "東和薬品", "name": "ｳﾙｿﾃﾞｵｷｼｺ-ﾙ酸錠100MGﾄ-ﾜ  　     100mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/12", "status": "出荷準備中", "remarks": ""}, {"date": "03/11 13:25", "code": "4987443386501", "maker": "ノバルティス", "name": "ｴﾅｼﾞｱ吸入用ｶﾌﾟｾﾙ中用     　  量ﾌﾞﾘ-ｽﾞﾍﾗ-ﾂｷ14CAP", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/12", "status": "出荷準備中", "remarks": ""}, {"date": "03/11 13:25", "code": "4987190021304", "maker": "ニプロファマ", "name": "ﾌﾛｾﾐﾄﾞ錠40mg｢NP｣         　      40mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/12", "status": "出荷準備中", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/11 13:25", "code": "4987081100316", "maker": "第一三共", "name": "ﾛｷｿﾆﾝﾃ-ﾌﾟ100mg           　      10X14cm 7枚X10", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/12", "status": "出荷準備中", "remarks": ""}, {"date": "03/11 12:19", "code": "4987312126634", "maker": "ミヤリサン製", "name": "ﾐﾔBM錠                   　           PTP  400T", "order_qty": "2", "deliv_qty": "2", "deliv_date": "", "status": "調達中", "remarks": "限定出荷品 (出荷調整品)　ﾒｰｶｰ入荷未定 注文取消時 要連絡"}, {"date": "03/11 11:53", "code": "4987035574613", "maker": "大塚製薬", "name": "ｴﾋﾞﾘﾌｧｲ内用液0.1%        　            1MLX28包", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/11", "status": "配達中", "remarks": ""}, {"date": "03/11 11:08", "code": "4987167005481", "maker": "ニチバン", "name": "ｽﾋﾟ-ﾙ膏M                 　      SPM16 25c?X6枚", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "出荷準備中", "remarks": ""}, {"date": "03/11 10:15", "code": "4987080737414", "maker": "沢井製薬", "name": "ｲｺｻﾍﾟﾝﾄ酸ｴﾁﾙ粒状ｶﾌﾟｾﾙ    　    900mg｢ｻﾜｲ｣  84包", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "配達中", "remarks": ""}, {"date": "03/10 18:11", "code": "4987128326358", "maker": "田辺ファーマ", "name": "ﾙﾊﾟﾌｨﾝ錠10mg             　       10mg PTP 500T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 13:11", "code": "4987155100037", "maker": "東和薬品", "name": "ﾍﾞﾀﾋｽﾁﾝﾒｼﾙ酸塩錠12mg     　     ｢ﾄ-ﾜ｣ PTP  100T", "order_qty": "3", "deliv_qty": "3", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 13:11", "code": "4987155400021", "maker": "東和薬品", "name": "ﾗﾍﾞﾌﾟﾗｿﾞ-ﾙNａ錠10MGﾄ-ﾜ   　      10mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 13:11", "code": "4987155144116", "maker": "東和薬品", "name": "ｶﾙﾍﾞｼﾞﾛ-ﾙ錠2.5mg｢ﾄ-ﾜ｣    　     2.5mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 13:01", "code": "4987155361018", "maker": "東和薬品", "name": "ｱﾄﾙﾊﾞｽﾀﾁﾝ錠10mg｢ﾄ-ﾜ｣     　      10mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 13:01", "code": "4987443384415", "maker": "ノバルティス", "name": "ｴﾝﾚｽﾄ錠100mg             　     100mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 13:01", "code": "4987190021205", "maker": "ニプロファマ", "name": "ﾌﾛｾﾐﾄﾞ錠20mg｢NP｣         　      20mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/10 13:01", "code": "4987213118011", "maker": "マルホ", "name": "ﾗﾋﾟﾌｫ-ﾄﾜｲﾌﾟ2.5%          　         2.5% 1包X28", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 11:13", "code": "4987616001712", "maker": "ノボノルディ", "name": "ﾉﾎﾞﾗﾋﾟｯﾄﾞ30ﾐｯｸｽ注ﾌﾚｯｸｽ   　   ﾍﾟﾝ 300単位 3MLX2", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 10:25", "code": "4987080117018", "maker": "沢井製薬", "name": "ｴﾊﾞｽﾁﾝOD錠5mg｢ｻﾜｲ｣       　       5mg PTP  100T", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/12", "status": "出荷準備中", "remarks": ""}, {"date": "03/10 10:11", "code": "4987155849011", "maker": "東和薬品", "name": "ｱﾑﾛｼﾞﾋﾟﾝ錠5mg｢ﾄ-ﾜ｣       　       5mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 10:11", "code": "4987080737414", "maker": "沢井製薬", "name": "ｲｺｻﾍﾟﾝﾄ酸ｴﾁﾙ粒状ｶﾌﾟｾﾙ    　    900mg｢ｻﾜｲ｣  84包", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 10:11", "code": "4987224057279", "maker": "持田製薬", "name": "ｼﾞｴﾉｹﾞｽﾄ錠0.5mg｢ﾓﾁﾀﾞ｣    　     0.5mg PTP  140T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 10:11", "code": "4987792100070", "maker": "日本ジェネリ", "name": "ﾋﾞｿﾌﾟﾛﾛ-ﾙﾌﾏﾙ酸塩錠2.5MG  　      ｢JG｣ PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 10:11", "code": "4987080538110", "maker": "沢井製薬", "name": "ﾌｧﾓﾁｼﾞﾝD錠20mg｢ｻﾜｲ｣      　      20mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 10:11", "code": "4987641082403", "maker": "帝國製薬", "name": "ﾛﾍﾟﾐﾝｶﾌﾟｾﾙ1mg            　     1mg PTP  100CAP", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "", "code": "4987672957640", "maker": "ヤンセンファ", "name": "ﾛﾍﾟﾐﾝｶﾌﾟｾﾙ1mg            　     1mg PTP  100CAP", "order_qty": "", "deliv_qty": "0", "deliv_date": "", "status": "保留", "remarks": "1本保留　新ｺｰﾄﾞ有 4987641082403 再入力予定"}, {"date": "03/10 10:02", "code": "4987443384446", "maker": "ノバルティス", "name": "ｴﾝﾚｽﾄ錠200mg             　     200mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 09:23", "code": "4987155121131", "maker": "東和薬品", "name": "ｵﾛﾊﾟﾀｼﾞﾝ塩酸塩顆粒0.5%   　    ｢ﾄ-ﾜ｣0.5gX200包", "order_qty": "2", "deliv_qty": "2", "deliv_date": "", "status": "調達中", "remarks": "限定出荷品 (出荷調整品)　ﾒｰｶｰ入荷未定 注文取消時 要連絡"}, {"date": "03/09 19:24", "code": "4987173018185", "maker": "日本新薬", "name": "ｴﾘｻﾞｽｶﾌﾟｾﾙ外用400μg      　ﾂｲﾝﾗｲｻﾞ-ﾂｷ PTP 70CAP", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/09 18:16", "code": "4987155095142", "maker": "東和薬品", "name": "ｵﾛﾊﾟﾀｼﾞﾝ塩酸塩OD錠5MG    　     ｢ﾄ-ﾜ｣ PTP  500T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/09 17:40", "code": "4987080117018", "maker": "沢井製薬", "name": "ｴﾊﾞｽﾁﾝOD錠5mg｢ｻﾜｲ｣       　       5mg PTP  100T", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/09 13:59", "code": "4987155121131", "maker": "東和薬品", "name": "ｵﾛﾊﾟﾀｼﾞﾝ塩酸塩顆粒0.5%   　    ｢ﾄ-ﾜ｣0.5gX200包", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/09 13:59", "code": "4987306066182", "maker": "大正製薬", "name": "ﾋﾞｵﾌｪﾙﾐﾝ錠剤             　           PTP  126T", "order_qty": "4", "deliv_qty": "4", "deliv_date": "03/10", "status": "納品済", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/09 10:30", "code": "4987155148107", "maker": "東和薬品", "name": "ﾌﾟﾚｶﾞﾊﾞﾘﾝOD錠75mgﾄ-ﾜ     　      75mg PTP  100T", "order_qty": "3", "deliv_qty": "3", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/09 10:16", "code": "4987155636017", "maker": "東和薬品", "name": "ｱﾑﾛｼﾞﾋﾟﾝOD錠5mg｢ﾄ-ﾜ｣     　       5mg PTP  100T", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/09 10:16", "code": "4987155849011", "maker": "東和薬品", "name": "ｱﾑﾛｼﾞﾋﾟﾝ錠5mg｢ﾄ-ﾜ｣       　       5mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/09 10:00", "code": "4987155150360", "maker": "東和薬品", "name": "ﾚﾎﾞｾﾁﾘｼﾞﾝ塩酸塩錠5MGﾄ-ﾜ  　       5mg PTP  500T", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 13:29", "code": "4987035637912", "maker": "大塚製薬", "name": "ﾓｲｾﾞﾙﾄ軟膏0.3%           　      0.3% 10gX10本", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/07 13:29", "code": "4987155635010", "maker": "東和薬品", "name": "ｱﾑﾛｼﾞﾋﾟﾝOD錠2.5mgﾄ-ﾜ     　     2.5mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/07 13:29", "code": "4987476113327", "maker": "陽進堂", "name": "ﾄﾗﾈｷｻﾑ酸錠250mg｢YD｣      　     250mg PTP 1000T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 13:05", "code": "4987158328506", "maker": "鳥居薬品", "name": "ｺﾚｸﾁﾑ軟膏0.5%            　         0.5% 5gX10", "order_qty": "4", "deliv_qty": "4", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 13:05", "code": "4987476113327", "maker": "陽進堂", "name": "ﾄﾗﾈｷｻﾑ酸錠250mg｢YD｣      　     250mg PTP 1000T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 13:05", "code": "4987188493014", "maker": "久光製薬", "name": "ﾊｲﾁｵ-ﾙ錠80               　           PTP  500T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 13:05", "code": "4987158325406", "maker": "鳥居薬品", "name": "ﾘｵﾅ錠250mg               　     250mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 13:05", "code": "4987155149166", "maker": "東和薬品", "name": "ﾚﾎﾞｾﾁﾘｼﾞﾝ塩酸塩ｼﾛｯﾌﾟ     　    0.05%｢ﾄ-ﾜ｣ 200ML", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 10:59", "code": "4987155361018", "maker": "東和薬品", "name": "ｱﾄﾙﾊﾞｽﾀﾁﾝ錠10mg｢ﾄ-ﾜ｣     　      10mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 10:59", "code": "4987155095142", "maker": "東和薬品", "name": "ｵﾛﾊﾟﾀｼﾞﾝ塩酸塩OD錠5MG    　     ｢ﾄ-ﾜ｣ PTP  500T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 10:59", "code": "4987306066182", "maker": "大正製薬", "name": "ﾋﾞｵﾌｪﾙﾐﾝ錠剤             　           PTP  126T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "", "status": "調達中", "remarks": "限定出荷品 (出荷調整品)　ﾒｰｶｰ入荷未定 注文取消時 要連絡"}, {"date": "03/07 10:59", "code": "4987155875010", "maker": "東和薬品", "name": "ﾒﾄﾄﾚｷｻ-ﾄｶﾌﾟｾﾙ2mg｢ﾄ-ﾜ｣    　     2mg PTP   20CAP", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": "限定出荷品 (出荷調整品)"}], "medipal": [{"code": "14987376798058", "maker": "日医工", "name": "ﾍﾞﾗﾊﾟﾐﾙ塩酸塩錠40MG ｢ﾀｲﾖ-｣   PTP   40MG    100T", "remarks": "通常"}, {"code": "14987792102262", "maker": "日本ジェネリッ", "name": "ｴｾﾞﾁﾐﾌﾞ錠10MG ｢JG｣   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987120269704", "maker": "高田製薬", "name": "ﾀｸﾛﾘﾑｽ軟膏0.1% ｢ﾀｶﾀ｣        0.1%    5GX10", "remarks": "通常"}, {"code": "14987792103252", "maker": "日本ジェネリッ", "name": "ﾌｪﾌﾞｷｿｽﾀｯﾄ錠20MG ｢JG｣   PTP   20MG    100T", "remarks": "通常"}, {"code": "14987376616215", "maker": "日医工", "name": "ﾍﾊﾟﾘﾝ類似物質油性ｸﾘ-ﾑ 0.3% ｢ﾆﾁｲｺｳ｣       25GX10", "remarks": "通常"}, {"code": "14987123409695", "maker": "武田薬品工業", "name": "ﾍﾞﾗﾊﾟﾐﾙ塩酸塩錠40MG ｢ﾀｲﾖ-｣   PTP   40MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987042357312", "maker": "科研製薬", "name": "ﾛｷｿﾌﾟﾛﾌｪﾝNAﾃ-ﾌﾟ100MG ｢科研｣   10CMX14CM   7ﾏｲX10", "remarks": "通常"}, {"code": "14987190067309", "maker": "ニプロ医薬", "name": "ﾒﾄﾎﾙﾐﾝ塩酸塩錠250MG MT｢ﾆﾌﾟﾛ｣   PTP  250MG    100T", "remarks": "通常"}, {"code": "14987190067309", "maker": "ニプロ医薬", "name": "ﾒﾄﾎﾙﾐﾝ塩酸塩錠250MG MT｢ﾆﾌﾟﾛ｣   PTP  250MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987312126631", "maker": "ミヤリサン製薬", "name": "ﾐﾔ BM錠   PTP           400T", "remarks": "通常"}, {"code": "", "maker": "パターン表外仕様：", "name": "パターン表No：48", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987035032318", "maker": "大塚製薬", "name": "ｴﾋﾞﾘﾌｧｲ内用液0.1%        0.1% 3MLX28ﾎｳ", "remarks": "通常"}, {"code": "14987792101951", "maker": "日本ジェネリッ", "name": "ｱﾄﾓｷｾﾁﾝ内用液0.4% ｢JG｣        0.4%  100MLX1", "remarks": "通常"}, {"code": "14987173016362", "maker": "日本新薬", "name": "ｱｽﾞﾉ-ﾙ軟膏0.033%      0.033%   20GX10", "remarks": "通常"}, {"code": "14987376711002", "maker": "日医工", "name": "ﾍﾞﾀﾋｽﾁﾝﾒｼﾙ酸塩錠6MG｢日医工 P｣ PTP   6MG    100T", "remarks": "通常"}, {"code": "14987376712153", "maker": "日医工", "name": "D-ｸﾛﾙﾌｪﾆﾗﾐﾝﾏﾚｲﾝ酸塩錠2MG｢NI G｣ PTP   2MG   1000T", "remarks": "通常"}, {"code": "14987158290527", "maker": "鳥居薬品", "name": "ｼﾀﾞｷｭｱ ｽｷﾞ花粉舌下錠5000JAU ﾌﾞﾘｽﾀ- 5000JAU  100T", "remarks": "通常"}, {"code": "14987167005488", "maker": "ニチバン", "name": "ｽﾋﾟ-ﾙ膏M (病院用)  SPM16 25ﾍｲﾎｳｾﾝﾁ 6ﾏｲ", "remarks": "通常"}, {"code": "14987138801736", "maker": "ツムラ", "name": "017 ﾂﾑﾗ ｺﾞﾚｲｻﾝ      ｶﾐﾊﾞｺ  2.5GX189", "remarks": "通常"}, {"code": "14987103011818", "maker": "ゼリア新薬工業", "name": "ｱｼﾉﾝ錠75MG   PTP   75MG    100T", "remarks": "通常"}, {"code": "14987978707007", "maker": "天藤製薬直", "name": "ﾎﾞﾗｻﾞ G坐剤                  50ｺ", "remarks": "通常"}, {"code": "14987286205165", "maker": "健栄製薬", "name": "ｸﾞﾘｾﾘﾝ   ｶﾞﾗｽ瓶     500ML", "remarks": "通常"}, {"code": "14987286205165", "maker": "健栄製薬", "name": "ｸﾞﾘｾﾘﾝ   ｶﾞﾗｽ瓶     500ML", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987770528800", "maker": "興和", "name": "ｱﾃﾞﾎｽ ｺ-ﾜ顆粒10%         10%   1GX600", "remarks": "通常"}, {"code": "14987954600209", "maker": "オルガノン", "name": "ﾅｿﾞﾈｯｸｽ点鼻液50μG 56ﾌﾝﾑﾖｳ          5MG   10GX5", "remarks": "通常"}, {"code": "14987954600216", "maker": "オルガノン", "name": "ﾅｿﾞﾈｯｸｽ点鼻液50μG 112ﾌﾝﾑ ﾖｳ       9MG   18GX5", "remarks": "通常"}, {"code": "14987650650102", "maker": "アストラゼネカ", "name": "ｸﾚｽﾄ-ﾙ錠2.5MG (ｱｽﾄﾗｾﾞﾈｶ)   PTP  2.5MG    100T", "remarks": "通常"}, {"code": "14987443386461", "maker": "ノバルティスフ", "name": "ｱﾃｷｭﾗ吸入用ｶﾌﾟｾﾙ中用量   PTP            14P", "remarks": "通常"}, {"code": "14987123875247", "maker": "武田薬品工業", "name": "ﾌﾛｾﾐﾄﾞ錠20MG ｢NIG｣   PTP   20MG    100T", "remarks": "通常"}, {"code": "14987188402068", "maker": "久光製薬", "name": "ｴｸﾗ- ﾌﾟﾗｽﾀ- 20μG/CM2 (ｼﾝ)   7.5CMX10CM    50ﾏｲ", "remarks": "通常"}, {"code": "14987138811438", "maker": "ツムラ", "name": "114 ﾂﾑﾗ ｻｲﾚｲﾄｳ      ｶﾐﾊﾞｺ    3GX189", "remarks": "通常"}, {"code": "14987123127124", "maker": "武田薬品工業", "name": "25MG ｱﾘﾅﾐﾝ F糖衣錠   PTP   25MG    100T", "remarks": "通常"}, {"code": "14987035030819", "maker": "大塚製薬", "name": "ｴﾋﾞﾘﾌｧｲ錠6MG   PTP    6MG    100T", "remarks": "通常"}, {"code": "14987080506017", "maker": "沢井製薬", "name": "ｴﾝﾍﾟﾗｼﾝ配合錠   PTP           100T", "remarks": "通常"}, {"code": "14987028213403", "maker": "エーザイ", "name": "ﾀﾝﾎﾞｺ-ﾙ錠50MG   PTP   50MG    100T", "remarks": "通常"}, {"code": "14987060307191", "maker": "杏林製薬", "name": "ﾓﾝﾃﾙｶｽﾄ錠10MG ｢KM｣   PTP   10MG    500T", "remarks": "通常"}, {"code": "14987084316315", "maker": "参天製薬", "name": "ｴﾋﾟﾅｽﾁﾝ塩酸塩LX点眼液0.1% ｢SEC｣  0.1%   5MLX10", "remarks": "通常"}, {"code": "14987954807172", "maker": "オルガノン", "name": "ｼﾝｸﾞﾚｱ錠10MG   PTP   10MG    
