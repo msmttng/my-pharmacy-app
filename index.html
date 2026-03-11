@@ -2,38 +2,132 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>GAS通信テストサイト</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>薬の在庫・棚番検索システム</title>
     <style>
-        body { font-family: sans-serif; text-align: center; margin-top: 50px; }
-        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        :root { --primary-color: #2c3e50; --accent-color: #27ae60; }
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 20px; background: #f4f7f6; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: var(--primary-color); font-size: 1.5rem; }
+        .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
+        input[type="text"] { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px; }
+        button { padding: 10px 15px; background: var(--accent-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        button:hover { opacity: 0.8; }
+        .tabs { display: flex; gap: 5px; margin-bottom: 20px; overflow-x: auto; }
+        .tabs button { background: #eee; color: #666; font-size: 12px; white-space: nowrap; }
+        .tabs button.active { background: var(--primary-color); color: white; }
+        #result { margin-top: 20px; }
+        .card { background: #fff; border: 1px solid #eee; padding: 10px; margin-bottom: 10px; border-radius: 4px; border-left: 5px solid var(--accent-color); }
+        .card-title { font-weight: bold; font-size: 1.1rem; margin-bottom: 5px; }
+        .card-detail { font-size: 0.9rem; color: #666; display: flex; justify-content: space-between; }
+        .loading { text-align: center; padding: 20px; color: #999; }
+        .shelf-group { margin-top: 20px; border-top: 2px solid #eee; padding-top: 10px; }
+        .shelf-name { background: #e8f5e9; padding: 5px 10px; font-weight: bold; border-radius: 4px; display: inline-block; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <h1>GAS 連携確認ページ</h1>
-    <p>このボタンを押すと、GASへデータを送信します。</p>
+
+<div class="container">
+    <h1>薬の在庫・棚番検索</h1>
     
-    <button onclick="callGas()">データを送信する</button>
+    <div class="search-box">
+        <input type="text" id="query" placeholder="薬品名を入力（スペースでAND検索）" onkeypress="if(event.key==='Enter') executeApi('search')">
+        <button onclick="executeApi('search')">検索</button>
+    </div>
 
-    <script>
-        async function callGas() {
-            // ★ここにあなたのGASのデプロイURLを貼り付けてください
-            const GAS_URL = "https://script.google.com/macros/s/AKfycbwDhj91LpWaF6OWhTmr6hbYLgScu0tlBcs2Y4nyXvg2WAwybHYGd5-V579tf0I5_H2dCQ/exec";
+    <div class="tabs">
+        <button onclick="executeApi('summary')">棚番まとめ</button>
+        <button onclick="executeApi('return')">返品推奨</button>
+        <button onclick="executeApi('dead')">不動在庫</button>
+        <button onclick="executeApi('live')">Live在庫(MedOrder)</button>
+    </div>
 
-            try {
-                // GASへのリクエスト（fetch）
-                const response = await fetch(GAS_URL, {
-                    method: "POST",
-                    mode: "no-cors", // CORSエラーを回避するおまじない
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ message: "GitHubからこんにちは！" })
-                });
-                
-                alert("送信リクエストを送りました（no-corsモード）");
-            } catch (error) {
-                console.error("エラーが発生しました:", error);
-                alert("送信に失敗しました。詳細はコンソールを確認してください。");
-            }
+    <div id="status-bar" style="font-size: 11px; color: #999; margin-bottom: 10px;"></div>
+    <div id="result">検索結果がここに表示されます</div>
+</div>
+
+<script>
+    // ★重要：ここにあなたのGASデプロイURLを貼り付けてください
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwDhj91LpWaF6OWhTmr6hbYLgScu0tlBcs2Y4nyXvg2WAwybHYGd5-V579tf0I5_H2dCQ/exec";
+
+    async function executeApi(action) {
+        const resultDiv = document.getElementById('result');
+        const query = document.getElementById('query').value;
+        
+        resultDiv.innerHTML = '<div class="loading">通信中...</div>';
+
+        try {
+            const response = await fetch(GAS_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: action,
+                    query: query,
+                    page: 1
+                })
+            });
+
+            if (!response.ok) throw new Error("ネットワークエラーが発生しました");
+            
+            const data = await response.json();
+            renderResult(action, data);
+        } catch (error) {
+            resultDiv.innerHTML = `<div style="color:red">エラー: ${error.message}<br>GASのデプロイ設定とURLを再確認してください。</div>`;
         }
-    </script>
+    }
+
+    function renderResult(action, data) {
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = '';
+
+        if (!data || (Array.isArray(data) && data.length === 0)) {
+            resultDiv.innerHTML = '該当するデータが見つかりませんでした。';
+            return;
+        }
+
+        // 棚番まとめ(summary)の表示
+        if (action === 'summary') {
+            data.forEach(group => {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'shelf-group';
+                groupDiv.innerHTML = `<div class="shelf-name">${group.shelf}</div>`;
+                group.items.forEach(item => {
+                    groupDiv.innerHTML += `
+                        <div class="card" style="border-left-color: #3498db">
+                            <div class="card-title">${item.name}</div>
+                            <div class="card-detail"><span>在庫: ${item.stock}</span></div>
+                        </div>`;
+                });
+                resultDiv.appendChild(groupDiv);
+            });
+            return;
+        }
+
+        // 通常のリスト（検索、返品、不動、Live）の表示
+        const list = data.items || data;
+        list.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div class="card-title">${item.name}</div>
+                <div class="card-detail">
+                    <span>在庫: <strong>${item.stock || item.quantity || 0}</strong></span>
+                    <span>棚番: ${item.shelf || '-'}</span>
+                </div>
+                ${item.expiry ? `<div style="font-size:11px; color:red; margin-top:5px;">期限: ${item.expiry} (Lot: ${item.lot})</div>` : ''}
+            `;
+            resultDiv.appendChild(card);
+        });
+    }
+
+    // 初回読み込み時に更新日時を取得
+    window.onload = async () => {
+        try {
+            const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: "lastUpdated" }) });
+            const data = await res.json();
+            document.getElementById('status-bar').innerText = "最終データ更新: " + (data.time || "未設定");
+        } catch(e) {}
+    };
+</script>
+
 </body>
 </html>
