@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>GAS通信テストサイト</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; margin-top: 50px; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>GAS 連携確認ページ</h1>
+    <p>このボタンを押すと、GASへデータを送信します。</p>
+    
+    <button onclick="callGas()">データを送信する</button>
+
+    <script>
+        async function callGas() {
+            // ★ここにあなたのGASのデプロイURLを貼り付けてください
+            const GAS_URL = "https://script.google.com/macros/s/AKfycb.../exec";
+
+            try {
+                // GASへのリクエスト（fetch）
+                const response = await fetch(GAS_URL, {
+                    method: "POST",
+                    mode: "no-cors", // CORSエラーを回避するおまじない
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: "GitHubからこんにちは！" })
+                });
+                
+                alert("送信リクエストを送りました（no-corsモード）");
+            } catch (error) {
+                console.error("エラーが発生しました:", error);
+                alert("送信に失敗しました。詳細はコンソールを確認してください。");
+            }
+        }
+    </script>
+</body>
+</html>
