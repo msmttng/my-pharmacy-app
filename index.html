@@ -1,1317 +1,207 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
   <base target="_top">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>薬の在庫・棚番検索アプリ<\/title>
-
-  <script src="https://cdn.tailwindcss.com"><\/script>
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"><\/script>
+  <title>医薬品調達・在庫ダッシュボード</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f3f4f6;
-    }
-
-    .glass-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    .spinner {
-      animation: spin 1s linear infinite;
-    }
-
-    .fade-in {
-      animation: fadeIn 0.4s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(8px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-     
-    .low-stock-border {
-      border-left-color: #f59e0b !important;
-    }
-
-    .low-stock-pulse {
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-
-      0%,
-      100% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: .65;
-      }
-    }
-
-    .alternative-card {
-      background: linear-gradient(to right, #ffffff, #f0fdf4);
-      border-left-color: #10b981 !important;
-    }
-
-    .badge-alt {
-      background-color: #10b981;
-      color: white;
-      font-size: 0.7rem;
-      padding: 0.15rem 0.4rem;
-      border-radius: 4px;
-      margin-right: 0.5rem;
-      font-weight: bold;
-    }
-    
-    .alt-header {
-       display: flex;
-       align-items: center;
-       gap: 0.5rem;
-       margin-bottom: 0.75rem;
-       padding-bottom: 0.5rem;
-       border-bottom: 1px dashed #e5e7eb;
-    }
-
-
-     
-    input[type=range] {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 100%;
-      height: 4px;
-      border-radius: 4px;
-      background: #e0e7ff;
-      outline: none;
-    }
-
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: #6366f1;
-      cursor: pointer;
-    }
-
-     
-    .shelf-card {
-      transition: box-shadow 0.2s;
-    }
-
-    .shelf-card:hover {
-      box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.12);
-    }
-  <\/style>
-<\/head>
-
+    body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+    .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+    .spinner { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .fade-in { animation: fadeIn 0.4s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .alternative-card { background: linear-gradient(to right, #ffffff, #f0fdf4); border-left-color: #10b981 !important; }
+    .badge-alt { background-color: #10b981; color: white; font-size: 0.7rem; padding: 0.15rem 0.4rem; border-radius: 4px; margin-right: 0.5rem; font-weight: bold; }
+    .status-badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
+    .status-danger { background-color: #fee2e2; color: #b91c1c; border: 1px solid rgba(185, 28, 28, 0.1); }
+    .status-success { background-color: #dcfce7; color: #166534; border: 1px solid rgba(22, 101, 52, 0.1); }
+    .status-warning { background-color: #fef3c7; color: #b45309; border: 1px solid rgba(180, 83, 9, 0.1); }
+    .card-header { padding: 0.75rem 1rem; color: white; font-weight: 600; }
+  </style>
+</head>
 <body class="antialiased text-gray-800">
-
   <div id="app" class="min-h-screen flex flex-col items-center p-4 sm:p-6 md:p-8">
+    <header class="w-full max-w-6xl mb-6 text-center">
+      <h1 class="text-3xl font-bold text-indigo-700 flex items-center justify-center gap-3">
+        <i class="fa-solid fa-pills"></i> 医薬品調達・在庫ダッシュボード
+      </h1>
+      <p class="text-gray-400 text-xs mt-2">最終更新: 2026-03-11 15:06:47</p>
+    </header>
 
-    
-    <header class="w-full max-w-3xl mb-4 mt-4 text-center">
-      <h1 class="text-3xl sm:text-4xl font-bold text-indigo-700 tracking-tight flex items-center justify-center gap-3">
-        <i class="fa-solid fa-pills mb-1"><\/i> 在庫・棚番 検索
-      <\/h1>
-      <div class="flex items-center justify-center gap-3 mt-2">
-        <p class="text-gray-400 text-xs flex items-center gap-1">
-          <i class="fa-regular fa-clock"><\/i>
-          <span v-if="lastUpdated">最終更新: {{ lastUpdated }}<\/span>
-          <span v-else>更新日時を読み込み中...<\/span>
-        <\/p>
-        <button @click="toggleWarningsOnly"
-          class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white border transition-all duration-200"
-          :class="filteringWarningsOnly ? 'text-amber-600 border-amber-300 bg-amber-50' : 'text-gray-600 border-gray-200 hover:bg-gray-50'">
-          <i class="fa-solid" :class="filteringWarningsOnly ? 'fa-filter-circle-xmark' : 'fa-filter'"><\/i>
-          {{ filteringWarningsOnly ? '🔄 すべて表示' : '⚠️ 警告・保留・調達中のみ' }}
-        <\/button>
-        <a href="https://app.medorder.jp/pharmacies/20/stocks" target="_blank" rel="noopener"
-          class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 hover:shadow transition-all duration-200">
-          <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"><\/i>
-          MedOrderで在庫確認
-        <\/a>
-      <\/div>
-    <\/header>
-
-    
-    <nav class="w-full max-w-3xl mb-4">
+    <nav class="w-full max-w-3xl mb-6">
       <div class="glass-card rounded-xl p-1 flex gap-1">
-        <button @click="activeTab = 'search'"
-          class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-1"
-          :class="activeTab === 'search' ? 'bg-indigo-600 text-white shadow' : 'text-gray-500 hover:bg-gray-100'">
-          <i class="fa-solid fa-magnifying-glass text-sm"><\/i>
-          検索
-        <\/button>
-        <button @click="switchToShelfTab"
-          class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-1"
-          :class="activeTab === 'shelf' ? 'bg-indigo-600 text-white shadow' : 'text-gray-500 hover:bg-gray-100'">
-          <i class="fa-solid fa-layer-group text-sm"><\/i>
-          棚番
-        <\/button>
-        <button @click="switchToAlertTab"
-          class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-1 relative"
-          :class="activeTab === 'alert' ? 'bg-red-500 text-white shadow' : 'text-gray-500 hover:bg-gray-100'">
-          <i class="fa-solid fa-triangle-exclamation text-sm"><\/i>
-          発注
-          
-          <span v-if="alertData.total &gt; 0 &amp;&amp; activeTab !== 'alert'"
-            class="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1">
-            {{ alertData.total > 99 ? '99+' : alertData.total }}
-          <\/span>
-        <\/button>
-        <button @click="switchToReturnTab"
-          class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-1"
-          :class="activeTab === 'return' ? 'bg-blue-600 text-white shadow' : 'text-gray-500 hover:bg-gray-100'">
-          <i class="fa-solid fa-rotate-left text-sm"><\/i>
-          返品
-        <\/button>
-        <button @click="switchToDeadTab"
-          class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-1"
-          :class="activeTab === 'dead' ? 'bg-purple-600 text-white shadow' : 'text-gray-500 hover:bg-gray-100'">
-          <i class="fa-solid fa-ghost text-sm"><\/i>
-          不動
-        <\/button>
-        <button @click="switchToLiveTab"
-          class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-1"
-          :class="activeTab === 'live' ? 'bg-green-600 text-white shadow' : 'text-gray-500 hover:bg-gray-100'">
-          <i class="fa-solid fa-satellite-dish text-sm"><\/i>
-          RT
-        <\/button>
-      <\/div>
-    <\/nav>
+        <button @click="activeTab = 'dashboard'" :class="activeTab === 'dashboard' ? 'bg-indigo-600 text-white shadow' : 'text-gray-500 hover:bg-gray-100'" class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-1">
+          <i class="fa-solid fa-chart-line"></i> 統合
+        </button>
+        <button @click="activeTab = 'search'" :class="activeTab === 'search' ? 'bg-indigo-600 text-white shadow' : 'text-gray-500 hover:bg-gray-100'" class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-1">
+          <i class="fa-solid fa-magnifying-glass"></i> 薬を探す
+        </button>
+      </div>
+    </nav>
 
-    <main class="w-full max-w-3xl">
+    <main class="w-full max-w-7xl">
+      <!-- Dashboard Tab -->
+      <div v-if="activeTab === 'dashboard'" class="grid grid-cols-1 md:grid-cols-3 gap-6 fade-in">
+        <!-- Collabo Card -->
+        <section class="glass-card rounded-2xl overflow-hidden flex flex-col h-[700px]">
+          <div class="card-header bg-sky-400 flex justify-between">
+            <span>Collabo Portal</span>
+            <span class="text-xs bg-white/20 px-2 rounded-full">{ pharmaData.collabo?.length || 0 }件</span>
+          </div>
+          <div class="overflow-y-auto p-2 space-y-2">
+            <div v-for="item in pharmaData.collabo" class="p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
+              <div class="text-[10px] text-gray-400 font-bold mb-1">{ item.maker }</div>
+              <div class="font-bold text-sm text-gray-800 mb-1 leading-tight">{ item.name }</div>
+              <div class="flex justify-between items-center mt-2">
+                <span :class="getStatusClass(item.status)" class="status-badge">{ item.status }</span>
+                <span class="text-[10px] text-gray-400">{ item.date }</span>
+              </div>
+              <div v-if="item.remarks" class="mt-2 text-[10px] text-amber-600 bg-amber-50 p-1.5 rounded border-l-2 border-amber-300">
+                { item.remarks }
+              </div>
+            </div>
+          </div>
+        </section>
 
-      
-      <div v-if="activeTab === 'search'">
-        <div class="glass-card rounded-2xl p-4 sm:p-6 mb-4">
-          
-          <form @submit.prevent="performSearch" class="mb-4">
-            <div
-              class="relative flex items-center w-full h-14 rounded-xl bg-white overflow-hidden border-2 border-indigo-100 focus-within:border-indigo-500 focus-within:shadow-lg transition-all duration-300">
-              <div class="grid place-items-center h-full w-12">
-                <i class="fa-solid fa-magnifying-glass text-indigo-400"><\/i>
-              <\/div>
-              <input v-model="searchQuery"
-                class="h-full w-full outline-none text-gray-700 pr-2 placeholder-gray-400 bg-transparent text-lg font-medium"
-                type="text" id="search" placeholder="薬の名前を入力してください..." autocomplete="off" :disabled="isLoading"
-                autofocus />
-              <button type="button" v-if="searchQuery.length &gt; 0 &amp;&amp; !isLoading" @click="clearSearch"
-                class="h-full px-4 text-gray-400 hover:text-red-500 transition-colors">
-                <i class="fa-solid fa-xmark"><\/i>
-              <\/button>
-              <button type="submit"
-                class="bg-indigo-600 hover:bg-indigo-700 text-white h-full px-6 font-semibold text-sm sm:text-base min-w-[90px] flex items-center justify-center transition-colors"
-                :disabled="isLoading || searchQuery.trim() === ''"
-                :class="{ 'opacity-50 cursor-not-allowed': isLoading || searchQuery.trim() === '' }">
-                <span v-if="!isLoading">検索<\/span>
-                <i v-else class="fa-solid fa-circle-notch spinner text-lg"><\/i>
-              <\/button>
-            <\/div>
-          <\/form>
+        <!-- Medipal Card -->
+        <section class="glass-card rounded-2xl overflow-hidden flex flex-col h-[700px]">
+          <div class="card-header bg-green-600 flex justify-between">
+            <span>MEDIPAL</span>
+            <span class="text-xs bg-white/20 px-2 rounded-full">{ pharmaData.medipal?.length || 0 }件</span>
+          </div>
+          <div class="overflow-y-auto p-2 space-y-2">
+            <div v-for="item in pharmaData.medipal" class="p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
+              <div class="text-[10px] text-gray-400 font-bold mb-1">{ item.maker }</div>
+              <div class="font-bold text-sm text-gray-800 mb-1 leading-tight">{ item.name }</div>
+              <div class="mt-2">
+                <span :class="item.remarks?.includes('調整') ? 'status-danger' : 'status-success'" class="status-badge">
+                  { item.remarks?.includes('調整') ? '出荷調整' : '通常' }
+                </span>
+                <p class="text-[10px] text-gray-500 mt-1">{ item.remarks }</p>
+              </div>
+            </div>
+          </div>
+        </section>
 
-          
-          <div class="border-t border-gray-100 pt-4">
-            <div class="flex items-center justify-between mb-2">
-              <label class="text-xs font-semibold text-gray-500 flex items-center gap-2">
-                <i class="fa-solid fa-triangle-exclamation text-amber-400"><\/i>
-                在庫わずか警告ライン
-              <\/label>
-              <span
-                class="text-sm font-bold text-amber-500 bg-amber-50 border border-amber-200 rounded-full px-3 py-0.5">
-                {{ lowStockThreshold }} 個以下
-              <\/span>
-            <\/div>
-            <input type="range" v-model.number="lowStockThreshold" min="0" max="100" step="1" />
-            <div class="flex justify-between text-xs text-gray-300 mt-1">
-              <span>0<\/span><span>50<\/span><span>100<\/span>
-            <\/div>
-          <\/div>
-        <\/div>
+        <!-- AlfWeb Card -->
+        <section class="glass-card rounded-2xl overflow-hidden flex flex-col h-[700px]">
+          <div class="card-header bg-blue-500 flex justify-between">
+            <span>ALF-Web</span>
+            <span class="text-xs bg-white/20 px-2 rounded-full">{ pharmaData.alfweb?.length || 0 }件</span>
+          </div>
+          <div class="overflow-y-auto p-2 space-y-2">
+            <div v-for="item in pharmaData.alfweb" class="p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
+              <div class="text-[10px] text-gray-400 font-bold mb-1">{ item.maker }</div>
+              <div class="font-bold text-sm text-gray-800 mb-1 leading-tight">{ item.name }</div>
+              <div class="flex justify-between items-center mt-2">
+                <span class="status-badge status-danger">{ item.status || '入荷未定' }</span>
+                <span v-if="item.date" class="text-[10px] text-gray-400">更新: { item.date }</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
 
-        
-        <div v-if="errorMsg" class="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded-r-lg flex items-start fade-in">
-          <i class="fa-solid fa-triangle-exclamation text-red-500 mt-1 mr-3"><\/i>
-          <p class="text-red-700">{{ errorMsg }}<\/p>
-        <\/div>
+      <!-- Search Tab -->
+      <div v-if="activeTab === 'search'" class="max-w-3xl mx-auto fade-in">
+        <div class="glass-card rounded-2xl p-6 mb-6">
+          <div class="relative flex items-center w-full h-14 rounded-xl bg-white overflow-hidden border-2 border-indigo-100 focus-within:border-indigo-500 transition-all">
+            <div class="grid place-items-center h-full w-12 text-indigo-400">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <input v-model="query" @keyup.enter="performLocalSearch" class="h-full w-full outline-none text-gray-700 text-lg font-medium pl-2" type="text" placeholder="薬の名前を入力...">
+            <button @click="performLocalSearch" class="bg-indigo-600 text-white h-full px-8 font-semibold hover:bg-indigo-700 transition-colors">検索</button>
+          </div>
+        </div>
 
-        
-        <div v-if="hasSearched &amp;&amp; !isLoading">
-          <div v-if="results.length === 0"
-            class="glass-card rounded-2xl p-10 text-center fade-in flex flex-col items-center">
-            <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-              <i class="fa-solid fa-box-open text-3xl text-gray-300"><\/i>
-            <\/div>
-            <h3 class="text-lg font-medium text-gray-900 mb-1">見つかりませんでした<\/h3>
-            <p class="text-gray-500 text-sm">「{{ lastSearchedQuery }}」に一致する薬は登録されていません。<\/p>
-          <\/div>
-          <div v-else>
-            <div class="flex justify-between items-center mb-3 px-2">
-              <h2 class="text-lg font-semibold text-gray-700">検索結果<\/h2>
-              <div class="flex items-center gap-2">
-                <span v-if="lowStockCount &gt; 0"
-                  class="text-xs font-medium bg-amber-100 text-amber-700 py-1 px-3 rounded-full flex items-center gap-1 low-stock-pulse">
-                  <i class="fa-solid fa-triangle-exclamation text-xs"><\/i> 在庫わずか {{ lowStockCount }}件
-                <\/span>
-                <span class="text-xs font-medium bg-indigo-100 text-indigo-800 py-1 px-3 rounded-full">合致 {{ primaryResults.length }}件 <span v-if="alternativeResults.length &gt; 0">/ 代替 {{ alternativeResults.length }}件<\/span><\/span>
-              <\/div>
-            <\/div>
-            
-            
-            <div class="space-y-3 mb-6">
-              <div v-for="(item, index) in primaryResults" :key="'p'&#43;index"
-                class="glass-card rounded-xl p-5 border-l-4 border-indigo-500 hover:shadow-md transition-shadow fade-in"
-                :class="{ 'low-stock-border': isLowStock(item.stock) }"
-                :style="'animation-delay:' &#43; (index * 0.04) &#43; 's'">
-                <div class="flex justify-between items-start gap-4 mb-3">
-                  <div class="flex-1 min-w-0 pr-2 pb-1 sm:pb-0">
-                    <div class="flex items-center gap-2 mb-1 flex-wrap">
-                      <span class="text-xs text-indigo-500 font-bold tracking-wider uppercase">薬品名<\/span>
-                      <span v-if="item.type &amp;&amp; item.type.includes('後発')" class="text-[10px] font-bold text-teal-700 bg-teal-100 border border-teal-200 rounded px-1.5 py-0.5">後発品<\/span>
-                      <span v-if="item.type &amp;&amp; item.type.includes('先発')" class="text-[10px] font-bold text-blue-700 bg-blue-100 border border-blue-200 rounded px-1.5 py-0.5">先発品<\/span>
-                      <span v-if="isLowStock(item.stock)"
-                        class="text-xs font-bold text-amber-600 bg-amber-100 border border-amber-200 rounded-full px-2 py-0.5 flex items-center gap-1 low-stock-pulse">
-                        <i class="fa-solid fa-triangle-exclamation text-xs"><\/i> 在庫わずか
-                      <\/span>
-                    <\/div>
-                    <h3 class="text-lg sm:text-xl font-bold text-gray-900 leading-tight break-words">{{ item.name }}<\/h3>
-                  <\/div>
-                  <div class="shrink-0 flex items-start">
-                    <div class="rounded-lg p-2 sm:p-3 min-w-[70px] sm:min-w-[90px] text-center border transition-colors flex flex-col justify-center"
-                      :class="isLowStock(item.stock) ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-100'">
-                      <div class="text-[10px] sm:text-xs font-medium mb-1"
-                        :class="isLowStock(item.stock) ? 'text-amber-600' : 'text-gray-500'">
-                        <i class="fa-solid fa-cubes mr-1"
-                          :class="isLowStock(item.stock) ? 'text-amber-400' : 'text-gray-400'"><\/i>在庫数
-                      <\/div>
-                      <div class="text-xl sm:text-2xl font-bold"
-                        :class="isLowStock(item.stock) ? 'text-amber-600' : 'text-gray-800'">
-                        {{ item.stock !== '' ? item.stock : '-' }}
-                      <\/div>
-                    <\/div>
-                  <\/div>
-                <\/div>
-                
-                <div class="bg-indigo-50 rounded-lg px-3 py-2.5 border border-indigo-100 flex items-start sm:items-center flex-col sm:flex-row shadow-inner">
-                  <div class="text-[11px] sm:text-xs text-indigo-500 font-bold whitespace-nowrap mr-3 mb-1 sm:mb-0"><i class="fa-solid fa-layer-group mr-1.5 opacity-70"><\/i>棚番:<\/div>
-                  <div class="text-sm sm:text-base font-bold text-indigo-800 break-words leading-tight">{{ item.shelf !== '' ? item.shelf : '-' }}<\/div>
-                <\/div>
-              <\/div>
-                <\/div>
-              <\/div>
-            <\/div>
-            
-            
-            <div v-if="alternativeResults.length &gt; 0" class="mt-8 fade-in" style="animation-delay: 0.3s">
-              <div class="alt-header px-2">
-                <i class="fa-solid fa-code-compare text-teal-500"><\/i>
-                <h2 class="text-md font-bold text-gray-700">同じ成分の代替薬 <span class="text-xs font-normal text-gray-400 ml-1">（{{ alternativeResults.length }}件）<\/span><\/h2>
-              <\/div>
-              <div class="space-y-3">
-                <div v-for="(item, index) in alternativeResults" :key="'a'&#43;index"
-                  class="glass-card rounded-xl p-4 border-l-4 hover:shadow-md transition-shadow alternative-card"
-                  :class="{ 'low-stock-border': isLowStock(item.stock) }">
-                  <div class="flex justify-between items-start gap-4 mb-3">
-                    <div class="flex-1 min-w-0 pr-2 pb-1 sm:pb-0">
-                      <div class="flex items-center gap-2 mb-1 flex-wrap">
-                        <span class="badge-alt">代替提案<\/span>
-                        <span v-if="item.type &amp;&amp; item.type.includes('後発')" class="text-[10px] font-bold text-teal-700 bg-teal-100 border border-teal-200 rounded px-1.5 py-0.5">後発品<\/span>
-                        <span v-if="item.type &amp;&amp; item.type.includes('先発')" class="text-[10px] font-bold text-blue-700 bg-blue-100 border border-blue-200 rounded px-1.5 py-0.5">先発品<\/span>
-                        <span v-if="isLowStock(item.stock)"
-                          class="text-xs font-bold text-amber-600 bg-amber-100 border border-amber-200 rounded-full px-2 py-0.5 flex items-center gap-1 low-stock-pulse">
-                          <i class="fa-solid fa-triangle-exclamation text-xs"><\/i> わずか
-                        <\/span>
-                      <\/div>
-                      <h3 class="text-base sm:text-lg font-bold text-gray-800 leading-tight break-words">{{ item.name }}<\/h3>
-                    <\/div>
-                    <div class="shrink-0 flex items-start">
-                      <div class="rounded-lg p-2 min-w-[65px] sm:min-w-[80px] text-center border transition-colors flex flex-col justify-center"
-                        :class="isLowStock(item.stock) ? 'bg-amber-50 border-amber-200' : 'bg-white border-gray-100'">
-                        <div class="text-[10px] font-medium mb-0.5"
-                          :class="isLowStock(item.stock) ? 'text-amber-600' : 'text-gray-500'">在庫<\/div>
-                        <div class="text-lg sm:text-xl font-bold"
-                          :class="isLowStock(item.stock) ? 'text-amber-600' : 'text-gray-800'">
-                          {{ item.stock !== '' ? item.stock : '-' }}
-                        <\/div>
-                      <\/div>
-                    <\/div>
-                  <\/div>
-                  
-                  <div class="bg-teal-50 rounded-lg px-3 py-2.5 border border-teal-100 flex items-start sm:items-center flex-col sm:flex-row shadow-inner">
-                    <div class="text-[11px] sm:text-xs text-teal-600 font-bold whitespace-nowrap mr-3 mb-1 sm:mb-0"><i class="fa-solid fa-layer-group mr-1.5 opacity-70"><\/i>棚番:<\/div>
-                    <div class="text-sm sm:text-base font-bold text-teal-800 break-words leading-tight">{{ item.shelf !== '' ? item.shelf : '-' }}<\/div>
-                  <\/div>
-                <\/div>
-              <\/div>
-            <\/div>
+        <div v-if="results.length > 0" class="space-y-4">
+          <div v-for="item in results" :class="item.isPrimary === false ? 'alternative-card' : ''" class="glass-card rounded-xl p-5 border-l-4 border-indigo-500">
+            <div class="flex justify-between items-start gap-4">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <span v-if="item.isPrimary === false" class="badge-alt">代替提案</span>
+                  <span class="text-[10px] font-bold text-indigo-500 uppercase">薬品名</span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 leading-tight">{ item.name }</h3>
+                <div class="mt-3 flex gap-4">
+                  <div v-if="item.shelf" class="bg-indigo-50 px-3 py-1 rounded border border-indigo-100 text-sm">
+                    <span class="text-xs text-indigo-400 block font-bold">棚番</span>
+                    <span class="font-bold text-indigo-800">{ item.shelf }</span>
+                  </div>
+                  <div class="bg-gray-50 px-3 py-1 rounded border border-gray-100 text-sm">
+                    <span class="text-xs text-gray-400 block font-bold">在庫</span>
+                    <span class="font-bold text-gray-800">{ item.stock !== '' ? item.stock : '-' }</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-else-if="hasSearched" class="glass-card rounded-2xl p-10 text-center text-gray-400">
+          <p>「{ lastQuery }」に一致する結果はありませんでした。</p>
+        </div>
+      </div>
+    </main>
 
-        
-        <div v-if="!hasSearched &amp;&amp; !isLoading" class="glass-card rounded-2xl p-10 text-center text-gray-400 mt-2">
-          <i class="fa-solid fa-magnifying-glass text-4xl mb-4 opacity-20 block"><\/i>
-          <p>上部の検索窓に薬の名前を入力して検索してください<\/p>
-        <\/div>
-      <\/div>
-
-      
-      <div v-if="activeTab === 'shelf'">
-
-        
-        <div v-if="shelfLoading" class="glass-card rounded-2xl p-12 text-center">
-          <i class="fa-solid fa-circle-notch spinner text-4xl text-indigo-400 block mb-4"><\/i>
-          <p class="text-gray-400">棚番データを読み込み中...<\/p>
-        <\/div>
-
-        
-        <div v-else-if="shelfError" class="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded-r-lg flex items-start">
-          <i class="fa-solid fa-triangle-exclamation text-red-500 mt-1 mr-3"><\/i>
-          <p class="text-red-700">{{ shelfError }}<\/p>
-        <\/div>
-
-        <div v-else-if="shelfData.length &gt; 0">
-          
-          <div class="glass-card rounded-xl p-4 mb-4 flex flex-col gap-3">
-            
-            <div class="relative w-full">
-              <i class="fa-solid fa-filter absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 text-sm"><\/i>
-              <input v-model="shelfFilter" type="text" placeholder="棚番または薬品名で絞り込み..."
-                class="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-indigo-400 bg-white" />
-            <\/div>
-            
-            <div class="flex flex-wrap items-center gap-2">
-              <span class="text-xs font-semibold text-gray-400 mr-1">並び替え：<\/span>
-              <button v-for="opt in sortOptions" :key="opt.value" @click="shelfSort = opt.value"
-                class="text-xs font-semibold px-3 py-1.5 rounded-lg border transition-all" :class="shelfSort === opt.value
-                ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                : 'bg-white text-gray-500 border-gray-200 hover:border-indigo-400 hover:text-indigo-600'">
-                <i :class="opt.icon" class="mr-1"><\/i>{{ opt.label }}
-              <\/button>
-              <div class="ml-auto flex items-center gap-2">
-                <span
-                  class="text-xs font-bold text-amber-500 bg-amber-50 border border-amber-200 rounded-full px-2.5 py-0.5">{{
-                  lowStockThreshold }}個以下で警告<\/span>
-                <span class="text-xs font-medium bg-indigo-100 text-indigo-800 py-1 px-3 rounded-full">{{
-                  hierarchyData.length }}グループ / {{ filteredShelfData.length }}棚<\/span>
-              <\/div>
-            <\/div>
-          <\/div>
-
-          
-          <div class="space-y-3">
-            <div v-for="(group, gi) in hierarchyData" :key="gi"
-              class="glass-card rounded-xl overflow-hidden shelf-card fade-in"
-              :style="'animation-delay:' &#43; (gi * 0.04) &#43; 's'">
-              
-              <button
-                class="w-full flex items-center justify-between p-4 bg-indigo-50 hover:bg-indigo-100 transition-colors text-left"
-                @click="toggleGroup(gi)">
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center shrink-0">
-                    <i class="fa-solid fa-box-open text-white text-sm"><\/i>
-                  <\/div>
-                  <div>
-                    <div class="font-bold text-indigo-800 text-base">{{ group.groupName }}<\/div>
-                    <div class="text-xs text-indigo-500 flex items-center gap-2 mt-0.5">
-                      <span>{{ group.shelves.length }}棚 / {{ group.totalItems }}品目<\/span>
-                      <span v-if="group.lowStockTotal &gt; 0"
-                        class="text-amber-600 flex items-center gap-1 low-stock-pulse">
-                        <i class="fa-solid fa-triangle-exclamation text-xs"><\/i>在庫わずか {{ group.lowStockTotal }}件
-                      <\/span>
-                    <\/div>
-                  <\/div>
-                <\/div>
-                <i class="fa-solid transition-transform duration-200 text-indigo-400"
-                  :class="openedGroups.has(gi) ? 'fa-chevron-up' : 'fa-chevron-down'"><\/i>
-              <\/button>
-
-              
-              <div v-if="openedGroups.has(gi)" class="border-t border-indigo-100 divide-y divide-gray-100">
-                <div v-for="(shelf, si) in group.shelves" :key="si" class="">
-                  
-                  <button
-                    class="w-full flex items-center justify-between px-5 py-3 hover:bg-gray-50 transition-colors text-left"
-                    @click="toggleShelf(gi &#43; '-' &#43; si)">
-                    <div class="flex items-center gap-3">
-                      <div class="w-7 h-7 bg-gray-100 rounded-md flex items-center justify-center shrink-0">
-                        <i class="fa-solid fa-layer-group text-gray-400 text-xs"><\/i>
-                      <\/div>
-                      <div>
-                        <div class="font-semibold text-gray-800 text-sm">{{ shelf.shelf }}<\/div>
-                        <div class="text-xs text-gray-400 flex items-center gap-2">
-                          <span>{{ shelf.items.length }}品目<\/span>
-                          <span v-if="shelfLowStockCount(shelf) &gt; 0"
-                            class="text-amber-500 flex items-center gap-1 low-stock-pulse">
-                            <i class="fa-solid fa-triangle-exclamation text-xs"><\/i>わずか {{ shelfLowStockCount(shelf) }}件
-                          <\/span>
-                        <\/div>
-                      <\/div>
-                    <\/div>
-                    <i class="fa-solid transition-transform duration-200 text-gray-300 text-xs"
-                      :class="openedShelves.has(gi &#43; '-' &#43; si) ? 'fa-chevron-up' : 'fa-chevron-down'"><\/i>
-                  <\/button>
-
-                  
-                  <div v-if="openedShelves.has(gi &#43; '-' &#43; si)" class="border-t border-gray-100">
-                    <div v-for="(item, ii) in shelf.items" :key="ii"
-                      class="flex items-center justify-between pl-14 pr-4 py-2.5 hover:bg-gray-50 transition-colors"
-                      :class="{ 'bg-amber-50 hover:bg-amber-100': isLowStock(item.stock) }">
-                      <div class="flex-1 min-w-0 mr-4">
-                        <span class="text-sm text-gray-700 font-medium truncate block">{{ item.name }}<\/span>
-                      <\/div>
-                      <div class="shrink-0 flex items-center gap-2">
-                        <span v-if="isLowStock(item.stock)"
-                          class="text-xs font-bold text-amber-600 bg-amber-100 border border-amber-200 rounded-full px-2 py-0.5 flex items-center gap-1 low-stock-pulse">
-                          <i class="fa-solid fa-triangle-exclamation text-xs"><\/i>わずか
-                        <\/span>
-                        <span class="font-bold text-base min-w-[44px] text-right"
-                          :class="isLowStock(item.stock) ? 'text-amber-600' : 'text-gray-700'">
-                          {{ item.stock !== '' ? item.stock : '-' }}
-                        <\/span>
-                        <span class="text-xs text-gray-400 w-4">個<\/span>
-                      <\/div>
-                    <\/div>
-                  <\/div>
-                <\/div>
-              <\/div>
-            <\/div>
-          <\/div>
-
-          <div v-if="hierarchyData.length === 0" class="glass-card rounded-2xl p-10 text-center text-gray-400 mt-2">
-            <i class="fa-solid fa-filter text-3xl opacity-20 block mb-3"><\/i>
-            <p>「{{ shelfFilter }}」に一致する棚番は見つかりませんでした<\/p>
-          <\/div>
-        <\/div>
-
-        <div v-else class="glass-card rounded-2xl p-10 text-center text-gray-400">
-          <i class="fa-solid fa-layer-group text-4xl opacity-20 block mb-4"><\/i>
-          <p>棚番データがありません。<br>先にデータ更新を実行してください。<\/p>
-        <\/div>
-      <\/div>
-
-      
-      <div v-if="activeTab === 'alert'">
-
-        
-        <div v-if="shelfLoading" class="glass-card rounded-2xl p-12 text-center">
-          <i class="fa-solid fa-circle-notch spinner text-4xl text-red-400 block mb-4"><\/i>
-          <p class="text-gray-400">データを読み込み中...<\/p>
-        <\/div>
-
-        <div v-else>
-          
-          <div class="glass-card rounded-xl p-4 mb-4">
-            <div class="flex items-center justify-between mb-2">
-              <label class="text-xs font-semibold text-gray-500 flex items-center gap-2">
-                <i class="fa-solid fa-triangle-exclamation text-amber-400"><\/i>
-                在庫わずかの基準
-              <\/label>
-              <span
-                class="text-sm font-bold text-amber-500 bg-amber-50 border border-amber-200 rounded-full px-3 py-0.5">
-                {{ lowStockThreshold }} 個以下
-              <\/span>
-            <\/div>
-            <input type="range" v-model.number="lowStockThreshold" min="0" max="100" step="1" />
-            <div class="flex justify-between text-xs text-gray-300 mt-1">
-              <span>0<\/span><span>50<\/span><span>100<\/span>
-            <\/div>
-          <\/div>
-
-          
-          <div class="flex flex-wrap items-center gap-2 mb-4">
-            <span class="text-xs font-semibold text-gray-400 mr-1">並び替え：<\/span>
-            <button v-for="opt in alertSortOptions" :key="opt.value" @click="alertSort = opt.value"
-              class="text-xs font-semibold px-3 py-1.5 rounded-lg border transition-all" :class="alertSort === opt.value
-              ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-              : 'bg-white text-gray-500 border-gray-200 hover:border-indigo-400 hover:text-indigo-600'">
-              <i :class="opt.icon" class="mr-1"><\/i>{{ opt.label }}
-            <\/button>
-          <\/div>
-
-          
-          <div class="relative mb-4">
-            <i class="fa-solid fa-layer-group absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 text-sm"><\/i>
-            <input v-model="alertShelfFilter" type="text" placeholder="棚番で絞り込み（例：軟軟、センター）..."
-              class="w-full pl-9 pr-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-indigo-400 bg-white" />
-            <button v-if="alertShelfFilter" @click="alertShelfFilter = ''"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-red-400 transition-colors">
-              <i class="fa-solid fa-xmark text-sm"><\/i>
-            <\/button>
-          <\/div>
-
-          <div class="glass-card rounded-xl p-4 text-center border-l-4 border-red-500">
-            <div class="text-3xl font-black text-red-600">{{ alertData.zero.length }}<\/div>
-            <div class="text-xs font-semibold text-gray-500 mt-1 flex items-center justify-center gap-1">
-              <i class="fa-solid fa-circle-xmark text-red-400"><\/i> 在庫ゼロ
-            <\/div>
-          <\/div>
-          <div class="glass-card rounded-xl p-4 text-center border-l-4 border-amber-400">
-            <div class="text-3xl font-black text-amber-600">{{ alertData.low.length }}<\/div>
-            <div class="text-xs font-semibold text-gray-500 mt-1 flex items-center justify-center gap-1">
-              <i class="fa-solid fa-triangle-exclamation text-amber-400"><\/i> 在庫わずか
-            <\/div>
-          <\/div>
-        <\/div>
-
-        
-        <div v-if="alertData.zero.length &gt; 0" class="mb-4">
-          <h2 class="text-sm font-bold text-red-600 flex items-center gap-2 mb-2 px-1">
-            <i class="fa-solid fa-circle-xmark"><\/i> 在庫ゼロ（{{ alertData.zero.length }}件）
-          <\/h2>
-          <div class="glass-card rounded-xl overflow-hidden">
-            <div v-for="(item, i) in alertData.zero" :key="'z'&#43;i"
-              class="flex items-center justify-between px-4 py-3 border-b border-gray-100 last:border-0 hover:bg-red-50 transition-colors fade-in">
-              <div class="flex-1 min-w-0 mr-3">
-                <div class="font-semibold text-gray-800 text-sm truncate">{{ item.name }}<\/div>
-                <div class="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
-                  <i class="fa-solid fa-layer-group text-xs"><\/i> {{ item.shelf }}
-                <\/div>
-              <\/div>
-              <div class="shrink-0 text-xl font-black text-red-600">0 <span
-                  class="text-xs font-normal text-gray-400">個<\/span><\/div>
-            <\/div>
-          <\/div>
-        <\/div>
-
-        
-        <div v-if="alertData.low.length &gt; 0">
-          <h2 class="text-sm font-bold text-amber-600 flex items-center gap-2 mb-2 px-1">
-            <i class="fa-solid fa-triangle-exclamation"><\/i> 在庫わずか（{{ alertData.low.length }}件）
-          <\/h2>
-          <div class="glass-card rounded-xl overflow-hidden">
-            <div v-for="(item, i) in alertData.low" :key="'l'&#43;i"
-              class="flex items-center justify-between px-4 py-3 border-b border-gray-100 last:border-0 hover:bg-amber-50 transition-colors fade-in">
-              <div class="flex-1 min-w-0 mr-3">
-                <div class="font-semibold text-gray-800 text-sm truncate">{{ item.name }}<\/div>
-                <div class="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
-                  <i class="fa-solid fa-layer-group text-xs"><\/i> {{ item.shelf }}
-                <\/div>
-              <\/div>
-              <div class="shrink-0 text-xl font-black text-amber-600">{{ item.stock }} <span
-                  class="text-xs font-normal text-gray-400">個<\/span><\/div>
-            <\/div>
-          <\/div>
-        <\/div>
-
-        
-        <div v-if="alertData.total === 0" class="glass-card rounded-2xl p-12 text-center">
-          <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="fa-solid fa-circle-check text-4xl text-green-400"><\/i>
-          <\/div>
-          <h3 class="text-lg font-semibold text-gray-700 mb-1">在庫が充足しています<\/h3>
-          <p class="text-gray-400 text-sm">現在、{{ lowStockThreshold }}個以下の薬品はありません。<\/p>
-        <\/div>
-      <\/div>
-
-      
-      <div v-if="activeTab === 'return'">
-        
-        <div v-if="returnLoading" class="glass-card rounded-2xl p-12 text-center">
-          <i class="fa-solid fa-circle-notch spinner text-4xl text-blue-400 block mb-4"><\/i>
-          <p class="text-gray-400">返品推奨データを読み込み中...<\/p>
-        <\/div>
-
-        
-        <div v-else-if="returnError" class="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded-r-lg flex items-start">
-            <i class="fa-solid fa-triangle-exclamation text-red-500 mt-1 mr-3"><\/i>
-            <p class="text-red-700">{{ returnError }}<\/p>
-        <\/div>
-
-        <div v-else-if="returnData.length &gt; 0">
-            <div class="flex justify-between items-center mb-4 px-2">
-                <h2 class="text-lg font-bold text-blue-800 flex items-center gap-2">
-                    <i class="fa-solid fa-rotate-left"><\/i> 返品推奨品リスト
-                <\/h2>
-                <span class="text-xs font-medium bg-blue-100 text-blue-800 py-1 px-3 rounded-full">{{ returnData.length }}件<\/span>
-            <\/div>
-            
-            
-            <div class="relative mb-4">
-              <i class="fa-solid fa-filter absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 text-sm"><\/i>
-              <input v-model="returnFilterStr" type="text" placeholder="棚番・薬品名で絞り込み..."
-                class="w-full pl-9 pr-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-blue-400 bg-white" />
-              <button v-if="returnFilterStr" @click="returnFilterStr = ''"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-red-400 transition-colors">
-                <i class="fa-solid fa-xmark text-sm"><\/i>
-              <\/button>
-            <\/div>
-
-            <div class="glass-card rounded-xl overflow-hidden shadow-sm">
-                <div v-for="(item, i) in filteredReturnData" :key="i"
-                    class="flex items-center justify-between px-4 py-3 border-b border-gray-100 last:border-0 hover:bg-blue-50 transition-colors fade-in"
-                    :style="'animation-delay:' &#43; (i * 0.02) &#43; 's'">
-                    <div class="flex-1 min-w-0 mr-3">
-                        <div class="font-bold text-gray-800 text-base truncate">{{ item.name }}<\/div>
-                        <div class="text-xs text-gray-500 flex items-center gap-1 mt-1 font-medium bg-gray-100 w-fit px-2 py-0.5 rounded">
-                            <i class="fa-solid fa-layer-group text-xs text-blue-500"><\/i> {{ item.shelf !== '' ? item.shelf : '-' }}
-                        <\/div>
-                    <\/div>
-                    <div class="shrink-0 text-center bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
-                        <div class="text-[10px] text-gray-400 font-bold mb-0.5 uppercase">在庫<\/div>
-                        <div class="text-xl font-black text-gray-700">{{ item.stock !== '' ? item.stock : '-' }}<\/div>
-                    <\/div>
-                <\/div>
-            <\/div>
-            
-            <div v-if="filteredReturnData.length === 0" class="glass-card rounded-2xl p-8 text-center text-gray-400 mt-2">
-                <i class="fa-solid fa-filter text-3xl opacity-20 block mb-3"><\/i>
-                <p>絞り込み条件に一致するデータはありません<\/p>
-            <\/div>
-        <\/div>
-
-        <div v-else class="glass-card rounded-2xl p-10 text-center text-gray-400">
-            <i class="fa-solid fa-rotate-left text-4xl opacity-20 block mb-4"><\/i>
-            <p>返品推奨品のデータがありません。<br>先にデータ自動取得を実行してください。<\/p>
-        <\/div>
-      <\/div>
-
-      
-      <div v-if="activeTab === 'dead'">
-        
-        <div v-if="deadLoading" class="glass-card rounded-2xl p-12 text-center">
-          <i class="fa-solid fa-circle-notch spinner text-4xl text-purple-400 block mb-4"><\/i>
-          <p class="text-gray-400">不動在庫データを読み込み中...<\/p>
-        <\/div>
-
-        
-        <div v-else-if="deadError" class="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded-r-lg flex items-start">
-            <i class="fa-solid fa-triangle-exclamation text-red-500 mt-1 mr-3"><\/i>
-            <p class="text-red-700">{{ deadError }}<\/p>
-        <\/div>
-
-        <div v-else-if="deadData.length &gt; 0">
-            <div class="flex justify-between items-center mb-4 px-2">
-                <h2 class="text-lg font-bold text-purple-800 flex items-center gap-2">
-                    <i class="fa-solid fa-ghost"><\/i> 不動在庫の可能性
-                <\/h2>
-                <span class="text-xs font-medium bg-purple-100 text-purple-800 py-1 px-3 rounded-full">{{ deadData.length }}件<\/span>
-            <\/div>
-            
-            
-            <div class="relative mb-4">
-              <i class="fa-solid fa-filter absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 text-sm"><\/i>
-              <input v-model="deadFilterStr" type="text" placeholder="棚番・薬品名で絞り込み..."
-                class="w-full pl-9 pr-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-purple-400 bg-white" />
-              <button v-if="deadFilterStr" @click="deadFilterStr = ''"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-red-400 transition-colors">
-                <i class="fa-solid fa-xmark text-sm"><\/i>
-              <\/button>
-            <\/div>
-
-            <div class="glass-card rounded-xl overflow-hidden shadow-sm">
-                <div v-for="(item, i) in filteredDeadData" :key="i"
-                    class="flex items-center justify-between px-4 py-3 border-b border-gray-100 last:border-0 hover:bg-purple-50 transition-colors fade-in"
-                    :style="'animation-delay:' &#43; (i * 0.02) &#43; 's'">
-                    <div class="flex-1 min-w-0 mr-3">
-                        <div class="font-bold text-gray-800 text-base truncate">{{ item.name }}<\/div>
-                        <div class="text-xs text-gray-500 flex items-center gap-1 mt-1 font-medium bg-gray-100 w-fit px-2 py-0.5 rounded">
-                            <i class="fa-solid fa-layer-group text-xs text-purple-500"><\/i> {{ item.shelf !== '' ? item.shelf : '-' }}
-                        <\/div>
-                    <\/div>
-                    <div class="shrink-0 text-center bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
-                        <div class="text-[10px] text-gray-400 font-bold mb-0.5 uppercase">在庫<\/div>
-                        <div class="text-xl font-black text-gray-700">{{ item.stock !== '' ? item.stock : '-' }}<\/div>
-                    <\/div>
-                <\/div>
-            <\/div>
-            
-            <div v-if="filteredDeadData.length === 0" class="glass-card rounded-2xl p-8 text-center text-gray-400 mt-2">
-                <i class="fa-solid fa-filter text-3xl opacity-20 block mb-3"><\/i>
-                <p>絞り込み条件に一致するデータはありません<\/p>
-            <\/div>
-        <\/div>
-
-        <div v-else class="glass-card rounded-2xl p-10 text-center text-gray-400">
-            <i class="fa-solid fa-ghost text-4xl opacity-20 block mb-4"><\/i>
-            <p>不動在庫のデータがありません。<br>先にデータ自動取得を実行してください。<\/p>
-        <\/div>
-      <\/div>
-
-      
-      <div v-if="activeTab === 'live'">
-        <div v-if="liveLoading" class="glass-card rounded-2xl p-12 text-center">
-          <i class="fa-solid fa-circle-notch spinner text-4xl text-green-400 block mb-4"><\/i>
-          <p class="text-gray-400">MedOrderからリアルタイムデータを取得中...<\/p>
-        <\/div>
-        <div v-else-if="liveError" class="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded-r-lg">
-          <p class="text-red-700 font-semibold"><i class="fa-solid fa-triangle-exclamation mr-2"><\/i>{{ liveError }}<\/p>
-          <p class="text-red-500 text-sm mt-1">extract_data.pyを実行してトークンを更新してください。<\/p>
-        <\/div>
-        <div v-else-if="liveData.length &gt; 0">
-          <div class="flex justify-between items-center mb-3 px-2">
-            <div class="flex items-center gap-2">
-              <span class="text-green-600 font-bold"><i class="fa-solid fa-satellite-dish"><\/i> リアルタイム在庫<\/span>
-              <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full">全{{ liveTotalCount }}件<\/span>
-            <\/div>
-            <button @click="loadLiveData(livePage)" class="text-xs text-green-600 hover:text-green-800 flex items-center gap-1">
-              <i class="fa-solid fa-arrows-rotate"><\/i> 更新
-            <\/button>
-          <\/div>
-          <div class="glass-card rounded-xl px-3 py-2 mb-3 flex items-center gap-2">
-            <i class="fa-solid fa-filter text-green-400 text-xs"><\/i>
-            <input v-model="liveFilterStr" type="text" placeholder="薬品名・YJコードで絞り込み..."
-              class="flex-1 bg-transparent text-sm outline-none text-gray-700 placeholder-gray-400" />
-          <\/div>
-          <div class="space-y-2">
-            <div v-for="item in filteredLiveData" :key="item.id"
-              class="glass-card rounded-xl p-3 flex items-center gap-3 hover:shadow-md transition-shadow">
-              <div class="flex-1 min-w-0">
-                <div class="font-bold text-gray-800 text-sm truncate">{{ item.name || '不明' }}<\/div>
-                <div class="flex flex-wrap gap-1.5 mt-1">
-                  <span v-if="item.yj_code" class="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded font-mono">{{ item.yj_code }}<\/span>
-                  <span v-if="item.lot" class="text-xs bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">
-                    <i class="fa-solid fa-barcode text-[10px]"><\/i> {{ item.lot }}
-                  <\/span>
-                  <span v-if="item.expiry" class="text-xs bg-orange-50 text-orange-600 px-1.5 py-0.5 rounded">
-                    <i class="fa-solid fa-calendar text-[10px]"><\/i> {{ item.expiry }}
-                  <\/span>
-                  <span v-if="item.last_action" class="text-xs px-1.5 py-0.5 rounded"
-                    :class="item.last_action === 'dispense' ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-600'">
-                    {{ item.last_action === 'dispense' ? '払出' : item.last_action === 'stock' ? '入庫' : item.last_action }}
-                  <\/span>
-                  <span v-if="item.nextDelivery" class="text-xs bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded">
-                    <i class="fa-solid fa-truck text-[10px]"><\/i> 発注中{{ item.nextDelivery }}
-                  <\/span>
-                <\/div>
-              <\/div>
-              <div class="shrink-0 text-center bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 min-w-[60px]">
-                <div class="text-[10px] text-gray-400 font-bold mb-0.5 uppercase">在庫<\/div>
-                <div class="text-xl font-black"
-                  :class="item.quantity &lt;= 0 ? 'text-red-500' : item.quantity &lt;= 10 ? 'text-orange-500' : 'text-gray-700'">
-                  {{ item.quantity }}
-                <\/div>
-              <\/div>
-            <\/div>
-          <\/div>
-          <div v-if="filteredLiveData.length === 0" class="glass-card rounded-2xl p-8 text-center text-gray-400 mt-2">
-            <i class="fa-solid fa-filter text-3xl opacity-20 block mb-3"><\/i>
-            <p>条件に一致するデータはありません<\/p>
-          <\/div>
-          <div v-if="liveTotalPages &gt; 1" class="flex justify-center items-center gap-4 mt-4 pt-3 border-t border-gray-100">
-            <button @click="livePrevPage" :disabled="livePage &lt;= 1"
-              class="px-3 py-1.5 rounded-lg text-sm font-semibold"
-              :class="livePage &lt;= 1 ? 'text-gray-300 cursor-not-allowed' : 'text-green-600 hover:bg-green-50'">
-              <i class="fa-solid fa-chevron-left"><\/i> 前へ
-            <\/button>
-            <span class="text-sm text-gray-500">{{ livePage }} / {{ liveTotalPages }} ページ<\/span>
-            <button @click="liveNextPage" :disabled="livePage &gt;= liveTotalPages"
-              class="px-3 py-1.5 rounded-lg text-sm font-semibold"
-              :class="livePage &gt;= liveTotalPages ? 'text-gray-300 cursor-not-allowed' : 'text-green-600 hover:bg-green-50'">
-              次へ <i class="fa-solid fa-chevron-right"><\/i>
-            <\/button>
-          <\/div>
-        <\/div>
-        <div v-else class="glass-card rounded-2xl p-10 text-center text-gray-400">
-          <i class="fa-solid fa-satellite-dish text-4xl opacity-20 block mb-4"><\/i>
-          <p>データがありません。<br>extract_data.pyを実行してトークンを設定してください。<\/p>
-        <\/div>
-      <\/div>
-  <\/div>
-
-  <\/main>
-
-  <footer class="mt-auto pt-10 pb-4 text-center text-xs text-gray-400">
-    <p>薬の在庫・棚番検索システム<\/p>
-  <\/footer>
-  <\/div>
+    <footer class="mt-10 pb-6 text-center text-xs text-gray-400">
+      <p>© 2026 薬の在庫・棚番検索システム (GitHub Pages版)</p>
+    </footer>
+  </div>
 
   <script>
-
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwDhj91LpWaF6OWhTmr6hbYLgScu0tlBcs2Y4nyXvg2WAwybHYGd5-V579tf0I5_H2dCQ/exec';
-    
-    // Polyfill for google.script.run for GitHub Pages
-    if (typeof google === 'undefined') {
-      window.google = { script: {} };
-      
-      Object.defineProperty(window.google.script, 'run', {
-        get: function() { return createGoogleScriptRun(); }
-      });
-
-      function createGoogleScriptRun() {
-        return {
-          _onSuccess: null,
-          _onFailure: null,
-          withSuccessHandler: function(onSuccess) { this._onSuccess = onSuccess; return this; },
-          withFailureHandler: function(onFailure) { this._onFailure = onFailure; return this; },
-          _executeApi: function(action, params) {
-            const success = this._onSuccess;
-            const failure = this._onFailure;
-            const payload = { action: action };
-            if (params !== undefined) payload.params = params;
-            
-            fetch(GAS_URL, {
-              method: 'POST',
-              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-              body: JSON.stringify(payload)
-            })
-            .then(res => {
-              if (!res.ok) throw new Error('Network response was not ok');
-              return res.json();
-            })
-            .then(data => {
-              if (data.error) throw new Error(data.error);
-              if (success) success(data.result !== undefined ? data.result : data);
-            })
-            .catch(error => {
-              if (failure) failure(error);
-              else console.error('Unhandled GAS API Error:', error);
-            });
-          },
-          searchMedicine: function(query) { this._executeApi('search', query); },
-          getShelfSummary: function() { this._executeApi('summary'); },
-          getLastUpdated: function() { this._executeApi('lastUpdated'); },
-          getReturnRecommended: function() { this._executeApi('return'); },
-          getPotentialDeadStock: function() { this._executeApi('dead'); },
-          getLiveStocks: function(page) { this._executeApi('live', page); }
-        };
-      }
-    }
-
-    const { createApp, ref, computed, reactive, onMounted } = Vue;
+    const { createApp, ref } = Vue;
+    const pharmaData = {"collabo": [{"date": "03/11 13:25", "code": "4987155635010", "maker": "東和薬品", "name": "ｱﾑﾛｼﾞﾋﾟﾝOD錠2.5mgﾄ-ﾜ     　     2.5mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/12", "status": "出荷準備中", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/11 13:25", "code": "4987188487006", "maker": "久光製薬", "name": "ｱﾚｻｶﾞﾃ-ﾌﾟ4mg             　            4mg 70枚", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/13", "status": "出荷準備中", "remarks": ""}, {"date": "03/11 13:25", "code": "4987155121087", "maker": "東和薬品", "name": "ｳﾙｿﾃﾞｵｷｼｺ-ﾙ酸錠100MGﾄ-ﾜ  　     100mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/12", "status": "出荷準備中", "remarks": ""}, {"date": "03/11 13:25", "code": "4987443386501", "maker": "ノバルティス", "name": "ｴﾅｼﾞｱ吸入用ｶﾌﾟｾﾙ中用     　  量ﾌﾞﾘ-ｽﾞﾍﾗ-ﾂｷ14CAP", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/12", "status": "出荷準備中", "remarks": ""}, {"date": "03/11 13:25", "code": "4987190021304", "maker": "ニプロファマ", "name": "ﾌﾛｾﾐﾄﾞ錠40mg｢NP｣         　      40mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/12", "status": "出荷準備中", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/11 13:25", "code": "4987081100316", "maker": "第一三共", "name": "ﾛｷｿﾆﾝﾃ-ﾌﾟ100mg           　      10X14cm 7枚X10", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/12", "status": "出荷準備中", "remarks": ""}, {"date": "03/11 12:19", "code": "4987312126634", "maker": "ミヤリサン製", "name": "ﾐﾔBM錠                   　           PTP  400T", "order_qty": "2", "deliv_qty": "2", "deliv_date": "", "status": "調達中", "remarks": "限定出荷品 (出荷調整品)　ﾒｰｶｰ入荷未定 注文取消時 要連絡"}, {"date": "03/11 11:53", "code": "4987035574613", "maker": "大塚製薬", "name": "ｴﾋﾞﾘﾌｧｲ内用液0.1%        　            1MLX28包", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/11", "status": "配達中", "remarks": ""}, {"date": "03/11 11:08", "code": "4987167005481", "maker": "ニチバン", "name": "ｽﾋﾟ-ﾙ膏M                 　      SPM16 25c?X6枚", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "出荷準備中", "remarks": ""}, {"date": "03/11 10:15", "code": "4987080737414", "maker": "沢井製薬", "name": "ｲｺｻﾍﾟﾝﾄ酸ｴﾁﾙ粒状ｶﾌﾟｾﾙ    　    900mg｢ｻﾜｲ｣  84包", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "配達中", "remarks": ""}, {"date": "03/10 18:11", "code": "4987128326358", "maker": "田辺ファーマ", "name": "ﾙﾊﾟﾌｨﾝ錠10mg             　       10mg PTP 500T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 13:11", "code": "4987155100037", "maker": "東和薬品", "name": "ﾍﾞﾀﾋｽﾁﾝﾒｼﾙ酸塩錠12mg     　     ｢ﾄ-ﾜ｣ PTP  100T", "order_qty": "3", "deliv_qty": "3", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 13:11", "code": "4987155400021", "maker": "東和薬品", "name": "ﾗﾍﾞﾌﾟﾗｿﾞ-ﾙNａ錠10MGﾄ-ﾜ   　      10mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 13:11", "code": "4987155144116", "maker": "東和薬品", "name": "ｶﾙﾍﾞｼﾞﾛ-ﾙ錠2.5mg｢ﾄ-ﾜ｣    　     2.5mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 13:01", "code": "4987155361018", "maker": "東和薬品", "name": "ｱﾄﾙﾊﾞｽﾀﾁﾝ錠10mg｢ﾄ-ﾜ｣     　      10mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 13:01", "code": "4987443384415", "maker": "ノバルティス", "name": "ｴﾝﾚｽﾄ錠100mg             　     100mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 13:01", "code": "4987190021205", "maker": "ニプロファマ", "name": "ﾌﾛｾﾐﾄﾞ錠20mg｢NP｣         　      20mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/10 13:01", "code": "4987213118011", "maker": "マルホ", "name": "ﾗﾋﾟﾌｫ-ﾄﾜｲﾌﾟ2.5%          　         2.5% 1包X28", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 11:13", "code": "4987616001712", "maker": "ノボノルディ", "name": "ﾉﾎﾞﾗﾋﾟｯﾄﾞ30ﾐｯｸｽ注ﾌﾚｯｸｽ   　   ﾍﾟﾝ 300単位 3MLX2", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 10:25", "code": "4987080117018", "maker": "沢井製薬", "name": "ｴﾊﾞｽﾁﾝOD錠5mg｢ｻﾜｲ｣       　       5mg PTP  100T", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/12", "status": "出荷準備中", "remarks": ""}, {"date": "03/10 10:11", "code": "4987155849011", "maker": "東和薬品", "name": "ｱﾑﾛｼﾞﾋﾟﾝ錠5mg｢ﾄ-ﾜ｣       　       5mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 10:11", "code": "4987080737414", "maker": "沢井製薬", "name": "ｲｺｻﾍﾟﾝﾄ酸ｴﾁﾙ粒状ｶﾌﾟｾﾙ    　    900mg｢ｻﾜｲ｣  84包", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 10:11", "code": "4987224057279", "maker": "持田製薬", "name": "ｼﾞｴﾉｹﾞｽﾄ錠0.5mg｢ﾓﾁﾀﾞ｣    　     0.5mg PTP  140T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 10:11", "code": "4987792100070", "maker": "日本ジェネリ", "name": "ﾋﾞｿﾌﾟﾛﾛ-ﾙﾌﾏﾙ酸塩錠2.5MG  　      ｢JG｣ PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 10:11", "code": "4987080538110", "maker": "沢井製薬", "name": "ﾌｧﾓﾁｼﾞﾝD錠20mg｢ｻﾜｲ｣      　      20mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 10:11", "code": "4987641082403", "maker": "帝國製薬", "name": "ﾛﾍﾟﾐﾝｶﾌﾟｾﾙ1mg            　     1mg PTP  100CAP", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "", "code": "4987672957640", "maker": "ヤンセンファ", "name": "ﾛﾍﾟﾐﾝｶﾌﾟｾﾙ1mg            　     1mg PTP  100CAP", "order_qty": "", "deliv_qty": "0", "deliv_date": "", "status": "保留", "remarks": "1本保留　新ｺｰﾄﾞ有 4987641082403 再入力予定"}, {"date": "03/10 10:02", "code": "4987443384446", "maker": "ノバルティス", "name": "ｴﾝﾚｽﾄ錠200mg             　     200mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 09:23", "code": "4987155121131", "maker": "東和薬品", "name": "ｵﾛﾊﾟﾀｼﾞﾝ塩酸塩顆粒0.5%   　    ｢ﾄ-ﾜ｣0.5gX200包", "order_qty": "2", "deliv_qty": "2", "deliv_date": "", "status": "調達中", "remarks": "限定出荷品 (出荷調整品)　ﾒｰｶｰ入荷未定 注文取消時 要連絡"}, {"date": "03/09 19:24", "code": "4987173018185", "maker": "日本新薬", "name": "ｴﾘｻﾞｽｶﾌﾟｾﾙ外用400μg      　ﾂｲﾝﾗｲｻﾞ-ﾂｷ PTP 70CAP", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/09 18:16", "code": "4987155095142", "maker": "東和薬品", "name": "ｵﾛﾊﾟﾀｼﾞﾝ塩酸塩OD錠5MG    　     ｢ﾄ-ﾜ｣ PTP  500T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/09 17:40", "code": "4987080117018", "maker": "沢井製薬", "name": "ｴﾊﾞｽﾁﾝOD錠5mg｢ｻﾜｲ｣       　       5mg PTP  100T", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/09 13:59", "code": "4987155121131", "maker": "東和薬品", "name": "ｵﾛﾊﾟﾀｼﾞﾝ塩酸塩顆粒0.5%   　    ｢ﾄ-ﾜ｣0.5gX200包", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/09 13:59", "code": "4987306066182", "maker": "大正製薬", "name": "ﾋﾞｵﾌｪﾙﾐﾝ錠剤             　           PTP  126T", "order_qty": "4", "deliv_qty": "4", "deliv_date": "03/10", "status": "納品済", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/09 10:30", "code": "4987155148107", "maker": "東和薬品", "name": "ﾌﾟﾚｶﾞﾊﾞﾘﾝOD錠75mgﾄ-ﾜ     　      75mg PTP  100T", "order_qty": "3", "deliv_qty": "3", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/09 10:16", "code": "4987155636017", "maker": "東和薬品", "name": "ｱﾑﾛｼﾞﾋﾟﾝOD錠5mg｢ﾄ-ﾜ｣     　       5mg PTP  100T", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/09 10:16", "code": "4987155849011", "maker": "東和薬品", "name": "ｱﾑﾛｼﾞﾋﾟﾝ錠5mg｢ﾄ-ﾜ｣       　       5mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/09 10:00", "code": "4987155150360", "maker": "東和薬品", "name": "ﾚﾎﾞｾﾁﾘｼﾞﾝ塩酸塩錠5MGﾄ-ﾜ  　       5mg PTP  500T", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 13:29", "code": "4987035637912", "maker": "大塚製薬", "name": "ﾓｲｾﾞﾙﾄ軟膏0.3%           　      0.3% 10gX10本", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/07 13:29", "code": "4987155635010", "maker": "東和薬品", "name": "ｱﾑﾛｼﾞﾋﾟﾝOD錠2.5mgﾄ-ﾜ     　     2.5mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/07 13:29", "code": "4987476113327", "maker": "陽進堂", "name": "ﾄﾗﾈｷｻﾑ酸錠250mg｢YD｣      　     250mg PTP 1000T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 13:05", "code": "4987158328506", "maker": "鳥居薬品", "name": "ｺﾚｸﾁﾑ軟膏0.5%            　         0.5% 5gX10", "order_qty": "4", "deliv_qty": "4", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 13:05", "code": "4987476113327", "maker": "陽進堂", "name": "ﾄﾗﾈｷｻﾑ酸錠250mg｢YD｣      　     250mg PTP 1000T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 13:05", "code": "4987188493014", "maker": "久光製薬", "name": "ﾊｲﾁｵ-ﾙ錠80               　           PTP  500T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 13:05", "code": "4987158325406", "maker": "鳥居薬品", "name": "ﾘｵﾅ錠250mg               　     250mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 13:05", "code": "4987155149166", "maker": "東和薬品", "name": "ﾚﾎﾞｾﾁﾘｼﾞﾝ塩酸塩ｼﾛｯﾌﾟ     　    0.05%｢ﾄ-ﾜ｣ 200ML", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 10:59", "code": "4987155361018", "maker": "東和薬品", "name": "ｱﾄﾙﾊﾞｽﾀﾁﾝ錠10mg｢ﾄ-ﾜ｣     　      10mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 10:59", "code": "4987155095142", "maker": "東和薬品", "name": "ｵﾛﾊﾟﾀｼﾞﾝ塩酸塩OD錠5MG    　     ｢ﾄ-ﾜ｣ PTP  500T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 10:59", "code": "4987306066182", "maker": "大正製薬", "name": "ﾋﾞｵﾌｪﾙﾐﾝ錠剤             　           PTP  126T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "", "status": "調達中", "remarks": "限定出荷品 (出荷調整品)　ﾒｰｶｰ入荷未定 注文取消時 要連絡"}, {"date": "03/07 10:59", "code": "4987155875010", "maker": "東和薬品", "name": "ﾒﾄﾄﾚｷｻ-ﾄｶﾌﾟｾﾙ2mg｢ﾄ-ﾜ｣    　     2mg PTP   20CAP", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": "限定出荷品 (出荷調整品)"}], "medipal": [{"code": "14987376798058", "maker": "日医工", "name": "ﾍﾞﾗﾊﾟﾐﾙ塩酸塩錠40MG ｢ﾀｲﾖ-｣   PTP   40MG    100T", "remarks": "通常"}, {"code": "14987792102262", "maker": "日本ジェネリッ", "name": "ｴｾﾞﾁﾐﾌﾞ錠10MG ｢JG｣   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987120269704", "maker": "高田製薬", "name": "ﾀｸﾛﾘﾑｽ軟膏0.1% ｢ﾀｶﾀ｣        0.1%    5GX10", "remarks": "通常"}, {"code": "14987792103252", "maker": "日本ジェネリッ", "name": "ﾌｪﾌﾞｷｿｽﾀｯﾄ錠20MG ｢JG｣   PTP   20MG    100T", "remarks": "通常"}, {"code": "14987376616215", "maker": "日医工", "name": "ﾍﾊﾟﾘﾝ類似物質油性ｸﾘ-ﾑ 0.3% ｢ﾆﾁｲｺｳ｣       25GX10", "remarks": "通常"}, {"code": "14987123409695", "maker": "武田薬品工業", "name": "ﾍﾞﾗﾊﾟﾐﾙ塩酸塩錠40MG ｢ﾀｲﾖ-｣   PTP   40MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987042357312", "maker": "科研製薬", "name": "ﾛｷｿﾌﾟﾛﾌｪﾝNAﾃ-ﾌﾟ100MG ｢科研｣   10CMX14CM   7ﾏｲX10", "remarks": "通常"}, {"code": "14987190067309", "maker": "ニプロ医薬", "name": "ﾒﾄﾎﾙﾐﾝ塩酸塩錠250MG MT｢ﾆﾌﾟﾛ｣   PTP  250MG    100T", "remarks": "通常"}, {"code": "14987190067309", "maker": "ニプロ医薬", "name": "ﾒﾄﾎﾙﾐﾝ塩酸塩錠250MG MT｢ﾆﾌﾟﾛ｣   PTP  250MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987312126631", "maker": "ミヤリサン製薬", "name": "ﾐﾔ BM錠   PTP           400T", "remarks": "通常"}, {"code": "", "maker": "パターン表外仕様：", "name": "パターン表No：48", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987035032318", "maker": "大塚製薬", "name": "ｴﾋﾞﾘﾌｧｲ内用液0.1%        0.1% 3MLX28ﾎｳ", "remarks": "通常"}, {"code": "14987792101951", "maker": "日本ジェネリッ", "name": "ｱﾄﾓｷｾﾁﾝ内用液0.4% ｢JG｣        0.4%  100MLX1", "remarks": "通常"}, {"code": "14987173016362", "maker": "日本新薬", "name": "ｱｽﾞﾉ-ﾙ軟膏0.033%      0.033%   20GX10", "remarks": "通常"}, {"code": "14987376711002", "maker": "日医工", "name": "ﾍﾞﾀﾋｽﾁﾝﾒｼﾙ酸塩錠6MG｢日医工 P｣ PTP   6MG    100T", "remarks": "通常"}, {"code": "14987376712153", "maker": "日医工", "name": "D-ｸﾛﾙﾌｪﾆﾗﾐﾝﾏﾚｲﾝ酸塩錠2MG｢NI G｣ PTP   2MG   1000T", "remarks": "通常"}, {"code": "14987158290527", "maker": "鳥居薬品", "name": "ｼﾀﾞｷｭｱ ｽｷﾞ花粉舌下錠5000JAU ﾌﾞﾘｽﾀ- 5000JAU  100T", "remarks": "通常"}, {"code": "14987167005488", "maker": "ニチバン", "name": "ｽﾋﾟ-ﾙ膏M (病院用)  SPM16 25ﾍｲﾎｳｾﾝﾁ 6ﾏｲ", "remarks": "通常"}, {"code": "14987138801736", "maker": "ツムラ", "name": "017 ﾂﾑﾗ ｺﾞﾚｲｻﾝ      ｶﾐﾊﾞｺ  2.5GX189", "remarks": "通常"}, {"code": "14987103011818", "maker": "ゼリア新薬工業", "name": "ｱｼﾉﾝ錠75MG   PTP   75MG    100T", "remarks": "通常"}, {"code": "14987978707007", "maker": "天藤製薬直", "name": "ﾎﾞﾗｻﾞ G坐剤                  50ｺ", "remarks": "通常"}, {"code": "14987286205165", "maker": "健栄製薬", "name": "ｸﾞﾘｾﾘﾝ   ｶﾞﾗｽ瓶     500ML", "remarks": "通常"}, {"code": "14987286205165", "maker": "健栄製薬", "name": "ｸﾞﾘｾﾘﾝ   ｶﾞﾗｽ瓶     500ML", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987770528800", "maker": "興和", "name": "ｱﾃﾞﾎｽ ｺ-ﾜ顆粒10%         10%   1GX600", "remarks": "通常"}, {"code": "14987954600209", "maker": "オルガノン", "name": "ﾅｿﾞﾈｯｸｽ点鼻液50μG 56ﾌﾝﾑﾖｳ          5MG   10GX5", "remarks": "通常"}, {"code": "14987954600216", "maker": "オルガノン", "name": "ﾅｿﾞﾈｯｸｽ点鼻液50μG 112ﾌﾝﾑ ﾖｳ       9MG   18GX5", "remarks": "通常"}, {"code": "14987650650102", "maker": "アストラゼネカ", "name": "ｸﾚｽﾄ-ﾙ錠2.5MG (ｱｽﾄﾗｾﾞﾈｶ)   PTP  2.5MG    100T", "remarks": "通常"}, {"code": "14987443386461", "maker": "ノバルティスフ", "name": "ｱﾃｷｭﾗ吸入用ｶﾌﾟｾﾙ中用量   PTP            14P", "remarks": "通常"}, {"code": "14987123875247", "maker": "武田薬品工業", "name": "ﾌﾛｾﾐﾄﾞ錠20MG ｢NIG｣   PTP   20MG    100T", "remarks": "通常"}, {"code": "14987188402068", "maker": "久光製薬", "name": "ｴｸﾗ- ﾌﾟﾗｽﾀ- 20μG/CM2 (ｼﾝ)   7.5CMX10CM    50ﾏｲ", "remarks": "通常"}, {"code": "14987138811438", "maker": "ツムラ", "name": "114 ﾂﾑﾗ ｻｲﾚｲﾄｳ      ｶﾐﾊﾞｺ    3GX189", "remarks": "通常"}, {"code": "14987123127124", "maker": "武田薬品工業", "name": "25MG ｱﾘﾅﾐﾝ F糖衣錠   PTP   25MG    100T", "remarks": "通常"}, {"code": "14987035030819", "maker": "大塚製薬", "name": "ｴﾋﾞﾘﾌｧｲ錠6MG   PTP    6MG    100T", "remarks": "通常"}, {"code": "14987080506017", "maker": "沢井製薬", "name": "ｴﾝﾍﾟﾗｼﾝ配合錠   PTP           100T", "remarks": "通常"}, {"code": "14987028213403", "maker": "エーザイ", "name": "ﾀﾝﾎﾞｺ-ﾙ錠50MG   PTP   50MG    100T", "remarks": "通常"}, {"code": "14987060307191", "maker": "杏林製薬", "name": "ﾓﾝﾃﾙｶｽﾄ錠10MG ｢KM｣   PTP   10MG    500T", "remarks": "通常"}, {"code": "14987084316315", "maker": "参天製薬", "name": "ｴﾋﾟﾅｽﾁﾝ塩酸塩LX点眼液0.1% ｢SEC｣  0.1%   5MLX10", "remarks": "通常"}, {"code": "14987954807172", "maker": "オルガノン", "name": "ｼﾝｸﾞﾚｱ錠10MG   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987792295582", "maker": "日本ジェネリッ", "name": "ｵﾙﾃｸｻ-口腔用軟膏0.1%        0.1%       5G", "remarks": "通常"}, {"code": "14987699058938", "maker": "ＥＡファーマ", "name": "ｾﾙﾍﾞｯｸｽ ｶﾌﾟｾﾙ 50MG   PTP   50MG    100P", "remarks": "通常"}, {"code": "14987080198113", "maker": "沢井製薬", "name": "ｴﾙﾃﾞｶﾙｼﾄ-ﾙ ｶﾌﾟｾﾙ0.75μG｢ｻﾜｲ｣   PTP 0.75μG 100P", "remarks": "通常"}, {"code": "14987341107847", "maker": "バイエル薬品", "name": "ｱﾀﾞﾗ-ﾄ CR錠40MG   PTP   40MG    100T", "remarks": "通常"}, {"code": "14987158290206", "maker": "鳥居薬品", "name": "ﾐﾃｨｷｭｱ ﾀﾞﾆ舌下錠3300JAU ﾌﾞﾘｽﾀ- 3300JAU    7T", "remarks": "通常"}, {"code": "14987028266522", "maker": "エーザイ", "name": "ﾒﾁｺﾊﾞ-ﾙ錠500μG   PTP  0.5MG   1000T", "remarks": "通常"}, {"code": "14987123158845", "maker": "武田薬品工業", "name": "ﾒﾙｶｿﾞ-ﾙ錠5MG   PTP    5MG    500T", "remarks": "通常"}, {"code": "14987770525700", "maker": "興和", "name": "ｱﾘﾄﾞﾈ ﾊﾟｯﾁ 27.5MG       27.5MG    28ﾏｲ", "remarks": "通常"}, {"code": "14987047211404", "maker": "サンファーマ", "name": "ﾗﾐｼ-ﾙ ｸﾘ-ﾑ 1%          1%   10GX10", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987792101869", "maker": "日本ジェネリッ", "name": "ﾌﾟﾚｶﾞﾊﾞﾘﾝ OD錠25MG ｢JG｣   PTP   25MG    100T", "remarks": "通常"}, {"code": "14987770529203", "maker": "興和", "name": "ｲｿﾊﾞｲﾄﾞ ｼﾛｯﾌﾟ 70%分包30ML         70%  30MLX21", "remarks": "通常"}, {"code": "14987060004830", "maker": "杏林製薬", "name": "ﾑｺﾀﾞｲﾝ錠500MG   PTP  500MG   1000T", "remarks": "通常"}, {"code": "14987080008214", "maker": "沢井製薬", "name": "ｾﾌｶﾍﾟﾝ ﾋﾟﾎﾞｷｼﾙ塩酸塩錠100MG ｢SW｣ PTP 100MG  100T", "remarks": "通常"}, {"code": "14987084154245", "maker": "参天製薬", "name": "ﾌﾙﾒﾄﾛﾝ点眼液0.1%        0.1%   5MLX10", "remarks": "通常"}, {"code": "14987084154245", "maker": "参天製薬", "name": "ﾌﾙﾒﾄﾛﾝ点眼液0.1%        0.1%   5MLX10", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987057522477", "maker": "協和キリン", "name": "ﾊﾟﾀﾉ-ﾙ点眼液0.1%        0.1%   5MLX10", "remarks": "通常"}, {"code": "14987116212219", "maker": "住友ファーマ", "name": "ｶﾞｽﾓﾁﾝ錠5MG   PTP    5MG    100T", "remarks": "通常"}, {"code": "14987138806236", "maker": "ツムラ", "name": "062 ﾂﾑﾗ ﾎﾞｳﾌｳﾂｳｼｮｳｻﾝ      ｶﾐﾊﾞｺ  2.5GX189", "remarks": "通常"}, {"code": "14987387592164", "maker": "三笠製薬", "name": "ﾌｪﾙﾋﾞﾅｸｽﾁｯｸ軟膏3% ｢三笠｣          3%   40GX10", "remarks": "通常"}, {"code": "14987376564516", "maker": "日医工", "name": "ｸﾞﾘｾﾘﾝ浣腸｢ｵｦﾀ｣小児用30         50%  30MLX20", "remarks": "通常"}, {"code": "14987443374574", "maker": "ノバルティスフ", "name": "ｱｿﾞﾙｶﾞ配合懸濁性点眼液               5MLX10", "remarks": "通常"}, {"code": "14987123003305", "maker": "武田薬品工業", "name": "ﾄﾞﾛｴﾁ配合錠｢あすか｣   PTP    1ｼ-ﾄ(28T)X3", "remarks": "通常"}, {"code": "14987158701566", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘ-配合錠   PTP         21TX30", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987306066189", "maker": "大正製薬", "name": "ﾋﾞｵﾌｪﾙﾐﾝ錠剤   PTP          21TX6", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987084315387", "maker": "参天製薬", "name": "ｴﾋﾟﾅｽﾁﾝ塩酸塩点眼液0.05% ｢S EC｣   0.05%   5MLX10", "remarks": "通常"}, {"code": "14987045654203", "maker": "クラシエ薬品", "name": "KB-23 ｸﾗｼｴ ﾄｳｷｼｬｸﾔｸｻﾝﾘｮｳ ｴｷｽｻ ｲﾘｭｳ         3GX28ﾎｳ", "remarks": "通常"}, {"code": "14987376726686", "maker": "日医工", "name": "ｴﾋﾟﾅｽﾁﾝ塩酸塩錠20MG ｢NIG｣   PTP   20MG    100T", "remarks": "通常"}, {"code": "14987028205637", "maker": "エーザイ", "name": "ﾃﾞｴﾋﾞｺﾞ錠5MG   PTP    5MG    100T", "remarks": "通常"}, {"code": "14987174186019", "maker": "日本臓器製薬", "name": "ﾂ-ﾄﾗﾑ錠50MG   PTP   50MG    100T", "remarks": "通常"}, {"code": "14987376244401", "maker": "日医工", "name": "ﾌﾟﾘﾝﾍﾟﾗﾝ錠5   PTP    5MG    100T", "remarks": "通常"}, {"code": "14987123409268", "maker": "武田薬品工業", "name": "ｱﾝﾌﾞﾛｷｿ-ﾙ塩酸塩錠15MG｢ﾀｲﾖ-｣   PTP   15MG    100T", "remarks": "通常"}, {"code": "14987123873724", "maker": "武田薬品工業", "name": "ｴﾋﾟﾅｽﾁﾝ塩酸塩錠20MG ｢NIG｣   PTP   20MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987376559826", "maker": "日医工", "name": "ﾍﾊﾟﾘﾝ類似物質ｸﾘ-ﾑ0.3%｢ﾆﾁｲｺｳ｣                 100G", "remarks": "通常"}, {"code": "14987376156209", "maker": "日医工", "name": "ｹﾄﾌﾟﾛﾌｪﾝﾃ-ﾌﾟ 40MG ｢日医工｣    10CMX14CM    70ﾏｲ", "remarks": "通常"}, {"code": "14987376156209", "maker": "日医工", "name": "ｹﾄﾌﾟﾛﾌｪﾝﾃ-ﾌﾟ 40MG ｢日医工｣    10CMX14CM    70ﾏｲ", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987173018298", "maker": "日本新薬", "name": "ｴﾘｻﾞｽ点鼻粉末200μG 28ﾌﾝﾑ ﾖｳ     5.6MG    10ﾎﾝ", "remarks": "通常"}, {"code": "14987123002094", "maker": "武田薬品工業", "name": "ﾌﾙﾁｶｿﾞﾝﾌﾗﾝｶﾙﾎﾞﾝｻﾝｴｽﾃﾙ ﾃﾝﾋﾞ27.5 UG｢ﾀｹﾀﾞﾃﾊﾞ｣ 56ﾌﾝﾑ 6G", "remarks": "通常"}, {"code": "14987123873281", "maker": "武田薬品工業", "name": "ﾒｷﾀｼﾞﾝ錠3MG ｢NIG｣   PTP    3MG    100T", "remarks": "通常"}, {"code": "14987120131209", "maker": "高田製薬", "name": "ｵﾛﾊﾟﾀｼﾞﾝ点眼液0.1% ｢ﾀｶﾀ｣        0.1%   5MLX10", "remarks": "通常"}, {"code": "14987114936308", "maker": "ファイザー", "name": "ｱﾙﾀﾞｸﾄﾝ A錠25MG   PTP   25MG    100T", "remarks": "通常"}, {"code": "14987114818406", "maker": "ファイザー", "name": "ﾌﾟﾛﾍﾞﾗ錠2.5MG   ﾋ-ﾄ  2.5MG    100T", "remarks": "通常"}, {"code": "14987213109061", "maker": "マルホ", "name": "ｱｽﾀｯﾄ軟膏1%          1%   10GX10", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987301160431", "maker": "小太郎漢方製薬", "name": "N023 ｺﾀﾛ-当帰芍薬散料ｴｷｽ  細粒        3GX42", "remarks": "通常"}, {"code": "14987376738566", "maker": "日医工", "name": "ｼﾞｸﾛﾌｪﾅｸNA錠25MG ｢NIG｣   PTP   25MG    100T", "remarks": "通常"}, {"code": "14987138802337", "maker": "ツムラ", "name": "023 ﾂﾑﾗ ﾄｳｷｼｬｸﾔｸｻﾝ      ｶﾐﾊﾞｺ  2.5GX189", "remarks": "通常"}, {"code": "14987080008610", "maker": "沢井製薬", "name": "ｾﾌｼﾞﾄﾚﾝ ﾋﾟﾎﾞｷｼﾙ錠100MG ｢SW｣   PTP  100MG    100T", "remarks": "通常"}, {"code": "14987114076202", "maker": "ファイザー", "name": "ﾋﾞﾌﾞﾗﾏｲｼﾝ錠50MG   PTP   50MG    100T", "remarks": "通常"}, {"code": "14987792214118", "maker": "日本ジェネリッ", "name": "ｹﾄｺﾅｿﾞ-ﾙ ﾛ-ｼｮﾝ 2% ｢JG｣          2%   10GX10", "remarks": "通常"}, {"code": "14987792214118", "maker": "日本ジェネリッ", "name": "ｹﾄｺﾅｿﾞ-ﾙ ﾛ-ｼｮﾝ 2% ｢JG｣          2%   10GX10", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987020018952", "maker": "岩城製薬", "name": "ﾆｿﾞﾗ-ﾙ ﾛ-ｼｮﾝ 2%          2%   10GX10", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987190002447", "maker": "ニプロ医薬", "name": "ｱﾄﾞﾅ錠30MG   PTP   30MG    100T", "remarks": "通常"}, {"code": "14987128207609", "maker": "田辺ファーマ", "name": "ﾏﾝｼﾞｬﾛ皮下注2.5MG ｱﾃｵｽ     2.5MG 0.5MLX2ｷｯﾄ", "remarks": "通常"}, {"code": "14987158290404", "maker": "鳥居薬品", "name": "ｼﾀﾞｷｭｱ ｽｷﾞ花粉舌下錠2000JAU ﾌﾞﾘｽﾀ- 2000JAU    7T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987128305213", "maker": "田辺ファーマ", "name": "ﾏﾝｼﾞｬﾛ皮下注5MG ｱﾃｵｽ       5MG 0.5MLX2ｷｯﾄ", "remarks": "通常"}, {"code": "14987376711002", "maker": "日医工", "name": "ﾍﾞﾀﾋｽﾁﾝﾒｼﾙ酸塩錠6MG｢日医工 P｣ PTP   6MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987128320018", "maker": "田辺ファーマ", "name": "ﾌﾞﾛﾁｿﾞﾗﾑ錠0.25MG ｢ﾖｼﾄﾐ｣   PTP 0.25MG    100T", "remarks": "通常"}, {"code": "14987123001301", "maker": "武田薬品工業", "name": "ﾌﾙｵﾛﾒﾄﾛﾝ点眼液0.1% ｢ｾﾝｼﾞｭ｣        0.1%   5MLX10", "remarks": "通常"}, {"code": "14987084319545", "maker": "参天製薬", "name": "ｱﾚｼﾞｵﾝ眼瞼ｸﾘ-ﾑ 0.5% (ﾁｭ-ﾌﾞｲﾘ) 0.5% 2GX10", "remarks": "通常"}, {"code": "14987080690112", "maker": "沢井製薬", "name": "ｾﾁﾘｼﾞﾝ塩酸塩錠10MG ｢ｻﾜｲ｣   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987138803730", "maker": "ツムラ", "name": "037 ﾂﾑﾗ ﾊﾝｹﾞﾋﾞｬｸｼﾞｭﾂﾃﾝﾏﾄｳ      ｶﾐﾊﾞｺ  2.5GX189", "remarks": "通常"}, {"code": "14987042373015", "maker": "科研製薬", "name": "ｾﾁﾘｼﾞﾝ塩酸塩錠10MG ｢科研｣   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987809157216", "maker": "ビオメディクス", "name": "ｱﾙﾌｧｶﾙｼﾄﾞ-ﾙ ｶﾌﾟｾﾙ0.5μG｢BMD｣   PTP  0.5μG 100P", "remarks": "通常"}, {"code": "14987376854358", "maker": "日医工", "name": "ｼﾞﾌｪﾆﾄﾞ-ﾙ塩酸塩錠25MG ｢NIG｣   PTP   25MG    100T", "remarks": "通常"}, {"code": "14987376725764", "maker": "日医工", "name": "ｴﾁｿﾞﾗﾑ錠1MG ｢NIG｣   PTP    1MG    100T", "remarks": "通常"}, {"code": "14987376850206", "maker": "日医工", "name": "ﾃﾞﾊﾟｹﾝ R錠200MG   PTP  200MG    100T", "remarks": "通常"}, {"code": "14987123873755", "maker": "武田薬品工業", "name": "ｼﾞﾌｪﾆﾄﾞ-ﾙ塩酸塩錠25MG ｢NIG｣   PTP   25MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987116155028", "maker": "住友ファーマ", "name": "ｱﾑﾛｼﾞﾝ錠10MG   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987809157216", "maker": "ビオメディクス", "name": "ｱﾙﾌｧｶﾙｼﾄﾞ-ﾙ ｶﾌﾟｾﾙ0.5μG｢BMD｣   PTP  0.5μG 100P", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987123875483", "maker": "武田薬品工業", "name": "ｴﾁｿﾞﾗﾑ錠1MG ｢NIG｣   PTP    1MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987123159033", "maker": "武田薬品工業", "name": "ｷｬﾌﾞﾋﾟﾘﾝ配合錠   PTP           100T", "remarks": "通常"}, {"code": "14987057592623", "maker": "協和キリン", "name": "ﾃﾞﾊﾟｹﾝ R錠200MG   PTP  200MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987080004117", "maker": "沢井製薬", "name": "ﾊﾞﾙｻﾙﾀﾝ錠80MG ｢ｻﾜｲ｣   PTP   80MG    100T", "remarks": "通常"}, {"code": "14987035143816", "maker": "大塚製薬", "name": "ﾌﾟﾚﾀ-ﾙ OD錠100MG   PTP  100MG    100T", "remarks": "通常"}, {"code": "14987020020894", "maker": "岩城製薬", "name": "ﾍﾞﾀﾒﾀｿﾞﾝ吉草酸ｴｽﾃﾙﾅﾝｺｳ 0.12% ｢ｲﾜｷ｣ 0.12%    5GX10", "remarks": "通常"}, {"code": "14987080260018", "maker": "沢井製薬", "name": "ﾘｾﾄﾞﾛﾝ酸NA錠17.5MG ｢ｻﾜｲ｣   PTP 17.5MG     20T", "remarks": "通常"}, {"code": "14987376042410", "maker": "日医工", "name": "ﾘｾﾄﾞﾛﾝ酸NA錠75MG ｢ﾆﾁｲｺｳ｣ (ﾊﾟｯｹ-ｼﾞｲﾘ) PTP  10T", "remarks": "通常"}, {"code": "14987123406779", "maker": "武田薬品工業", "name": "ﾛﾌﾗｾﾞﾌﾟ酸ｴﾁﾙ錠2MG ｢SN｣   PTP    2MG    100T", "remarks": "通常"}, {"code": "14987080158117", "maker": "沢井製薬", "name": "ﾌﾟｿﾌｪｷ配合錠｢ｻﾜｲ｣   PTP           100T", "remarks": "通常"}, {"code": "14987120223805", "maker": "高田製薬", "name": "ｶﾙﾎﾞｼｽﾃｲﾝ DS 50% ｢ﾀｶﾀ｣         50%     100G", "remarks": "通常"}, {"code": "14987058054038", "maker": "共和薬品工業", "name": "ｵﾗﾝｻﾞﾋﾟﾝ錠5MG ｢ｱﾒﾙ｣   PTP    5MG    100T", "remarks": "通常"}, {"code": "14987138803938", "maker": "ツムラ", "name": "039 ﾂﾑﾗ ﾘｮｳｹｲｼﾞｭｯｶﾝﾄｳ      ｶﾐﾊﾞｺ  2.5GX189", "remarks": "通常"}, {"code": "14987084121230", "maker": "参天製薬", "name": "ｻﾝﾃｿﾞ-ﾝ 0.05%眼軟膏       0.05%  3.5GX10", "remarks": "通常"}, {"code": "14987081186010", "maker": "第一三共", "name": "ﾌﾟﾗｽｸﾞﾚﾙ錠3.75MG ｢DSEP｣   PTP 3.75MG    100T", "remarks": "通常"}, {"code": "14987497305623", "maker": "日東メディック", "name": "ｼｱﾉｺﾊﾞﾗﾐﾝ点眼液0.02% ｢ﾆｯﾄ-｣       0.02%   5MLX10", "remarks": "通常"}, {"code": "14987497305616", "maker": "日東メディック", "name": "ｼｱﾉｺﾊﾞﾗﾐﾝ点眼液0.02% ｢ﾆｯﾄ-｣       0.02%    5MLX5", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987128103499", "maker": "田辺ファーマ", "name": "ｶﾅｸﾞﾙ OD錠100MG   PTP  100MG    100T", "remarks": "通常"}, {"code": "14987901117903", "maker": "ヴィアトリス製", "name": "ﾌｽｺﾃﾞ配合錠   PTP           100T", "remarks": "通常"}, {"code": "14987042231001", "maker": "科研製薬", "name": "ﾒﾘｽﾛﾝ錠6MG   PTP    6MG    100T", "remarks": "通常"}, {"code": "14987123003459", "maker": "武田薬品工業", "name": "ｱｼﾞﾙｻﾙﾀﾝ錠20MG ｢武田ﾃﾊﾞ｣   PTP   20MG    100T", "remarks": "通常"}, {"code": "14987301324437", "maker": "小太郎漢方製薬", "name": "N324 ｺﾀﾛ-桔梗石膏ｴｷｽ細粒                2GX42", "remarks": "通常"}, {"code": "14987116530412", "maker": "住友ファーマ", "name": "ﾂｲﾐ-ｸﾞ錠500MG   PTP  500MG    100T", "remarks": "通常"}, {"code": "14987123154588", "maker": "武田薬品工業", "name": "ﾄﾘﾝﾃﾘｯｸｽ錠10MG   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987123149409", "maker": "武田薬品工業", "name": "ﾈｼ-ﾅ錠25MG   PTP   25MG    100T", "remarks": "通常"}, {"code": "14987846101517", "maker": "ノーベルファー", "name": "ﾉﾍﾞﾙｼﾞﾝ錠25MG   PTP   25MG    100T", "remarks": "通常"}, {"code": "14987128009630", "maker": "田辺ファーマ", "name": "ﾘ-ｾﾞ錠10MG   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987128255716", "maker": "田辺ファーマ", "name": "ﾏﾝｼﾞｬﾛ皮下注7.5MG ｱﾃｵｽ     7.5MG 0.5MLX2ｷｯﾄ", "remarks": "通常"}, {"code": "14987170020416", "maker": "日本化薬", "name": "ﾃﾞｷｻﾒﾀｿﾞﾝ口腔用軟膏0.1%｢NK｣        0.1%    5GX10", "remarks": "通常"}, {"code": "14987028242861", "maker": "エーザイ", "name": "ﾆﾄﾛ-ﾙ R ｶﾌﾟｾﾙ 20MG   PTP   20MG    100P", "remarks": "通常"}, {"code": "14987042231001", "maker": "科研製薬", "name": "ﾒﾘｽﾛﾝ錠6MG   PTP    6MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987901118009", "maker": "ヴィアトリス製", "name": "ﾌｽｺﾃﾞ配合錠   PTP          1000T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987123003503", "maker": "武田薬品工業", "name": "ｱｼﾞﾙｻﾙﾀﾝ錠40MG ｢武田ﾃﾊﾞ｣   PTP   40MG    100T", "remarks": "通常"}, {"code": "14987224032853", "maker": "持田製薬", "name": "ｴﾊﾟﾃﾞ-ﾙEM ｶﾌﾟｾﾙ 2G          2G     56ﾎｳ", "remarks": "通常"}, {"code": "14987080008214", "maker": "沢井製薬", "name": "ｾﾌｶﾍﾟﾝ ﾋﾟﾎﾞｷｼﾙ塩酸塩錠100MG ｢SW｣ PTP 100MG  100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987080509018", "maker": "沢井製薬", "name": "ﾋﾞﾀﾀﾞﾝ配合錠   PTP           100T", "remarks": "通常"}, {"code": "14987387592577", "maker": "三笠製薬", "name": "ﾌｪﾙﾋﾞﾅｸ ﾃ-ﾌﾟ 70MG ｢三笠｣   10CMX14CM  14ﾏｲX20", "remarks": "通常"}, {"code": "14987058566036", "maker": "共和薬品工業", "name": "ﾌﾙﾆﾄﾗｾﾞﾊﾟﾑ錠2MG ｢ｱﾒﾙ｣   PTP    2MG    100T", "remarks": "通常"}, {"code": "14987123002100", "maker": "武田薬品工業", "name": "ﾌﾙﾁｶｿﾞﾝﾌﾗﾝｶﾙﾎﾞﾝｻﾝｴｽﾃﾙ ﾃﾝﾋﾞ27.5 UG｢ﾀｹﾀﾞﾃﾊﾞ｣120ﾌﾝﾑ10G", "remarks": "通常"}, {"code": "14987387591426", "maker": "三笠製薬", "name": "ｽﾁｯｸ ｾﾞﾉ-ﾙ A               40GX10", "remarks": "通常"}, {"code": "14987128064134", "maker": "田辺ファーマ", "name": "ﾀﾘｵﾝ錠10MG   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987222710029", "maker": "ＭｅｉｊｉＳｅ", "name": "ﾄﾞﾈﾍﾟｼﾞﾙ塩酸塩OD錠5MG ｢ﾒｲ ｼﾞ｣ PTP  5MG   14TX4", "remarks": "通常"}, {"code": "14987376037416", "maker": "日医工", "name": "ｼﾛｽﾀｿﾞ-ﾙ錠100MG ｢日医工｣   PTP  100MG    100T", "remarks": "通常"}, {"code": "14987123158951", "maker": "武田薬品工業", "name": "ﾙﾃｳﾑ膣用坐剤400MG                 4ｺX7", "remarks": "通常"}, {"code": "14987138809039", "maker": "ツムラ", "name": "090 ﾂﾑﾗ ｾｲﾊｲﾄｳ      ｶﾐﾊﾞｺ    3GX189", "remarks": "通常"}, {"code": "14987399026374", "maker": "テイカ製薬", "name": "ﾄﾗﾆﾗｽﾄ点眼液0.5%｢TS｣         25MG   5MLX5", "remarks": "通常"}, {"code": "14987045651400", "maker": "クラシエ薬品", "name": "KB-25 ｸﾗｼｴ ｹｲｼﾌﾞｸﾘｮｳｶﾞﾝﾘｮｳ ｴｷｽ ｻｲﾘｭｳ        3GX28ﾎｳ", "remarks": "通常"}, {"code": "14987814002013", "maker": "ミノファーゲン", "name": "ｸﾞﾘﾁﾛﾝ配合錠   PTP           100T", "remarks": "通常"}, {"code": "14987051901322", "maker": "キッセイ薬品工", "name": "ﾘｻﾞﾍﾞﾝ ｶﾌﾟｾﾙ 100MG   PTP  100MG    100P", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987901011904", "maker": "ヴィアトリス製", "name": "ﾘﾘｶ OD錠75MG   PTP   75MG    100T", "remarks": "通常"}, {"code": "14987120447430", "maker": "高田製薬", "name": "ﾓﾝﾃﾙｶｽﾄ ﾁｭｱﾌﾞﾙ錠5MG ｢ﾀｶﾀ｣   PTP    5MG  14TX10", "remarks": "通常"}, {"code": "14987901117507", "maker": "ヴィアトリス製", "name": "ﾌｪﾛ･ｸﾞﾗﾃﾞｭﾒｯﾄ錠105MG   PTP           100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987288435294", "maker": "吉田製薬", "name": "酸化ﾏｸﾞﾈｼｳﾑ錠330MG ｢ﾖｼﾀﾞ｣   PTP  330MG    100T", "remarks": "通常"}, {"code": "14987136118980", "maker": "中外製薬", "name": "ｴﾃﾞｨﾛ-ﾙ ｶﾌﾟｾﾙ0.75μG(ﾁｭｳｶﾞｲ)   PTP 0.75μG 100P", "remarks": "通常"}, {"code": "14987123136348", "maker": "武田薬品工業", "name": "ﾌﾞﾛﾌﾟﾚｽ錠4   PTP    4MG    100T", "remarks": "通常"}, {"code": "14987084309041", "maker": "参天製薬", "name": "ｱﾚｼﾞｵﾝLX点眼液0.1%        0.1%   5MLX10", "remarks": "通常"}, {"code": "14987306014500", "maker": "大正製薬", "name": "ﾛｺｱﾃ-ﾌﾟ (ﾀｲｼｮｳ)   10CMX14CM   7ﾏｲX10", "remarks": "通常"}, {"code": "14987120447430", "maker": "高田製薬", "name": "ﾓﾝﾃﾙｶｽﾄ ﾁｭｱﾌﾞﾙ錠5MG ｢ﾀｶﾀ｣   PTP    5MG  14TX10", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987028203060", "maker": "エーザイ", "name": "ﾄﾗﾍﾞﾙﾐﾝ配合錠   PTP           100T", "remarks": "通常"}, {"code": "14987497308853", "maker": "日東メディック", "name": "ﾍﾊﾟﾘﾝ類似物質ﾛ-ｼｮﾝ0.3%｢NIT｣               50GX10", "remarks": "通常"}, {"code": "14987190117738", "maker": "ニプロ医薬", "name": "ﾍﾊﾟﾘﾝ類似物質油性ｸﾘ-ﾑ 0.3% ｢ﾆﾌﾟﾛ｣          100G", "remarks": "通常"}, {"code": "14987376394724", "maker": "日医工", "name": "ｴﾍﾟﾘｿﾞﾝ塩酸塩錠50MG｢日医工 ｣  PTP  50MG   1000T", "remarks": "通常"}, {"code": "14987919100508", "maker": "ＬＴＬファーマ", "name": "ｶﾞｽﾀ-錠10MG   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987376559802", "maker": "日医工", "name": "ﾍﾊﾟﾘﾝ類似物質ｸﾘ-ﾑ0.3%｢ﾆﾁｲｺｳ｣               25GX10", "remarks": "通常"}, {"code": "14987376559802", "maker": "日医工", "name": "ﾍﾊﾟﾘﾝ類似物質ｸﾘ-ﾑ0.3%｢ﾆﾁｲｺｳ｣               25GX10", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987328145473", "maker": "ジェイドルフ製", "name": "ﾈﾘｻﾞ坐剤                  28ｺ", "remarks": "通常"}, {"code": "14987045650281", "maker": "クラシエ薬品", "name": "KB-3 ｸﾗｼｴ ｵﾂｼﾞﾄｳ ｴｷｽｻｲﾘｭｳ              3GX28ﾎｳ", "remarks": "通常"}, {"code": "14987173017321", "maker": "日本新薬", "name": "ｴﾋﾞﾌﾟﾛｽﾀｯﾄ配合錠DB   PTP           100T", "remarks": "通常"}, {"code": "14987376244401", "maker": "日医工", "name": "ﾌﾟﾘﾝﾍﾟﾗﾝ錠5   PTP    5MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987058201036", "maker": "共和薬品工業", "name": "ﾉﾊﾞﾐﾝ錠5MG   PTP    5MG    100T", "remarks": "通常"}, {"code": "14987497307320", "maker": "日東メディック", "name": "ﾚﾎﾞﾌﾛｷｻｼﾝ点眼液1.5% ｢ﾆｯﾄ-｣        1.5%   5MLX10", "remarks": "通常"}, {"code": "14987792103238", "maker": "日本ジェネリッ", "name": "ﾌｪﾌﾞｷｿｽﾀｯﾄ錠10MG ｢JG｣   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987123401828", "maker": "武田薬品工業", "name": "ﾂﾛﾌﾞﾃﾛ-ﾙﾃ-ﾌﾟ 0.5MG ｢QQ｣        0.5MG    70ﾏｲ", "remarks": "通常"}, {"code": "14987020020603", "maker": "岩城製薬", "name": "ｸﾛﾍﾞﾀｿﾞﾝ酪酸ｴｽﾃﾙ軟膏0.05% ｢ｲﾜｷ｣ 0.05%    5GX10", "remarks": "通常"}, {"code": "14987080553110", "maker": "沢井製薬", "name": "ﾆﾌｪｼﾞﾋﾟﾝ CR錠20MG ｢ｻﾜｲ｣   PTP   20MG    100T", "remarks": "通常"}, {"code": "14987035378911", "maker": "大塚製薬", "name": "ｻﾑｽｶ OD錠30MG   PTP   30MG     10T", "remarks": "通常"}, {"code": "14987274082655", "maker": "アルフレッサフ", "name": "ﾄﾌﾗﾆ-ﾙ錠10MG   PTP   10MG    300T", "remarks": "通常"}, {"code": "14987306066929", "maker": "大正製薬", "name": "ﾋﾞｵﾌｪﾙﾐﾝ R散                 500G", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987114175707", "maker": "ファイザー", "name": "ｴﾘｷｭ-ｽ錠2.5MG   PTP  2.5MG  14TX10", "remarks": "通常"}, {"code": "14987080086519", "maker": "沢井製薬", "name": "酢酸亜鉛錠50MG ｢ｻﾜｲ｣   PTP   50MG    100T", "remarks": "通常"}, {"code": "14987846101616", "maker": "ノーベルファー", "name": "ﾉﾍﾞﾙｼﾞﾝ錠50MG   PTP   50MG    100T", "remarks": "通常"}, {"code": "14987222697412", "maker": "ＭｅｉｊｉＳｅ", "name": "SP ﾄﾛ-ﾁ 0.25MG ｢明治｣   PTP 0.25MG   1200T", "remarks": "通常"}, {"code": "14987376709221", "maker": "日医工", "name": "ﾛﾌﾗｾﾞﾌﾟ酸ｴﾁﾙ錠1MG ｢SN｣   PTP    1MG    100T", "remarks": "通常"}, {"code": "14987123406755", "maker": "武田薬品工業", "name": "ﾛﾌﾗｾﾞﾌﾟ酸ｴﾁﾙ錠1MG ｢SN｣   PTP    1MG    100T", "remarks": "通常"}, {"code": "14987138802436", "maker": "ツムラ", "name": "024 ﾂﾑﾗ ｶﾐｼｮｳﾖｳｻﾝ      ｶﾐﾊﾞｺ  2.5GX189", "remarks": "通常"}, {"code": "14987909121810", "maker": "クリニジェン・", "name": "ｴﾋﾞｽﾀ錠60MG   PTP   60MG    100T", "remarks": "通常"}, {"code": "14987274044653", "maker": "アルフレッサフ", "name": "ｱﾅﾌﾗﾆ-ﾙ錠10MG   PTP   10MG    300T", "remarks": "通常"}, {"code": "14987116155110", "maker": "住友ファーマ", "name": "ｱﾑﾛｼﾞﾝ OD錠2.5MG   PTP  2.5MG    100T", "remarks": "通常"}, {"code": "14987116156582", "maker": "住友ファーマ", "name": "ｱﾑﾛｼﾞﾝ錠5MG   PTP    5MG    100T", "remarks": "通常"}, {"code": "14987428416527", "maker": "日本イーライリ", "name": "ｴﾋﾞｽﾀ錠60MG (ｲ-ﾗｲﾘﾘ-)   PTP   60MG  14TX10", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987114176001", "maker": "ファイザー", "name": "ｴﾘｷｭ-ｽ錠5MG   PTP    5MG    100T", "remarks": "通常"}, {"code": "14987057654550", "maker": "協和キリン", "name": "ｵﾙｹﾃﾞｨｱ錠4MG   PTP    4MG    100T", "remarks": "通常"}, {"code": "14987428447910", "maker": "日本イーライリ", "name": "ｵﾙﾐｴﾝﾄ錠4MG   PTP    4MG    7TX4", "remarks": "通常"}, {"code": "14987171792107", "maker": "日本ケミファ", "name": "ｶﾝﾃﾞｻﾙﾀﾝ錠4MG ｢ｹﾐﾌｧ｣   PTP    4MG    100T", "remarks": "通常"}, {"code": "14987919100393", "maker": "ＬＴＬファーマ", "name": "ｶﾞｽﾀ- D錠20MG   PTP   20MG    100T", "remarks": "通常"}, {"code": "14987028234781", "maker": "エーザイ", "name": "ｻｲﾚ-ｽ錠1MG   PTP    1MG    100T", "remarks": "通常"}, {"code": "14987123875902", "maker": "武田薬品工業", "name": "ｼﾞｸﾛﾌｪﾅｸNA錠25MG ｢NIG｣   PTP   25MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987138804331", "maker": "ツムラ", "name": "043 ﾂﾑﾗ ﾘｯｸﾝｼﾄｳ      ｶﾐﾊﾞｺ  2.5GX189", "remarks": "通常"}, {"code": "14987138805437", "maker": "ツムラ", "name": "054 ﾂﾑﾗ ﾖｸｶﾝｻﾝ      ｶﾐﾊﾞｺ  2.5GX189", "remarks": "通常"}, {"code": "14987138804133", "maker": "ツムラ", "name": "041 ﾂﾑﾗ ﾎﾁｭｳｴｯｷﾄｳ      ｶﾐﾊﾞｺ  2.5GX189", "remarks": "通常"}, {"code": "14987138802931", "maker": "ツムラ", "name": "029 ﾂﾑﾗ ﾊﾞｸﾓﾝﾄﾞｳﾄｳ      ｶﾐﾊﾞｺ    3GX189", "remarks": "通常"}, {"code": "14987128006509", "maker": "田辺ファーマ", "name": "ﾃﾞﾊﾟｽ錠1MG   PTP    1MG    100T", "remarks": "通常"}, {"code": "14987173018557", "maker": "日本新薬", "name": "ﾄﾗﾏ-ﾙ OD錠25MG   PTP   25MG    100T", "remarks": "通常"}, {"code": "14987341103078", "maker": "バイエル薬品", "name": "ﾊﾞｲｱｽﾋﾟﾘﾝ錠100MG   PTP  100MG    500T", "remarks": "通常"}, {"code": "14987199323536", "maker": "サノフィ", "name": "ﾌﾞｽｺﾊﾟﾝ錠10MG   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987222000014", "maker": "ＭｅｉｊｉＳｅ", "name": "ﾐﾙﾀｻﾞﾋﾟﾝ錠15MG ｢明治｣   PTP   15MG    100T", "remarks": "通常"}, {"code": "14987128148124", "maker": "田辺ファーマ", "name": "ﾒｲﾝﾃ-ﾄ錠2.5MG   PTP  2.5MG    100T", "remarks": "通常"}, {"code": "14987058690038", "maker": "共和薬品工業", "name": "ﾘｽﾐ-錠1MG   PTP    1MG    100T", "remarks": "通常"}, {"code": "14987233101137", "maker": "アステラス製薬", "name": "ﾚｸﾞﾅｲﾄ錠300MG   PTP  300MG   14TX4", "remarks": "通常"}, {"code": "14987376004210", "maker": "日医工", "name": "ﾛｷｿﾌﾟﾛﾌｪﾝﾅﾄﾘｳﾑ ﾊﾟｯﾌﾟ100MG｢ﾆﾁｲ ｺｳ｣ 10CMX14CM 7ﾏｲX10", "remarks": "通常"}, {"code": "14987080085512", "maker": "沢井製薬", "name": "酢酸亜鉛錠25MG ｢ｻﾜｲ｣   PTP   25MG    100T", "remarks": "通常"}, {"code": "14987123875551", "maker": "武田薬品工業", "name": "D-ｸﾛﾙﾌｪﾆﾗﾐﾝﾏﾚｲﾝ酸塩錠2MG｢NI G｣ PTP   2MG   1000T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987080268441", "maker": "沢井製薬", "name": "ｵｾﾙﾀﾐﾋﾞﾙ DS 3% ｢ｻﾜｲ｣          3%      30G", "remarks": "通常"}, {"code": "14987120110204", "maker": "高田製薬", "name": "ﾀﾞｲｱｯﾌﾟ坐剤6          6MG     50ｺ", "remarks": "通常"}, {"code": "14987476123729", "maker": "陽進堂", "name": "ｺ-ﾙﾀｲｼﾞﾝ点鼻液              15MLX10", "remarks": "通常"}, {"code": "14987792103559", "maker": "日本ジェネリッ", "name": "ｴｾﾞｱﾄ配合錠HD ｢JG｣   PTP           100T", "remarks": "通常"}, {"code": "14987306066981", "maker": "大正製薬", "name": "ﾋﾞｵﾌｪﾙﾐﾝ R錠   PTP           100T", "remarks": "通常"}, {"code": "14987306066981", "maker": "大正製薬", "name": "ﾋﾞｵﾌｪﾙﾐﾝ R錠   PTP           100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987138806748", "maker": "ツムラ", "name": "067 ﾂﾑﾗ ﾆｮｼﾝｻﾝ            2.5GX42ﾎｳ", "remarks": "通常"}, {"code": "14987792216112", "maker": "日本ジェネリッ", "name": "ｱﾛﾁﾉﾛ-ﾙ塩酸塩錠5MG ｢JG｣   PTP    5MG    100T", "remarks": "通常"}, {"code": "14987792216112", "maker": "日本ジェネリッ", "name": "ｱﾛﾁﾉﾛ-ﾙ塩酸塩錠5MG ｢JG｣   PTP    5MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987190015737", "maker": "ニプロ医薬", "name": "ｴｽｿﾞﾋﾟｸﾛﾝ錠2MG ｢ﾆﾌﾟﾛ｣   PTP    2MG    100T", "remarks": "通常"}, {"code": "14987123412237", "maker": "武田薬品工業", "name": "ｶﾃﾞﾁｱ配合錠LD ｢ﾃﾊﾞ｣   PTP           100T", "remarks": "通常"}, {"code": "14987792100091", "maker": "日本ジェネリッ", "name": "ﾋﾞｿﾌﾟﾛﾛ-ﾙﾌﾏﾙ酸塩錠5MG ｢JG｣   PTP    5MG    100T", "remarks": "通常"}, {"code": "14987080196119", "maker": "沢井製薬", "name": "ｴﾙﾃﾞｶﾙｼﾄ-ﾙ ｶﾌﾟｾﾙ 0.5μG｢ｻﾜｲ｣   PTP  0.5μG 100P", "remarks": "通常"}, {"code": "14987047211183", "maker": "サンファーマ", "name": "ﾃｸﾞﾚﾄ-ﾙ錠100MG   PTP  100MG    100T", "remarks": "通常"}, {"code": "4987035675921", "maker": "大塚製薬", "name": "ｵ-ｴｽﾜﾝ(OS-1) ｾﾞﾘ- ｱｯﾌﾟﾙ風味   \\1200    200GX6ﾌｸﾛ", "remarks": "通常"}, {"code": "14987155161417", "maker": "東和薬品本社", "name": "ｵｾﾙﾀﾐﾋﾞﾙ DS 3% ｢ﾄ-ﾜ｣          3%      30G", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987376104927", "maker": "日医工", "name": "ﾍﾟﾘｱｸﾁﾝ ｼﾛｯﾌﾟ 0.04%       0.04%    500ML", "remarks": "通常"}, {"code": "14987080561115", "maker": "沢井製薬", "name": "ﾄｽﾌﾛｷｻｼﾝﾄｼﾙ酸塩錠150MG｢ｻﾜｲ｣   PTP  150MG    100T", "remarks": "通常"}, {"code": "", "maker": "商品が特定できませんでした（発注コード：4987185806961）", "name": "商品が特定できませんでした（発注コード：4987185806961）", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987028205606", "maker": "エーザイ", "name": "ﾃﾞｴﾋﾞｺﾞ錠2.5MG   PTP  2.5MG    100T", "remarks": "通常"}, {"code": "14987233012938", "maker": "アステラス製薬", "name": "ﾊﾙﾅ-ﾙ D錠0.2MG   PTP  0.2MG  14TX10", "remarks": "通常"}, {"code": "14987080770074", "maker": "沢井製薬", "name": "ﾀﾑｽﾛｼﾝ塩酸塩OD錠0.1MG｢ｻﾜｲ｣   PTP  0.1MG  14TX10", "remarks": "通常"}, {"code": "14987376593615", "maker": "日医工", "name": "ﾍﾊﾟﾘﾝ類似物質外用ｽﾌﾟﾚ- 0.3% ｢ﾆﾁｲｺｳ｣      100GX10", "remarks": "通常"}, {"code": "14987925119723", "maker": "太陽ファルマ", "name": "ﾋﾟﾄﾞｷｻ-ﾙ錠20MG   PTP   20MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987792101586", "maker": "日本ジェネリッ", "name": "ﾋﾟﾘﾄﾞｷｻ-ﾙ錠20MG ｢ﾂﾙﾊﾗ｣   PTP   20MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987020020627", "maker": "岩城製薬", "name": "ｸﾛﾍﾞﾀｿﾞﾝ酪酸ｴｽﾃﾙ軟膏0.05% ｢ｲﾜｷ｣ 0.05%   10GX10", "remarks": "通常"}, {"code": "14987117773214", "maker": "大鵬薬品工業", "name": "ﾒｻﾃﾞﾙﾑ軟膏0.1%        0.1%    5GX10", "remarks": "通常"}, {"code": "14987387597725", "maker": "三笠製薬", "name": "ｾﾞｽﾀｯｸ ｸﾘ-ﾑ               25GX10", "remarks": "通常"}, {"code": "14987387597725", "maker": "三笠製薬", "name": "ｾﾞｽﾀｯｸ ｸﾘ-ﾑ               25GX10", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987123401835", "maker": "武田薬品工業", "name": "ﾂﾛﾌﾞﾃﾛ-ﾙﾃ-ﾌﾟ 1MG ｢QQ｣          1MG    70ﾏｲ", "remarks": "通常"}, {"code": "14987123161067", "maker": "武田薬品工業", "name": "ﾌﾘｳｪﾙ配合錠ULD ｢あすか｣   PTP          21TX3", "remarks": "通常"}, {"code": "14987316122035", "maker": "佐藤製薬", "name": "ﾍﾞﾄﾉﾊﾞ-ﾙ G軟膏0.12%                5GX50", "remarks": "通常"}, {"code": "14987792103788", "maker": "日本ジェネリッ", "name": "ﾘﾊﾞ-ﾛｷｻﾊﾞﾝ OD錠15MG ｢JG｣   PTP   15MG    100T", "remarks": "通常"}, {"code": "14987925670101", "maker": "太陽ファルマ", "name": "ｲﾝﾃﾞﾗﾙ錠10MG   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987138800135", "maker": "ツムラ", "name": "001 ﾂﾑﾗ ｶｯｺﾝﾄｳ      ｶﾐﾊﾞｺ  2.5GX189", "remarks": "通常"}, {"code": "14987128144324", "maker": "田辺ファーマ", "name": "ﾃﾈﾘｱ錠20MG   PTP   20MG    100T", "remarks": "通常"}, {"code": "14987116530108", "maker": "住友ファーマ", "name": "ﾒﾄｸﾞﾙｺ錠500MG   PTP  500MG    100T", "remarks": "通常"}, {"code": "14987199102674", "maker": "サノフィ", "name": "ｱﾋﾟﾄﾞﾗ注ｿﾛｽﾀ-      300ﾀﾝｲ 3MLX2ｷｯﾄ", "remarks": "通常"}, {"code": "14987081160270", "maker": "第一三共", "name": "ｱ-ﾁｽﾄ錠2.5MG   PTP  2.5MG    100T", "remarks": "通常"}, {"code": "14987087043164", "maker": "塩野義製薬", "name": "ｸ-ﾋﾞﾋﾞｯｸ錠50MG   PTP   50MG    100T", "remarks": "通常"}, {"code": "14987473602364", "maker": "富士フイルム富", "name": "ｵｾﾞｯｸｽ細粒小児用15%       15% 0.5GX100ﾎｳ", "remarks": "通常"}, {"code": "14987120269810", "maker": "高田製薬", "name": "ﾏｷｻｶﾙｼﾄ-ﾙ軟膏25μG/G｢ﾀｶﾀ｣     0.0025%   10GX10", "remarks": "通常"}, {"code": "14987288447136", "maker": "吉田製薬", "name": "酸化ﾏｸﾞﾈｼｳﾑ錠500MG ｢ﾖｼﾀﾞ｣   PTP  500MG    100T", "remarks": "通常"}, {"code": "14987190015638", "maker": "ニプロ医薬", "name": "ｴｽｿﾞﾋﾟｸﾛﾝ錠1MG ｢ﾆﾌﾟﾛ｣   PTP    1MG    100T", "remarks": "通常"}, {"code": "14987919100348", "maker": "ＬＴＬファーマ", "name": "ｶﾞｽﾀ- D錠10MG   PTP   10MG  14TX10", "remarks": "通常"}, {"code": "14987294394226", "maker": "帝人ファーマ", "name": "ﾌｪﾌﾞﾘｸ錠20MG   PTP   20MG    100T", "remarks": "通常"}, {"code": "14987190067408", "maker": "ニプロ医薬", "name": "ﾒﾄﾎﾙﾐﾝ塩酸塩錠500MG MT｢ﾆﾌﾟﾛ｣   PTP  500MG    100T", "remarks": "通常"}, {"code": "14987123139189", "maker": "武田薬品工業", "name": "2MG ｾﾙｼﾝ錠   PTP    2MG    100T", "remarks": "通常"}, {"code": "14987128006493", "maker": "田辺ファーマ", "name": "ﾃﾞﾊﾟｽ錠0.5MG   PTP  0.5MG    100T", "remarks": "通常"}, {"code": "14987114553406", "maker": "ファイザー", "name": "ﾜｲﾊﾟｯｸｽ錠0.5   PTP  0.5MG    100T", "remarks": "通常"}, {"code": "14987306300016", "maker": "大正製薬", "name": "ｼﾞｪﾆﾅｯｸ錠200MG   PTP  200MG    100T", "remarks": "通常"}, {"code": "14987473602524", "maker": "富士フイルム富", "name": "ｵｾﾞｯｸｽ錠小児用60MG   PTP   60MG    100T", "remarks": "通常"}, {"code": "14987792286016", "maker": "日本ジェネリッ", "name": "ﾄﾞﾝﾍﾟﾘﾄﾞﾝ錠10MG ｢JG｣   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987080030314", "maker": "沢井製薬", "name": "ｸﾛﾁｱｾﾞﾊﾟﾑ錠5MG ｢ｻﾜｲ｣   PTP    5MG    100T", "remarks": "通常"}, {"code": "14987087025559", "maker": "塩野義製薬", "name": "ﾒｼﾞｺﾝ錠15MG   PTP   15MG    100T", "remarks": "通常"}, {"code": "14987123412268", "maker": "武田薬品工業", "name": "ｶﾃﾞﾁｱ配合錠HD ｢ﾃﾊﾞ｣   PTP           100T", "remarks": "通常"}, {"code": "14987080406119", "maker": "沢井製薬", "name": "ﾗﾛｷｼﾌｪﾝ塩酸塩錠60MG ｢ｻﾜｲ｣   PTP   60MG    100T", "remarks": "通常"}, {"code": "14987042231087", "maker": "科研製薬", "name": "ﾒﾘｽﾛﾝ錠12MG   PTP   12MG    100T", "remarks": "通常"}, {"code": "14987087025559", "maker": "塩野義製薬", "name": "ﾒｼﾞｺﾝ錠15MG   PTP   15MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987919100737", "maker": "ＬＴＬファーマ", "name": "ｻﾜｼﾘﾝ ｶﾌﾟｾﾙ 250   PTP  250MG    100P", "remarks": "通常"}, {"code": "14987306300023", "maker": "大正製薬", "name": "ｼﾞｪﾆﾅｯｸ錠200MG   PTP  200MG    500T", "remarks": "通常"}, {"code": "14987123873755", "maker": "武田薬品工業", "name": "ｼﾞﾌｪﾆﾄﾞ-ﾙ塩酸塩錠25MG ｢NIG｣   PTP   25MG    100T", "remarks": "通常"}, {"code": "14987376351611", "maker": "日医工", "name": "ｹﾄﾁﾌｪﾝ ｼﾛｯﾌﾟ 0.02% ｢日医工｣      0.02% 3MLX144ﾎｳ", "remarks": "通常"}, {"code": "14987376026908", "maker": "日医工", "name": "ﾋﾟﾘﾄﾞｷｻ-ﾙ錠30MG ｢ﾂﾙﾊﾗ｣   PTP   30MG    100T", "remarks": "通常"}, {"code": "4987350607935", "maker": "テルモ", "name": "ﾅﾉﾊﾟｽﾆ-ﾄﾞﾙ 2 TN-3404 34GX4MM 70ﾎﾝ", "remarks": "通常"}, {"code": "14987770515800", "maker": "興和", "name": "ﾗｯｸﾋﾞ-錠   PTP           100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987901117507", "maker": "ヴィアトリス製", "name": "ﾌｪﾛ･ｸﾞﾗﾃﾞｭﾒｯﾄ錠105MG   PTP           100T", "remarks": "通常"}, {"code": "14987080333118", "maker": "沢井製薬", "name": "ｿﾘﾌｪﾅｼﾝｺﾊｸ酸塩錠2.5MG ｢ｻﾜｲ｣   PTP  2.5MG    100T", "remarks": "通常"}, {"code": "14987138805239", "maker": "ツムラ", "name": "052 ﾂﾑﾗ ﾖｸｲﾆﾝﾄｳ      ｶﾐﾊﾞｺ  2.5GX189", "remarks": "通常"}, {"code": "14987045480086", "maker": "クラシエ薬品", "name": "ｸﾘﾝﾀﾞﾏｲｼﾝ ﾘﾝ酸ｴｽﾃﾙｹﾞﾙ 1%｢ｸﾗ ｼｴ｣      1%   10GX10", "remarks": "通常"}, {"code": "14987271158759", "maker": "鶴原製薬", "name": "ﾋﾟﾘﾄﾞｷｻ-ﾙ錠30MG ｢ﾂﾙﾊﾗ｣   PTP   30MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987376056837", "maker": "日医工", "name": "ﾌﾟﾗﾝﾙｶｽﾄ ｶﾌﾟｾﾙ 112.5MG｢ﾆﾁｲｺｳ｣  PTP 112.5MG  14PX30", "remarks": "通常"}, {"code": "4987035545620", "maker": "大塚製薬", "name": "ｴｸｴﾙ ﾊﾟｳﾁ   \\12000    120ﾂﾌﾞX3", "remarks": "通常"}], "alfweb": [{"date": "03/11 13:16", "maker": "鳥居薬品", "name": "ｼﾀﾞｷｭｱｽｷﾞ花粉舌下錠2000", "order_qty": "10", "status": "出荷停止・入荷未定"}, {"date": "03/10 10:07", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合錠", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "03/09 11:25", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合錠", "order_qty": "2", "status": "出荷停止・入荷未定"}, {"date": "03/06 16:40", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合錠", "order_qty": "2", "status": "出荷停止・入荷未定"}, {"date": "03/06 09:50", "maker": "マルホ", "name": "ｱｽﾀｯﾄ軟膏1%", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "03/05 13:26", "maker": "共和薬品", "name": "ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "03/04 09:32", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合錠", "order_qty": "2", "status": "出荷停止・入荷未定"}, {"date": "03/03 18:41", "maker": "鳥居薬品", "name": "ｼﾀﾞｷｭｱｽｷﾞ花粉舌下錠2000", "order_qty": "10", "status": "出荷停止・入荷未定"}, {"date": "03/03 10:40", "maker": "参天製薬", "name": "ｻﾝﾍﾞﾀｿﾞﾝ眼耳鼻科用液0.1%", "order_qty": "3", "status": "出荷停止・入荷未定"}, {"date": "03/02 19:15", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合錠", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "03/02 19:11", "maker": "沢井製薬", "name": "ﾌﾟｿﾌｪｷ配合錠｢ｻﾜｲ｣", "order_qty": "2", "status": "出荷停止・入荷未定"}, {"date": "02/28 11:15", "maker": "沢井製薬", "name": "ﾌﾟｿﾌｪｷ配合錠｢ｻﾜｲ｣", "order_qty": "2", "status": "出荷停止・入荷未定"}, {"date": "02/27 18:10", "maker": "沢井製薬", "name": "ﾌﾟｿﾌｪｷ配合錠｢ｻﾜｲ｣", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "02/25 10:16", "maker": "共和薬品", "name": "ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "02/25 09:30", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合OD錠", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "02/25 09:30", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合錠", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "02/17 10:01", "maker": "共和薬品", "name": "ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "02/09 09:40", "maker": "共和薬品", "name": "ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "02/03 12:51", "maker": "沢井製薬", "name": "ﾌﾟｿﾌｪｷ配合錠｢ｻﾜｲ｣", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "01/31 12:16", "maker": "共和薬品", "name": "ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "01/30 14:15", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合錠", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "01/30 14:15", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合錠", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "01/30 12:26", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合OD錠", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "01/30 12:26", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合錠", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "01/29 16:47", "maker": "沢井製薬", "name": "ﾌﾟｿﾌｪｷ配合錠｢ｻﾜｲ｣", "order_qty": "3", "status": "出荷停止・入荷未定"}, {"date": "01/27 10:06", "maker": "ﾉﾎﾞﾉﾙﾃﾞｨｽｸ", "name": "ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ", "order_qty": "2", "status": "出荷停止・入荷未定"}, {"date": "01/23 09:41", "maker": "共和薬品", "name": "ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "01/22 11:41", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合OD錠", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "01/22 11:41", "maker": "鳥居薬品", "name": "ﾋﾞｵｽﾘｰ配合錠", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "01/20 11:17", "maker": "ﾉﾎﾞﾉﾙﾃﾞｨｽｸ", "name": "ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ", "order_qty": "3", "status": "出荷停止・入荷未定"}, {"date": "01/15 19:06", "maker": "共和薬品", "name": "ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "01/13 14:46", "maker": "ﾉﾎﾞﾉﾙﾃﾞｨｽｸ", "name": "ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "01/06 14:06", "maker": "共和薬品", "name": "ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "01/05 09:25", "maker": "ﾉﾎﾞﾉﾙﾃﾞｨｽｸ", "name": "ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ", "order_qty": "3", "status": "出荷停止・入荷未定"}, {"date": "12/19 11:11", "maker": "ﾉﾎﾞﾉﾙﾃﾞｨｽｸ", "name": "ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "12/15 10:47", "maker": "ﾉﾎﾞﾉﾙﾃﾞｨｽｸ", "name": "ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "12/11 18:55", "maker": "共和薬品", "name": "ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "12/10 09:15", "maker": "ﾉﾎﾞﾉﾙﾃﾞｨｽｸ", "name": "ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ", "order_qty": "1", "status": "出荷停止・入荷未定"}, {"date": "12/08 14:11", "maker": "参天製薬", "name": "ｻﾝﾍﾞﾀｿﾞﾝ眼耳鼻科用液0.1%", "order_qty": "3", "status": "出荷停止・入荷未定"}, {"date": "12/05 19:11", "maker": "日東ﾒﾃﾞｨｯｸ", "name": "ﾍﾊﾟﾘﾝ類似物質ﾛｰｼｮﾝ0.3%", "order_qty": "3", "status": "出荷停止・入荷未定"}, {"date": "12/05 11:51", "maker": "ﾉﾎﾞﾉﾙﾃﾞｨｽｸ", "name": "ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ", "order_qty": "1", "status": "出荷停止・入荷未定"}], "updated_at": "2026-03-11 15:06:47"};
 
     createApp({
       setup() {
-        
-        const activeTab = ref('search');
-        const lastUpdated = ref('');
-        const lowStockThreshold = ref(10);
-
-        const isLowStock = (stock) => {
-          const num = parseFloat(stock);
-          return !isNaN(num) && num <= lowStockThreshold.value;
-        };
-
-        const getShelfWeight = (shelfName) => {
-          if (!shelfName) return 999;
-          const order = [
-            '汎用左', '汎用右', '引出し', '汎用横',
-            'ｾﾝﾀｰ 下', 'ｾﾝﾀｰ 下 右', '軟膏',
-            'ｻｰﾊﾞｰ下', 'ｸﾗｲｱﾝﾄ下', '天秤下'
-          ];
-          let bestIdx = 999;
-          let maxLen = 0;
-          for (let i = 0; i < order.length; i++) {
-            if (shelfName.includes(order[i])) {
-              if (order[i].length > maxLen) {
-                bestIdx = i;
-                maxLen = order[i].length;
-              }
-            }
-          }
-          return bestIdx;
-        };
-
-        
-        const searchQuery = ref('');
-        const lastSearchedQuery = ref('');
+        const activeTab = ref('dashboard');
+        const query = ref('');
+        const lastQuery = ref('');
         const results = ref([]);
-        const isLoading = ref(false);
         const hasSearched = ref(false);
-        const errorMsg = ref('');
-        const filteringWarningsOnly = ref(false);
 
-        const toggleWarningsOnly = () => {
-          filteringWarningsOnly.value = !filteringWarningsOnly.value;
+        const getStatusClass = (status) => {
+          if (!status) return 'status-warning';
+          const s = status.toLowerCase();
+          if (s.includes('辞退') || s.includes('停止') || s.includes('未定') || s.includes('欠品')) return 'status-danger';
+          if (s.includes('納品済') || s.includes('準備中') || s.includes('中') || s.includes('済')) return 'status-success';
+          return 'status-warning';
         };
 
-        const primaryResults = computed(() => results.value.filter(i => i.isPrimary !== false));
-        const alternativeResults = computed(() => results.value.filter(i => i.isPrimary === false));
-        const lowStockCount = computed(() => primaryResults.value.filter(i => isLowStock(i.stock)).length);
-
-        const performSearch = () => {
-          const query = searchQuery.value.trim();
-          if (!query) return;
-          isLoading.value = true;
-          errorMsg.value = '';
-          lastSearchedQuery.value = query;
-
-          if (typeof google !== 'undefined' && google.script && google.script.run) {
-            google.script.run
-              .withSuccessHandler((data) => { results.value = data; isLoading.value = false; hasSearched.value = true; })
-              .withFailureHandler((err) => { errorMsg.value = 'エラー: ' + err.message; isLoading.value = false; hasSearched.value = true; results.value = []; })
-              .searchMedicine(query);
-          } else {
-            setTimeout(() => {
-              const mock = [
-                { name: 'オルガドロン点眼液0.1%', stock: 3, shelf: '軟膏-1 0-4', isPrimary: true, type: '先発品' },
-                { name: 'ネバナック懸濁性点眼液0.1%', stock: 15, shelf: '軟膏-1 2-1', isPrimary: true, type: '先発品' },
-                { name: 'ミドリンP点眼液', stock: 8, shelf: '軟膏-1 3-4', isPrimary: true, type: '後発品' },
-                { name: '代替ダミー点眼液0.1%', stock: 50, shelf: '汎用-1', isPrimary: false, type: '後発品' }
-              ];
-              results.value = mock.filter(i => i.name.toLowerCase().includes(query.toLowerCase()) || !i.isPrimary);
-              isLoading.value = false;
-              hasSearched.value = true;
-            }, 700);
-          }
-        };
-
-        const clearSearch = () => { searchQuery.value = ''; document.getElementById('search').focus(); };
-
-        
-        const shelfData = ref([]);
-        const shelfLoading = ref(false);
-        const shelfError = ref('');
-        const shelfFilter = ref('');
-        const openedShelves = reactive(new Set());
-        let shelfLoaded = false;
-
-        const shelfSort = ref('name'); 
-        const sortOptions = [
-          { value: 'name', label: '棚番順', icon: 'fa-solid fa-arrow-down-a-z' },
-          { value: 'lowstock', label: '在庫わずか順', icon: 'fa-solid fa-triangle-exclamation' },
-          { value: 'count', label: '品目数順', icon: 'fa-solid fa-list-ol' },
-        ];
-
-        const filteredShelfData = computed(() => {
-          let data = shelfData.value;
-          if (shelfFilter.value.trim()) {
-            const q = shelfFilter.value.toLowerCase();
-            data = data.filter(shelf =>
-              shelf.shelf.toLowerCase().includes(q) ||
-              shelf.items.some(item => item.name.toLowerCase().includes(q))
-            );
-          }
-          return [...data].sort((a, b) => {
-            if (shelfSort.value === 'lowstock') {
-              return shelfLowStockCount(b) - shelfLowStockCount(a);
-            } else if (shelfSort.value === 'count') {
-              return b.items.length - a.items.length;
-            }
-            const weightA = getShelfWeight(a.shelf);
-            const weightB = getShelfWeight(b.shelf);
-            if (weightA !== weightB) return weightA - weightB;
-            return a.shelf.localeCompare(b.shelf, 'ja');
-          });
-        });
-
-        const shelfLowStockCount = (shelf) => shelf.items.filter(i => isLowStock(i.stock)).length;
-
-        const toggleShelf = (idx) => {
-          if (openedShelves.has(idx)) openedShelves.delete(idx);
-          else openedShelves.add(idx);
-        };
-
-        
-        const openedGroups = reactive(new Set());
-        const toggleGroup = (gi) => {
-          if (openedGroups.has(gi)) openedGroups.delete(gi);
-          else openedGroups.add(gi);
-        };
-
-        
-        const hierarchyData = computed(() => {
-          const groupMap = {};
-          filteredShelfData.value.forEach(shelf => {
-            const dashIdx = shelf.shelf.indexOf('-');
-            const groupName = dashIdx > -1 ? shelf.shelf.slice(0, dashIdx) : shelf.shelf;
-            if (!groupMap[groupName]) {
-              groupMap[groupName] = { groupName, shelves: [], totalItems: 0, lowStockTotal: 0 };
-            }
-            groupMap[groupName].shelves.push(shelf);
-            groupMap[groupName].totalItems += shelf.items.length;
-            groupMap[groupName].lowStockTotal += shelfLowStockCount(shelf);
-          });
-          const groups = Object.values(groupMap);
-          if (shelfSort.value === 'lowstock') groups.sort((a, b) => b.lowStockTotal - a.lowStockTotal);
-          else if (shelfSort.value === 'count') groups.sort((a, b) => b.totalItems - a.totalItems);
-          else {
-            groups.sort((a, b) => {
-              const weightA = getShelfWeight(a.groupName);
-              const weightB = getShelfWeight(b.groupName);
-              if (weightA !== weightB) return weightA - weightB;
-              return a.groupName.localeCompare(b.groupName, 'ja');
-            });
-          }
-          return groups;
-        });
-
-        const loadShelfData = () => {
-          if (shelfLoaded) return;
-          shelfLoaded = true;
-          shelfLoading.value = true;
-          shelfError.value = '';
-
-          if (typeof google !== 'undefined' && google.script && google.script.run) {
-            google.script.run
-              .withSuccessHandler((data) => { shelfData.value = data; shelfLoading.value = false; })
-              .withFailureHandler((err) => { shelfError.value = 'データ取得エラー: ' + err.message; shelfLoading.value = false; })
-              .getShelfSummary();
-          } else {
-            
-            setTimeout(() => {
-              shelfData.value = [
-                { shelf: '軟膏-1 0-4', items: [{ name: 'オルガドロン点眼液0.1%', stock: 3 }, { name: 'ロコイドクリーム', stock: 20 }] },
-                { shelf: '軟膏-1 2-1', items: [{ name: 'ネバナック懸濁性点眼液0.1%', stock: 15 }] },
-                { shelf: 'センター右下-4', items: [{ name: 'ペリンドプリル錠2mg', stock: 0 }, { name: 'アムロジピン錠5mg', stock: 60 }] },
-              ];
-              shelfLoading.value = false;
-            }, 800);
-          }
-        };
-
-        const switchToShelfTab = () => {
-          activeTab.value = 'shelf';
-          loadShelfData();
-        };
-
-        
-        const fetchLastUpdated = () => {
-          if (typeof google !== 'undefined' && google.script && google.script.run) {
-            google.script.run
-              .withSuccessHandler((val) => { lastUpdated.value = val; })
-              .withFailureHandler(() => { lastUpdated.value = '取得失敗'; })
-              .getLastUpdated();
-          } else {
-            lastUpdated.value = '2026/03/09 02:00（モック）';
-          }
-        };
-
-        onMounted(() => {
-          document.getElementById('search')?.focus();
-          fetchLastUpdated();
-        });
-
-        
-        const alertShelfFilter = ref('');
-        const alertSort = ref('shelf'); 
-        const alertSortOptions = [
-          { value: 'stock', label: '在庫数順', icon: 'fa-solid fa-arrow-up-1-9' },
-          { value: 'name', label: '医薬品名順', icon: 'fa-solid fa-arrow-down-a-z' },
-          { value: 'shelf', label: '棚番順', icon: 'fa-solid fa-layer-group' },
-        ];
-
-        const sortAlertItems = (arr) => {
-          return [...arr].sort((a, b) => {
-            if (alertSort.value === 'name') return a.name.localeCompare(b.name, 'ja');
-            if (alertSort.value === 'shelf') {
-              const weightA = getShelfWeight(a.shelf);
-              const weightB = getShelfWeight(b.shelf);
-              if (weightA !== weightB) return weightA - weightB;
-              return a.shelf.localeCompare(b.shelf, 'ja');
-            }
-            return a.stock - b.stock;
-          });
-        };
-
-        const alertData = computed(() => {
-          const zero = [];
-          const low = [];
-          const shelfQ = alertShelfFilter.value.toLowerCase();
-          shelfData.value.forEach(shelf => {
-            if (shelfQ && !shelf.shelf.toLowerCase().includes(shelfQ)) return;
-            shelf.items.forEach(item => {
-              const num = parseFloat(item.stock);
-              if (isNaN(num)) return;
-              const entry = { name: item.name, stock: num, shelf: shelf.shelf };
-              if (num === 0) zero.push(entry);
-              else if (num <= lowStockThreshold.value) low.push(entry);
-            });
-          });
-          return { zero: sortAlertItems(zero), low: sortAlertItems(low), total: zero.length + low.length };
-        });
-
-        const switchToAlertTab = () => {
-          activeTab.value = 'alert';
-          loadShelfData();
-        };
-
-        
-        const returnData = ref([]);
-        const returnLoading = ref(false);
-        const returnError = ref('');
-        const returnFilterStr = ref('');
-        let returnLoaded = false;
-
-        const filteredReturnData = computed(() => {
-          if (!returnFilterStr.value.trim()) return returnData.value;
-          const q = returnFilterStr.value.toLowerCase();
-          return returnData.value.filter(item => 
-            item.name.toLowerCase().includes(q) || 
-            item.shelf.toLowerCase().includes(q)
-          );
-        });
-
-        const loadReturnData = () => {
-          if (returnLoaded) return;
-          returnLoaded = true;
-          returnLoading.value = true;
-          returnError.value = '';
-
-          if (typeof google !== 'undefined' && google.script && google.script.run) {
-            google.script.run
-              .withSuccessHandler((data) => { returnData.value = data; returnLoading.value = false; })
-              .withFailureHandler((err) => { returnError.value = 'データ取得エラー: ' + err.message; returnLoading.value = false; })
-              .getReturnRecommended();
-          } else {
-            
-            setTimeout(() => {
-              returnData.value = [
-                { name: 'アレンドロン酸錠35mg', stock: 100, shelf: '引出し-A' },
-                { name: 'トラネキサム酸錠250mg', stock: 500, shelf: '引出し-C' },
-              ];
-              returnLoading.value = false;
-            }, 800);
-          }
-        };
-
-        const switchToReturnTab = () => {
-          activeTab.value = 'return';
-          loadReturnData();
-        };
-        
-        
-        const deadData = ref([]);
-        const deadLoading = ref(false);
-        const deadError = ref('');
-        const deadFilterStr = ref('');
-        let deadLoaded = false;
-
-        const filteredDeadData = computed(() => {
-          if (!deadFilterStr.value.trim()) return deadData.value;
-          const q = deadFilterStr.value.toLowerCase();
-          return deadData.value.filter(item => 
-            item.name.toLowerCase().includes(q) || 
-            item.shelf.toLowerCase().includes(q)
-          );
-        });
-
-        const loadDeadData = () => {
-          if (deadLoaded) return;
-          deadLoaded = true;
-          deadLoading.value = true;
-          deadError.value = '';
-
-          if (typeof google !== 'undefined' && google.script && google.script.run) {
-            google.script.run
-              .withSuccessHandler((data) => { deadData.value = data; deadLoading.value = false; })
-              .withFailureHandler((err) => { deadError.value = 'データ取得エラー: ' + err.message; deadLoading.value = false; })
-              .getPotentialDeadStock();
-          } else {
-            
-            setTimeout(() => {
-              deadData.value = [
-                { name: '古い薬Aゼリー', stock: 15, shelf: '汎用左-1' },
-                { name: '使われない錠剤', stock: 3, shelf: '汎用右-2' },
-              ];
-              deadLoading.value = false;
-            }, 800);
-          }
-        };
-
-        const switchToDeadTab = () => {
-          activeTab.value = 'dead';
-          loadDeadData();
-        };
-
-        
-        const liveData = ref([]);
-        const liveLoading = ref(false);
-        const liveError = ref('');
-        const liveFilterStr = ref('');
-        const livePage = ref(1);
-        const liveTotalCount = ref(0);
-        const liveTotalPages = ref(1);
-        let liveLoaded = false;
-
-        const filteredLiveData = computed(() => {
-          let data = liveData.value;
+        const performLocalSearch = () => {
+          const q = query.value.trim().toLowerCase();
+          if (!q) return;
+          lastQuery.value = query.value;
           
-          if (filteringWarningsOnly.value) {
-            data = data.filter(item => {
-              const qty = item.quantity;
-              const hasDanger = qty <= 0;
-              const actionStr = (item.last_action || '') + ' ' + (item.nextDelivery || '');
-              const hasWarning = actionStr.includes('保留') || actionStr.includes('調達中');
-              return hasDanger || hasWarning;
-            });
-          }
-          
-          if (!liveFilterStr.value.trim()) return data;
-          
-          const q = liveFilterStr.value.toLowerCase();
-          return data.filter(item =>
-            (item.name || '').toLowerCase().includes(q) ||
-            (item.yj_code || '').toLowerCase().includes(q)
-          );
-        });
-
-        const loadLiveData = (page) => {
-          liveLoading.value = true;
-          liveError.value = '';
-          const p = page || livePage.value;
-          if (typeof google !== 'undefined' && google.script && google.script.run) {
-            google.script.run
-              .withSuccessHandler((result) => {
-                if (result && result.error) { liveError.value = result.error; }
-                else {
-                  liveData.value = result.items || [];
-                  liveTotalCount.value = result.totalCount || 0;
-                  liveTotalPages.value = result.totalPages || 1;
-                  livePage.value = result.currentPage || p;
+          const res = [];
+          ['collabo', 'medipal', 'alfweb'].forEach(key => {
+            if (pharmaData[key]) {
+              pharmaData[key].forEach(item => {
+                if (item.name.toLowerCase().includes(q)) {
+                  res.push({
+                    name: item.name,
+                    shelf: item.shelf || '',
+                    stock: item.stock || item.quantity || item.order_qty || '',
+                    isPrimary: true
+                  });
                 }
-                liveLoading.value = false;
-              })
-              .withFailureHandler((err) => { liveError.value = 'エラー: ' + err.message; liveLoading.value = false; })
-              .getLiveStocks(p);
-          } else {
-            setTimeout(() => {
-              liveData.value = [
-                { name: 'アムロジピン錠5mg', quantity: 580, lot: '6318124A', expiry: '2028-12-31', yj_code: '2171013F1028', last_action: 'dispense', nextDelivery: null },
-                { name: 'メトホルミン錠250mg', quantity: 8, lot: 'A240501', expiry: '2027-05-31', yj_code: '3969001F1048', last_action: 'stock', nextDelivery: 200 },
-              ];
-              liveTotalCount.value = 2; liveTotalPages.value = 1;
-              liveLoading.value = false;
-            }, 800);
-          }
+              });
+            }
+          });
+          
+          results.value = res;
+          hasSearched.value = true;
         };
 
-        const switchToLiveTab = () => {
-          activeTab.value = 'live';
-          if (!liveLoaded) { liveLoaded = true; loadLiveData(1); }
-        };
-        const liveNextPage = () => { if (livePage.value < liveTotalPages.value) loadLiveData(livePage.value + 1); };
-        const livePrevPage = () => { if (livePage.value > 1) loadLiveData(livePage.value - 1); };
-
-        return {
-          activeTab, lastUpdated, lowStockThreshold, isLowStock,
-          searchQuery, lastSearchedQuery, results, primaryResults, alternativeResults, isLoading, hasSearched, errorMsg, lowStockCount,
-          performSearch, clearSearch,
-          shelfData, shelfLoading, shelfError, shelfFilter, openedShelves, openedGroups,
-          filteredShelfData, hierarchyData, shelfSort, sortOptions,
-          shelfLowStockCount, toggleShelf, toggleGroup, switchToShelfTab,
-          alertData, alertSort, alertSortOptions, alertShelfFilter, switchToAlertTab,
-          returnData, returnLoading, returnError, returnFilterStr, filteredReturnData, switchToReturnTab,
-          deadData, deadLoading, deadError, deadFilterStr, filteredDeadData, switchToDeadTab,
-          liveData, liveLoading, liveError, liveFilterStr, filteredLiveData, livePage, liveTotalCount, liveTotalPages,
-          switchToLiveTab, loadLiveData, liveNextPage, livePrevPage,
-          // New additions for filter
-          filteringWarningsOnly, toggleWarningsOnly
-        };
+        return { activeTab, pharmaData, query, lastQuery, results, hasSearched, getStatusClass, performLocalSearch };
       }
     }).mount('#app');
-  <\/script>
-<\/body>
-
-<\/html>
+  </script>
+</body>
+</html>
