@@ -52,18 +52,18 @@
         <section class="glass-card rounded-2xl overflow-hidden flex flex-col h-[700px]">
           <div class="card-header bg-sky-400 flex justify-between">
             <span>Collabo Portal</span>
-            <span class="text-xs bg-white/20 px-2 rounded-full">{ pharmaData.collabo?.length || 0 }件</span>
+            <span class="text-xs bg-white/20 px-2 rounded-full">{{ pharmaData.collabo?.length || 0 }}件</span>
           </div>
           <div class="overflow-y-auto p-2 space-y-2">
             <div v-for="item in pharmaData.collabo" class="p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
-              <div class="text-[10px] text-gray-400 font-bold mb-1">{ item.maker }</div>
-              <div class="font-bold text-sm text-gray-800 mb-1 leading-tight">{ item.name }</div>
+              <div class="text-[10px] text-gray-400 font-bold mb-1">{{ item.maker }}</div>
+              <div class="font-bold text-sm text-gray-800 mb-1 leading-tight">{{ item.name }}</div>
               <div class="flex justify-between items-center mt-2">
-                <span :class="getStatusClass(item.status)" class="status-badge">{ item.status }</span>
-                <span class="text-[10px] text-gray-400">{ item.date }</span>
+                <span :class="getStatusClass(item.status)" class="status-badge">{{ item.status }}</span>
+                <span class="text-[10px] text-gray-400">{{ item.date }}</span>
               </div>
               <div v-if="item.remarks" class="mt-2 text-[10px] text-amber-600 bg-amber-50 p-1.5 rounded border-l-2 border-amber-300">
-                { item.remarks }
+                {{ item.remarks }}
               </div>
             </div>
           </div>
@@ -73,17 +73,96 @@
         <section class="glass-card rounded-2xl overflow-hidden flex flex-col h-[700px]">
           <div class="card-header bg-green-600 flex justify-between">
             <span>MEDIPAL</span>
-            <span class="text-xs bg-white/20 px-2 rounded-full">{ pharmaData.medipal?.length || 0 }件</span>
+            <span class="text-xs bg-white/20 px-2 rounded-full">{{ pharmaData.medipal?.length || 0 }}件</span>
           </div>
           <div class="overflow-y-auto p-2 space-y-2">
             <div v-for="item in pharmaData.medipal" class="p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
-              <div class="text-[10px] text-gray-400 font-bold mb-1">{ item.maker }</div>
-              <div class="font-bold text-sm text-gray-800 mb-1 leading-tight">{ item.name }</div>
+              <div class="text-[10px] text-gray-400 font-bold mb-1">{{ item.maker }}</div><!DOCTYPE html>
+<html lang="ja">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>医薬品調達・在庫ダッシュボード</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+    .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+    .spinner { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .fade-in { animation: fadeIn 0.4s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .alternative-card { background: linear-gradient(to right, #ffffff, #f0fdf4); border-left-color: #10b981 !important; }
+    .badge-alt { background-color: #10b981; color: white; font-size: 0.7rem; padding: 0.15rem 0.4rem; border-radius: 4px; margin-right: 0.5rem; font-weight: bold; }
+    .status-badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
+    .status-danger { background-color: #fee2e2; color: #b91c1c; border: 1px solid rgba(185, 28, 28, 0.1); }
+    .status-success { background-color: #dcfce7; color: #166534; border: 1px solid rgba(22, 101, 52, 0.1); }
+    .status-warning { background-color: #fef3c7; color: #b45309; border: 1px solid rgba(180, 83, 9, 0.1); }
+    .card-header { padding: 0.75rem 1rem; color: white; font-weight: 600; }
+  </style>
+</head>
+<body class="antialiased text-gray-800">
+  <div id="app" class="min-h-screen flex flex-col items-center p-4 sm:p-6 md:p-8">
+    <header class="w-full max-w-6xl mb-6 text-center">
+      <h1 class="text-3xl font-bold text-indigo-700 flex items-center justify-center gap-3">
+        <i class="fa-solid fa-pills"></i> 医薬品調達・在庫ダッシュボード
+      </h1>
+      <p class="text-gray-400 text-xs mt-2">最終更新: 2026-03-11 15:06:47</p>
+    </header>
+
+    <nav class="w-full max-w-3xl mb-6">
+      <div class="glass-card rounded-xl p-1 flex gap-1">
+        <button @click="activeTab = 'dashboard'" :class="activeTab === 'dashboard' ? 'bg-indigo-600 text-white shadow' : 'text-gray-500 hover:bg-gray-100'" class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-1">
+          <i class="fa-solid fa-chart-line"></i> 統合
+        </button>
+        <button @click="activeTab = 'search'" :class="activeTab === 'search' ? 'bg-indigo-600 text-white shadow' : 'text-gray-500 hover:bg-gray-100'" class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-1">
+          <i class="fa-solid fa-magnifying-glass"></i> 薬を探す
+        </button>
+      </div>
+    </nav>
+
+    <main class="w-full max-w-7xl">
+      <!-- Dashboard Tab -->
+      <div v-if="activeTab === 'dashboard'" class="grid grid-cols-1 md:grid-cols-3 gap-6 fade-in">
+        <!-- Collabo Card -->
+        <section class="glass-card rounded-2xl overflow-hidden flex flex-col h-[700px]">
+          <div class="card-header bg-sky-400 flex justify-between">
+            <span>Collabo Portal</span>
+            <span class="text-xs bg-white/20 px-2 rounded-full">{{ pharmaData.collabo?.length || 0 }}件</span>
+          </div>
+          <div class="overflow-y-auto p-2 space-y-2">
+            <div v-for="item in pharmaData.collabo" class="p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
+              <div class="text-[10px] text-gray-400 font-bold mb-1">{{ item.maker }}</div>
+              <div class="font-bold text-sm text-gray-800 mb-1 leading-tight">{{ item.name }}</div>
+              <div class="flex justify-between items-center mt-2">
+                <span :class="getStatusClass(item.status)" class="status-badge">{{ item.status }}</span>
+                <span class="text-[10px] text-gray-400">{{ item.date }}</span>
+              </div>
+              <div v-if="item.remarks" class="mt-2 text-[10px] text-amber-600 bg-amber-50 p-1.5 rounded border-l-2 border-amber-300">
+                {{ item.remarks }}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Medipal Card -->
+        <section class="glass-card rounded-2xl overflow-hidden flex flex-col h-[700px]">
+          <div class="card-header bg-green-600 flex justify-between">
+            <span>MEDIPAL</span>
+            <span class="text-xs bg-white/20 px-2 rounded-full">{{ pharmaData.medipal?.length || 0 }}件</span>
+          </div>
+          <div class="overflow-y-auto p-2 space-y-2">
+            <div v-for="item in pharmaData.medipal" class="p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
+              <div class="text-[10px] text-gray-400 font-bold mb-1">{{ item.maker }}</div>
+              <div class="font-bold text-sm text-gray-800 mb-1 leading-tight">{{ item.name }}</div>
               <div class="mt-2">
                 <span :class="item.remarks?.includes('調整') ? 'status-danger' : 'status-success'" class="status-badge">
-                  { item.remarks?.includes('調整') ? '出荷調整' : '通常' }
+                  {{ item.remarks?.includes('調整') ? '出荷調整' : '通常' }}
                 </span>
-                <p class="text-[10px] text-gray-500 mt-1">{ item.remarks }</p>
+                <p class="text-[10px] text-gray-500 mt-1">{{ item.remarks }}</p>
               </div>
             </div>
           </div>
@@ -93,15 +172,15 @@
         <section class="glass-card rounded-2xl overflow-hidden flex flex-col h-[700px]">
           <div class="card-header bg-blue-500 flex justify-between">
             <span>ALF-Web</span>
-            <span class="text-xs bg-white/20 px-2 rounded-full">{ pharmaData.alfweb?.length || 0 }件</span>
+            <span class="text-xs bg-white/20 px-2 rounded-full">{{ pharmaData.alfweb?.length || 0 }}件</span>
           </div>
           <div class="overflow-y-auto p-2 space-y-2">
             <div v-for="item in pharmaData.alfweb" class="p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
-              <div class="text-[10px] text-gray-400 font-bold mb-1">{ item.maker }</div>
-              <div class="font-bold text-sm text-gray-800 mb-1 leading-tight">{ item.name }</div>
+              <div class="text-[10px] text-gray-400 font-bold mb-1">{{ item.maker }}</div>
+              <div class="font-bold text-sm text-gray-800 mb-1 leading-tight">{{ item.name }}</div>
               <div class="flex justify-between items-center mt-2">
-                <span class="status-badge status-danger">{ item.status || '入荷未定' }</span>
-                <span v-if="item.date" class="text-[10px] text-gray-400">更新: { item.date }</span>
+                <span class="status-badge status-danger">{{ item.status || '入荷未定' }}</span>
+                <span v-if="item.date" class="text-[10px] text-gray-400">更新: {{ item.date }}</span>
               </div>
             </div>
           </div>
@@ -128,15 +207,15 @@
                   <span v-if="item.isPrimary === false" class="badge-alt">代替提案</span>
                   <span class="text-[10px] font-bold text-indigo-500 uppercase">薬品名</span>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 leading-tight">{ item.name }</h3>
+                <h3 class="text-xl font-bold text-gray-900 leading-tight">{{ item.name }}</h3>
                 <div class="mt-3 flex gap-4">
                   <div v-if="item.shelf" class="bg-indigo-50 px-3 py-1 rounded border border-indigo-100 text-sm">
                     <span class="text-xs text-indigo-400 block font-bold">棚番</span>
-                    <span class="font-bold text-indigo-800">{ item.shelf }</span>
+                    <span class="font-bold text-indigo-800">{{ item.shelf }}</span>
                   </div>
                   <div class="bg-gray-50 px-3 py-1 rounded border border-gray-100 text-sm">
                     <span class="text-xs text-gray-400 block font-bold">在庫</span>
-                    <span class="font-bold text-gray-800">{ item.stock !== '' ? item.stock : '-' }</span>
+                    <span class="font-bold text-gray-800">{{ item.stock !== '' ? item.stock : '-' }}</span>
                   </div>
                 </div>
               </div>
@@ -144,7 +223,7 @@
           </div>
         </div>
         <div v-else-if="hasSearched" class="glass-card rounded-2xl p-10 text-center text-gray-400">
-          <p>「{ lastQuery }」に一致する結果はありませんでした。</p>
+          <p>「{{ lastQuery }}」に一致する結果はありませんでした。</p>
         </div>
       </div>
     </main>
@@ -183,11 +262,16 @@
           ['collabo', 'medipal', 'alfweb'].forEach(key => {
             if (pharmaData[key]) {
               pharmaData[key].forEach(item => {
-                if (item.name.toLowerCase().includes(q)) {
+                const nameMatch = item.name && item.name.toLowerCase().includes(q);
+                const makerMatch = item.maker && item.maker.toLowerCase().includes(q);
+                const codeMatch = item.code && item.code.toLowerCase().includes(q);
+                const remarksMatch = item.remarks && item.remarks.toLowerCase().includes(q);
+                
+                if (nameMatch || makerMatch || codeMatch || remarksMatch) {
                   res.push({
                     name: item.name,
                     shelf: item.shelf || '',
-                    stock: item.stock || item.quantity || item.order_qty || '',
+                    stock: item.stock || item.quantity || item.order_qty || item.deliv_qty || '',
                     isPrimary: true
                   });
                 }
@@ -205,3 +289,82 @@
   </script>
 </body>
 </html>
+              <div class="font-bold text-sm text-gray-800 mb-1 leading-tight">{{ item.name }}</div>
+              <div class="mt-2">
+                <span :class="item.remarks?.includes('調整') ? 'status-danger' : 'status-success'" class="status-badge">
+                  {{ item.remarks?.includes('調整') ? '出荷調整' : '通常' }}
+                </span>
+                <p class="text-[10px] text-gray-500 mt-1">{{ item.remarks }}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- AlfWeb Card -->
+        <section class="glass-card rounded-2xl overflow-hidden flex flex-col h-[700px]">
+          <div class="card-header bg-blue-500 flex justify-between">
+            <span>ALF-Web</span>
+            <span class="text-xs bg-white/20 px-2 rounded-full">{{ pharmaData.alfweb?.length || 0 }}件</span>
+          </div>
+          <div class="overflow-y-auto p-2 space-y-2">
+            <div v-for="item in pharmaData.alfweb" class="p-3 bg-white border border-gray-100 rounded-lg shadow-sm">
+              <div class="text-[10px] text-gray-400 font-bold mb-1">{{ item.maker }}</div>
+              <div class="font-bold text-sm text-gray-800 mb-1 leading-tight">{{ item.name }}</div>
+              <div class="flex justify-between items-center mt-2">
+                <span class="status-badge status-danger">{{ item.status || '入荷未定' }}</span>
+                <span v-if="item.date" class="text-[10px] text-gray-400">更新: {{ item.date }}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Search Tab -->
+      <div v-if="activeTab === 'search'" class="max-w-3xl mx-auto fade-in">
+        <div class="glass-card rounded-2xl p-6 mb-6">
+          <div class="relative flex items-center w-full h-14 rounded-xl bg-white overflow-hidden border-2 border-indigo-100 focus-within:border-indigo-500 transition-all">
+            <div class="grid place-items-center h-full w-12 text-indigo-400">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <input v-model="query" @keyup.enter="performLocalSearch" class="h-full w-full outline-none text-gray-700 text-lg font-medium pl-2" type="text" placeholder="薬の名前を入力...">
+            <button @click="performLocalSearch" class="bg-indigo-600 text-white h-full px-8 font-semibold hover:bg-indigo-700 transition-colors">検索</button>
+          </div>
+        </div>
+
+        <div v-if="results.length > 0" class="space-y-4">
+          <div v-for="item in results" :class="item.isPrimary === false ? 'alternative-card' : ''" class="glass-card rounded-xl p-5 border-l-4 border-indigo-500">
+            <div class="flex justify-between items-start gap-4">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <span v-if="item.isPrimary === false" class="badge-alt">代替提案</span>
+                  <span class="text-[10px] font-bold text-indigo-500 uppercase">薬品名</span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 leading-tight">{{ item.name }}</h3>
+                <div class="mt-3 flex gap-4">
+                  <div v-if="item.shelf" class="bg-indigo-50 px-3 py-1 rounded border border-indigo-100 text-sm">
+                    <span class="text-xs text-indigo-400 block font-bold">棚番</span>
+                    <span class="font-bold text-indigo-800">{{ item.shelf }}</span>
+                  </div>
+                  <div class="bg-gray-50 px-3 py-1 rounded border border-gray-100 text-sm">
+                    <span class="text-xs text-gray-400 block font-bold">在庫</span>
+                    <span class="font-bold text-gray-800">{{ item.stock !== '' ? item.stock : '-' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-else-if="hasSearched" class="glass-card rounded-2xl p-10 text-center text-gray-400">
+          <p>「{{ lastQuery }}」に一致する結果はありませんでした。</p>
+        </div>
+      </div>
+    </main>
+
+    <footer class="mt-10 pb-6 text-center text-xs text-gray-400">
+      <p>© 2026 薬の在庫・棚番検索システム (GitHub Pages版)</p>
+    </footer>
+  </div>
+
+  <script>
+    const { createApp, ref } = Vue;
+    const pharmaData = {"collabo": [{"date": "03/11 13:25", "code": "4987155635010", "maker": "東和薬品", "name": "ｱﾑﾛｼﾞﾋﾟﾝOD錠2.5mgﾄ-ﾜ     　     2.5mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/12", "status": "出荷準備中", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/11 13:25", "code": "4987188487006", "maker": "久光製薬", "name": "ｱﾚｻｶﾞﾃ-ﾌﾟ4mg             　            4mg 70枚", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/13", "status": "出荷準備中", "remarks": ""}, {"date": "03/11 13:25", "code": "4987155121087", "maker": "東和薬品", "name": "ｳﾙｿﾃﾞｵｷｼｺ-ﾙ酸錠100MGﾄ-ﾜ  　     100mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/12", "status": "出荷準備中", "remarks": ""}, {"date": "03/11 13:25", "code": "4987443386501", "maker": "ノバルティス", "name": "ｴﾅｼﾞｱ吸入用ｶﾌﾟｾﾙ中用     　  量ﾌﾞﾘ-ｽﾞﾍﾗ-ﾂｷ14CAP", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/12", "status": "出荷準備中", "remarks": ""}, {"date": "03/11 13:25", "code": "4987190021304", "maker": "ニプロファマ", "name": "ﾌﾛｾﾐﾄﾞ錠40mg｢NP｣         　      40mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/12", "status": "出荷準備中", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/11 13:25", "code": "4987081100316", "maker": "第一三共", "name": "ﾛｷｿﾆﾝﾃ-ﾌﾟ100mg           　      10X14cm 7枚X10", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/12", "status": "出荷準備中", "remarks": ""}, {"date": "03/11 12:19", "code": "4987312126634", "maker": "ミヤリサン製", "name": "ﾐﾔBM錠                   　           PTP  400T", "order_qty": "2", "deliv_qty": "2", "deliv_date": "", "status": "調達中", "remarks": "限定出荷品 (出荷調整品)　ﾒｰｶｰ入荷未定 注文取消時 要連絡"}, {"date": "03/11 11:53", "code": "4987035574613", "maker": "大塚製薬", "name": "ｴﾋﾞﾘﾌｧｲ内用液0.1%        　            1MLX28包", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/11", "status": "配達中", "remarks": ""}, {"date": "03/11 11:08", "code": "4987167005481", "maker": "ニチバン", "name": "ｽﾋﾟ-ﾙ膏M                 　      SPM16 25c?X6枚", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "出荷準備中", "remarks": ""}, {"date": "03/11 10:15", "code": "4987080737414", "maker": "沢井製薬", "name": "ｲｺｻﾍﾟﾝﾄ酸ｴﾁﾙ粒状ｶﾌﾟｾﾙ    　    900mg｢ｻﾜｲ｣  84包", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "配達中", "remarks": ""}, {"date": "03/10 18:11", "code": "4987128326358", "maker": "田辺ファーマ", "name": "ﾙﾊﾟﾌｨﾝ錠10mg             　       10mg PTP 500T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 13:11", "code": "4987155100037", "maker": "東和薬品", "name": "ﾍﾞﾀﾋｽﾁﾝﾒｼﾙ酸塩錠12mg     　     ｢ﾄ-ﾜ｣ PTP  100T", "order_qty": "3", "deliv_qty": "3", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 13:11", "code": "4987155400021", "maker": "東和薬品", "name": "ﾗﾍﾞﾌﾟﾗｿﾞ-ﾙNａ錠10MGﾄ-ﾜ   　      10mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 13:11", "code": "4987155144116", "maker": "東和薬品", "name": "ｶﾙﾍﾞｼﾞﾛ-ﾙ錠2.5mg｢ﾄ-ﾜ｣    　     2.5mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 13:01", "code": "4987155361018", "maker": "東和薬品", "name": "ｱﾄﾙﾊﾞｽﾀﾁﾝ錠10mg｢ﾄ-ﾜ｣     　      10mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 13:01", "code": "4987443384415", "maker": "ノバルティス", "name": "ｴﾝﾚｽﾄ錠100mg             　     100mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 13:01", "code": "4987190021205", "maker": "ニプロファマ", "name": "ﾌﾛｾﾐﾄﾞ錠20mg｢NP｣         　      20mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/10 13:01", "code": "4987213118011", "maker": "マルホ", "name": "ﾗﾋﾟﾌｫ-ﾄﾜｲﾌﾟ2.5%          　         2.5% 1包X28", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/10 11:13", "code": "4987616001712", "maker": "ノボノルディ", "name": "ﾉﾎﾞﾗﾋﾟｯﾄﾞ30ﾐｯｸｽ注ﾌﾚｯｸｽ   　   ﾍﾟﾝ 300単位 3MLX2", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 10:25", "code": "4987080117018", "maker": "沢井製薬", "name": "ｴﾊﾞｽﾁﾝOD錠5mg｢ｻﾜｲ｣       　       5mg PTP  100T", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/12", "status": "出荷準備中", "remarks": ""}, {"date": "03/10 10:11", "code": "4987155849011", "maker": "東和薬品", "name": "ｱﾑﾛｼﾞﾋﾟﾝ錠5mg｢ﾄ-ﾜ｣       　       5mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 10:11", "code": "4987080737414", "maker": "沢井製薬", "name": "ｲｺｻﾍﾟﾝﾄ酸ｴﾁﾙ粒状ｶﾌﾟｾﾙ    　    900mg｢ｻﾜｲ｣  84包", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 10:11", "code": "4987224057279", "maker": "持田製薬", "name": "ｼﾞｴﾉｹﾞｽﾄ錠0.5mg｢ﾓﾁﾀﾞ｣    　     0.5mg PTP  140T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 10:11", "code": "4987792100070", "maker": "日本ジェネリ", "name": "ﾋﾞｿﾌﾟﾛﾛ-ﾙﾌﾏﾙ酸塩錠2.5MG  　      ｢JG｣ PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 10:11", "code": "4987080538110", "maker": "沢井製薬", "name": "ﾌｧﾓﾁｼﾞﾝD錠20mg｢ｻﾜｲ｣      　      20mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 10:11", "code": "4987641082403", "maker": "帝國製薬", "name": "ﾛﾍﾟﾐﾝｶﾌﾟｾﾙ1mg            　     1mg PTP  100CAP", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "", "code": "4987672957640", "maker": "ヤンセンファ", "name": "ﾛﾍﾟﾐﾝｶﾌﾟｾﾙ1mg            　     1mg PTP  100CAP", "order_qty": "", "deliv_qty": "0", "deliv_date": "", "status": "保留", "remarks": "1本保留　新ｺｰﾄﾞ有 4987641082403 再入力予定"}, {"date": "03/10 10:02", "code": "4987443384446", "maker": "ノバルティス", "name": "ｴﾝﾚｽﾄ錠200mg             　     200mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/10 09:23", "code": "4987155121131", "maker": "東和薬品", "name": "ｵﾛﾊﾟﾀｼﾞﾝ塩酸塩顆粒0.5%   　    ｢ﾄ-ﾜ｣0.5gX200包", "order_qty": "2", "deliv_qty": "2", "deliv_date": "", "status": "調達中", "remarks": "限定出荷品 (出荷調整品)　ﾒｰｶｰ入荷未定 注文取消時 要連絡"}, {"date": "03/09 19:24", "code": "4987173018185", "maker": "日本新薬", "name": "ｴﾘｻﾞｽｶﾌﾟｾﾙ外用400μg      　ﾂｲﾝﾗｲｻﾞ-ﾂｷ PTP 70CAP", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/09 18:16", "code": "4987155095142", "maker": "東和薬品", "name": "ｵﾛﾊﾟﾀｼﾞﾝ塩酸塩OD錠5MG    　     ｢ﾄ-ﾜ｣ PTP  500T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": ""}, {"date": "03/09 17:40", "code": "4987080117018", "maker": "沢井製薬", "name": "ｴﾊﾞｽﾁﾝOD錠5mg｢ｻﾜｲ｣       　       5mg PTP  100T", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/11", "status": "納品済", "remarks": ""}, {"date": "03/09 13:59", "code": "4987155121131", "maker": "東和薬品", "name": "ｵﾛﾊﾟﾀｼﾞﾝ塩酸塩顆粒0.5%   　    ｢ﾄ-ﾜ｣0.5gX200包", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/10", "status": "納品済", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/09 13:59", "code": "4987306066182", "maker": "大正製薬", "name": "ﾋﾞｵﾌｪﾙﾐﾝ錠剤             　           PTP  126T", "order_qty": "4", "deliv_qty": "4", "deliv_date": "03/10", "status": "納品済", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/09 10:30", "code": "4987155148107", "maker": "東和薬品", "name": "ﾌﾟﾚｶﾞﾊﾞﾘﾝOD錠75mgﾄ-ﾜ     　      75mg PTP  100T", "order_qty": "3", "deliv_qty": "3", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/09 10:16", "code": "4987155636017", "maker": "東和薬品", "name": "ｱﾑﾛｼﾞﾋﾟﾝOD錠5mg｢ﾄ-ﾜ｣     　       5mg PTP  100T", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/09 10:16", "code": "4987155849011", "maker": "東和薬品", "name": "ｱﾑﾛｼﾞﾋﾟﾝ錠5mg｢ﾄ-ﾜ｣       　       5mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/09 10:00", "code": "4987155150360", "maker": "東和薬品", "name": "ﾚﾎﾞｾﾁﾘｼﾞﾝ塩酸塩錠5MGﾄ-ﾜ  　       5mg PTP  500T", "order_qty": "2", "deliv_qty": "2", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 13:29", "code": "4987035637912", "maker": "大塚製薬", "name": "ﾓｲｾﾞﾙﾄ軟膏0.3%           　      0.3% 10gX10本", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/07 13:29", "code": "4987155635010", "maker": "東和薬品", "name": "ｱﾑﾛｼﾞﾋﾟﾝOD錠2.5mgﾄ-ﾜ     　     2.5mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": "限定出荷品 (出荷調整品)"}, {"date": "03/07 13:29", "code": "4987476113327", "maker": "陽進堂", "name": "ﾄﾗﾈｷｻﾑ酸錠250mg｢YD｣      　     250mg PTP 1000T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 13:05", "code": "4987158328506", "maker": "鳥居薬品", "name": "ｺﾚｸﾁﾑ軟膏0.5%            　         0.5% 5gX10", "order_qty": "4", "deliv_qty": "4", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 13:05", "code": "4987476113327", "maker": "陽進堂", "name": "ﾄﾗﾈｷｻﾑ酸錠250mg｢YD｣      　     250mg PTP 1000T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 13:05", "code": "4987188493014", "maker": "久光製薬", "name": "ﾊｲﾁｵ-ﾙ錠80               　           PTP  500T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 13:05", "code": "4987158325406", "maker": "鳥居薬品", "name": "ﾘｵﾅ錠250mg               　     250mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 13:05", "code": "4987155149166", "maker": "東和薬品", "name": "ﾚﾎﾞｾﾁﾘｼﾞﾝ塩酸塩ｼﾛｯﾌﾟ     　    0.05%｢ﾄ-ﾜ｣ 200ML", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 10:59", "code": "4987155361018", "maker": "東和薬品", "name": "ｱﾄﾙﾊﾞｽﾀﾁﾝ錠10mg｢ﾄ-ﾜ｣     　      10mg PTP  100T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 10:59", "code": "4987155095142", "maker": "東和薬品", "name": "ｵﾛﾊﾟﾀｼﾞﾝ塩酸塩OD錠5MG    　     ｢ﾄ-ﾜ｣ PTP  500T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": ""}, {"date": "03/07 10:59", "code": "4987306066182", "maker": "大正製薬", "name": "ﾋﾞｵﾌｪﾙﾐﾝ錠剤             　           PTP  126T", "order_qty": "1", "deliv_qty": "1", "deliv_date": "", "status": "調達中", "remarks": "限定出荷品 (出荷調整品)　ﾒｰｶｰ入荷未定 注文取消時 要連絡"}, {"date": "03/07 10:59", "code": "4987155875010", "maker": "東和薬品", "name": "ﾒﾄﾄﾚｷｻ-ﾄｶﾌﾟｾﾙ2mg｢ﾄ-ﾜ｣    　     2mg PTP   20CAP", "order_qty": "1", "deliv_qty": "1", "deliv_date": "03/09", "status": "納品済", "remarks": "限定出荷品 (出荷調整品)"}], "medipal": [{"code": "14987376798058", "maker": "日医工", "name": "ﾍﾞﾗﾊﾟﾐﾙ塩酸塩錠40MG ｢ﾀｲﾖ-｣   PTP   40MG    100T", "remarks": "通常"}, {"code": "14987792102262", "maker": "日本ジェネリッ", "name": "ｴｾﾞﾁﾐﾌﾞ錠10MG ｢JG｣   PTP   10MG    100T", "remarks": "通常"}, {"code": "14987120269704", "maker": "高田製薬", "name": "ﾀｸﾛﾘﾑｽ軟膏0.1% ｢ﾀｶﾀ｣        0.1%    5GX10", "remarks": "通常"}, {"code": "14987792103252", "maker": "日本ジェネリッ", "name": "ﾌｪﾌﾞｷｿｽﾀｯﾄ錠20MG ｢JG｣   PTP   20MG    100T", "remarks": "通常"}, {"code": "14987376616215", "maker": "日医工", "name": "ﾍﾊﾟﾘﾝ類似物質油性ｸﾘ-ﾑ 0.3% ｢ﾆﾁｲｺｳ｣       25GX10", "remarks": "通常"}, {"code": "14987123409695", "maker": "武田薬品工業", "name": "ﾍﾞﾗﾊﾟﾐﾙ塩酸塩錠40MG ｢ﾀｲﾖ-｣   PTP   40MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987042357312", "maker": "科研製薬", "name": "ﾛｷｿﾌﾟﾛﾌｪﾝNAﾃ-ﾌﾟ100MG ｢科研｣   10CMX14CM   7ﾏｲX10", "remarks": "通常"}, {"code": "14987190067309", "maker": "ニプロ医薬", "name": "ﾒﾄﾎﾙﾐﾝ塩酸塩錠250MG MT｢ﾆﾌﾟﾛ｣   PTP  250MG    100T", "remarks": "通常"}, {"code": "14987190067309", "maker": "ニプロ医薬", "name": "ﾒﾄﾎﾙﾐﾝ塩酸塩錠250MG MT｢ﾆﾌﾟﾛ｣   PTP  250MG    100T", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987312126631", "maker": "ミヤリサン製薬", "name": "ﾐﾔ BM錠   PTP           400T", "remarks": "通常"}, {"code": "", "maker": "パターン表外仕様：", "name": "パターン表No：48", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987035032318", "maker": "大塚製薬", "name": "ｴﾋﾞﾘﾌｧｲ内用液0.1%        0.1% 3MLX28ﾎｳ", "remarks": "通常"}, {"code": "14987792101951", "maker": "日本ジェネリッ", "name": "ｱﾄﾓｷｾﾁﾝ内用液0.4% ｢JG｣        0.4%  100MLX1", "remarks": "通常"}, {"code": "14987173016362", "maker": "日本新薬", "name": "ｱｽﾞﾉ-ﾙ軟膏0.033%      0.033%   20GX10", "remarks": "通常"}, {"code": "14987376711002", "maker": "日医工", "name": "ﾍﾞﾀﾋｽﾁﾝﾒｼﾙ酸塩錠6MG｢日医工 P｣ PTP   6MG    100T", "remarks": "通常"}, {"code": "14987376712153", "maker": "日医工", "name": "D-ｸﾛﾙﾌｪﾆﾗﾐﾝﾏﾚｲﾝ酸塩錠2MG｢NI G｣ PTP   2MG   1000T", "remarks": "通常"}, {"code": "14987158290527", "maker": "鳥居薬品", "name": "ｼﾀﾞｷｭｱ ｽｷﾞ花粉舌下錠5000JAU ﾌﾞﾘｽﾀ- 5000JAU  100T", "remarks": "通常"}, {"code": "14987167005488", "maker": "ニチバン", "name": "ｽﾋﾟ-ﾙ膏M (病院用)  SPM16 25ﾍｲﾎｳｾﾝﾁ 6ﾏｲ", "remarks": "通常"}, {"code": "14987138801736", "maker": "ツムラ", "name": "017 ﾂﾑﾗ ｺﾞﾚｲｻﾝ      ｶﾐﾊﾞｺ  2.5GX189", "remarks": "通常"}, {"code": "14987103011818", "maker": "ゼリア新薬工業", "name": "ｱｼﾉﾝ錠75MG   PTP   75MG    100T", "remarks": "通常"}, {"code": "14987978707007", "maker": "天藤製薬直", "name": "ﾎﾞﾗｻﾞ G坐剤                  50ｺ", "remarks": "通常"}, {"code": "14987286205165", "maker": "健栄製薬", "name": "ｸﾞﾘｾﾘﾝ   ｶﾞﾗｽ瓶     500ML", "remarks": "通常"}, {"code": "14987286205165", "maker": "健栄製薬", "name": "ｸﾞﾘｾﾘﾝ   ｶﾞﾗｽ瓶     500ML", "remarks": "メーカー出荷調整品：入荷未定"}, {"code": "14987770528800", "maker": "興和", "name": "ｱﾃﾞﾎｽ ｺ-ﾜ顆粒10%         10%   1GX600", "remarks": "通常"}, {"code": "14987954600209", "maker": "オルガノン", "name": "ﾅｿﾞﾈｯｸｽ点鼻液50μG 56ﾌﾝﾑﾖｳ          5MG   10GX5", "remarks": "通常"}, {"code": "14987954600216", "maker": "オルガノン", "name": "ﾅｿﾞﾈｯｸｽ点鼻液50μG 112ﾌﾝﾑ ﾖｳ       9MG   18GX5", "remarks": "通常"}, {"code": "14987650650102", "maker": "アストラゼネカ", "name": "ｸﾚｽﾄ-ﾙ錠2.5MG (ｱｽﾄﾗｾﾞﾈｶ)   PTP  2.5MG    100T", "remarks": "通常"}, {"code": "14987443386461", "maker": "ノバルティスフ", "name": "ｱﾃｷｭﾗ吸入用ｶﾌﾟｾﾙ中用量   PTP            14P", "remarks": "通常"}, {"code": "14987123875247", "maker": "武田薬品工業", "name": "ﾌﾛｾﾐﾄﾞ錠20MG ｢NIG｣   PTP   20MG    100T", "remarks": "通常"}, {"code": "14987188402068", "maker": "久光製薬", "name": "ｴｸﾗ- ﾌﾟﾗｽﾀ- 20μG/CM2 (ｼﾝ)   7.5CMX10CM    50ﾏｲ", "remarks": "通常"}, {"code": "14987138811438", "maker": "ツムラ", "name": "114 ﾂﾑﾗ ｻｲﾚｲﾄｳ      ｶﾐﾊﾞｺ    3GX189", "remarks": "通常"}, {"code": "14987123127124", "maker": "武田薬品工業", "name": "25MG ｱﾘﾅﾐﾝ F糖衣錠   PTP   25MG    100T", "remarks": "通常"}, {"code": "14987035030819", "maker": "大塚製薬", "name": "ｴﾋﾞﾘﾌｧｲ錠6MG   PTP    6MG    100T", "remarks": "通常"}, {"code": "14987080506017", "maker": "沢井製薬", "name": "ｴﾝﾍﾟﾗｼﾝ配合錠   PTP           100T", "remarks": "通常"}, {"code": "14987028213403", "maker": "エーザイ", "name": "ﾀﾝﾎﾞｺ-ﾙ錠50MG   PTP   50MG    100T", "remarks": "通常"}, {"code": "14987060307191", "maker": "杏林製薬", "name": "ﾓﾝﾃﾙｶｽﾄ錠10MG ｢KM｣   PTP   10MG    500T", "remarks": "通常"}, {"code": "14987084316315", "maker": "参天製薬", "name": "ｴﾋﾟﾅｽﾁﾝ塩酸塩LX点眼液0.1% ｢SEC｣  0.1%   5MLX10", "remarks": "通常"}, {"code": "14987954807172", "maker": "オルガノン", "name": "ｼﾝｸﾞﾚｱ錠10MG   PTP   10MG    
