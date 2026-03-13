@@ -19,15 +19,16 @@
             --text-code:      #7880a8;
 
             /* System accents */
-            --collabo:      #5b4fcf;
-            --collabo-soft: #ede9fc;
-            --collabo-mid:  #c4baf8;
-            --medipal:      #1a6fd4;
-            --medipal-soft: #e3eefa;
-            --medipal-mid:  #93c0f4;
-            --alfweb:       #0e9e72;
-            --alfweb-soft:  #e0f5ee;
-            --alfweb-mid:   #7dd4b8;
+            --collabo:      #1a6fd4;
+            --collabo-soft: #e3eefa;
+            --collabo-mid:  #93c0f4;
+            --medipal:      #0e9e72;
+            --medipal-soft: #e0f5ee;
+            --medipal-mid:  #7dd4b8;
+            --alfweb:       #2563be;
+            --alfweb-soft:  #ddeeff;
+            --alfweb-mid:   #80b4e8;
+            --alfweb-accent: #0e9e72;
 
             /* Status */
             --s-delivered:    #0e9e72;
@@ -98,14 +99,14 @@
         .header-logo {
             width: 34px;
             height: 34px;
-            background: linear-gradient(135deg, var(--collabo), var(--medipal));
+            background: linear-gradient(135deg, var(--collabo), #0e9e72);
             border-radius: 9px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 17px;
             flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(91,79,207,0.25);
+            box-shadow: 0 2px 8px rgba(26,111,212,0.25);
         }
 
         .header-title {
@@ -202,7 +203,7 @@
             background: var(--collabo);
             border-color: var(--collabo);
             color: white;
-            box-shadow: 0 2px 8px rgba(91,79,207,0.3);
+            box-shadow: 0 2px 8px rgba(26,111,212,0.3);
         }
 
         /* ─── Summary strip ─── */
@@ -235,7 +236,7 @@
 
         .chip-collabo .chip-swatch { background: var(--collabo); }
         .chip-medipal .chip-swatch { background: var(--medipal); }
-        .chip-alfweb  .chip-swatch { background: var(--alfweb); }
+        .chip-alfweb  .chip-swatch { background: linear-gradient(to bottom, var(--alfweb), var(--alfweb-accent)); }
         .chip-danger  .chip-swatch { background: var(--s-unavailable); }
 
         .chip-num {
@@ -302,7 +303,7 @@
 
         .card-collabo { background: linear-gradient(to right, var(--collabo-soft), white); }
         .card-medipal { background: linear-gradient(to right, var(--medipal-soft), white); }
-        .card-alfweb  { background: linear-gradient(to right, var(--alfweb-soft),  white); }
+        .card-alfweb  { background: linear-gradient(to right, #ddeeff, #edfaf5, white); }
 
         .card-accent-bar {
             width: 4px;
@@ -313,7 +314,7 @@
 
         .card-collabo .card-accent-bar { background: var(--collabo); }
         .card-medipal .card-accent-bar { background: var(--medipal); }
-        .card-alfweb  .card-accent-bar { background: var(--alfweb); }
+        .card-alfweb  .card-accent-bar { background: linear-gradient(to bottom, var(--alfweb), var(--alfweb-accent)); }
 
         .card-header-info { flex: 1; }
 
@@ -550,7 +551,7 @@
             background: var(--collabo);
             border-color: var(--collabo);
             color: white;
-            box-shadow: 0 4px 14px rgba(91,79,207,0.3);
+            box-shadow: 0 4px 14px rgba(26,111,212,0.3);
         }
 
         @media (max-width: 640px) {
