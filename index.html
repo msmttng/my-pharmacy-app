@@ -50,6 +50,7 @@
 
         body {
             font-family: 'Noto Sans JP', sans-serif;
+            font-weight: 500;
             background: var(--bg);
             color: var(--text-primary);
             min-height: 100vh;
@@ -242,7 +243,7 @@
         .chip-num {
             font-family: 'JetBrains Mono', monospace;
             font-size: 1.25rem;
-            font-weight: 500;
+            font-weight: 600;
             line-height: 1;
         }
 
@@ -253,14 +254,15 @@
 
         .chip-label {
             font-size: 0.72rem;
-            color: var(--text-muted);
+            font-weight: 600;
+            color: var(--text-secondary);
             line-height: 1.3;
         }
 
         .chip-name {
             font-size: 0.78rem;
-            font-weight: 500;
-            color: var(--text-secondary);
+            font-weight: 600;
+            color: var(--text-primary);
             line-height: 1.3;
         }
 
@@ -382,8 +384,8 @@
             background: #f8f9fc;
             padding: 0.55rem 1rem;
             font-size: 0.65rem;
-            font-weight: 600;
-            color: var(--text-muted);
+            font-weight: 700;
+            color: var(--text-secondary);
             border-bottom: 1px solid var(--border);
             text-align: left;
             letter-spacing: 0.08em;
@@ -405,8 +407,8 @@
         /* ─── Product cell ─── */
         .maker-name {
             font-size: 0.66rem;
-            font-weight: 600;
-            color: var(--text-muted);
+            font-weight: 700;
+            color: var(--text-secondary);
             letter-spacing: 0.05em;
             text-transform: uppercase;
             margin-bottom: 0.2rem;
@@ -414,7 +416,7 @@
 
         .product-name {
             font-size: 0.82rem;
-            font-weight: 500;
+            font-weight: 600;
             color: var(--text-primary);
             line-height: 1.45;
         }
@@ -422,7 +424,8 @@
         .product-code {
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.64rem;
-            color: var(--text-muted);
+            font-weight: 500;
+            color: var(--text-secondary);
             margin-top: 0.18rem;
         }
 
@@ -432,6 +435,7 @@
             gap: 0.25rem;
             margin-top: 0.35rem;
             font-size: 0.65rem;
+            font-weight: 600;
             color: #92600a;
             background: #fff7e0;
             border: 1px solid #f0d080;
@@ -504,7 +508,8 @@
         .receipt-date {
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.65rem;
-            color: var(--text-muted);
+            font-weight: 500;
+            color: var(--text-secondary);
             margin-top: 0.28rem;
         }
 
@@ -514,13 +519,13 @@
         .qty-num {
             font-family: 'JetBrains Mono', monospace;
             font-size: 1.1rem;
-            font-weight: 500;
+            font-weight: 600;
             color: var(--text-primary);
             line-height: 1;
         }
 
-        .qty-label { font-size: 0.61rem; color: var(--text-muted); margin-top: 2px; }
-        .qty-sub   { font-size: 0.67rem; color: var(--text-secondary); margin-top: 2px; }
+        .qty-label { font-size: 0.61rem; font-weight: 600; color: var(--text-secondary); margin-top: 2px; }
+        .qty-sub   { font-size: 0.67rem; font-weight: 500; color: var(--text-secondary); margin-top: 2px; }
 
         /* ─── Scroll top ─── */
         .scroll-top {
