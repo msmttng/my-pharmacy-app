@@ -171,6 +171,7 @@
             overflow-x: auto;
             flex-grow: 1;
             max-height: 1200px;
+            width: 100%;
         }
 
         table {
@@ -178,6 +179,7 @@
             border-collapse: collapse;
             text-align: left;
             font-size: 0.88rem;
+            white-space: nowrap;
         }
 
         th {
@@ -192,12 +194,19 @@
             z-index: 10;
             letter-spacing: 0.03em;
             text-transform: uppercase;
+            white-space: nowrap;
+        }
+        
+        /* 品名 / メーカー の列の幅を強制的に確保して折り返しを防ぐ */
+        th:first-child, td:first-child {
+            min-width: 350px;
         }
 
         td {
             padding: 0.8rem 1rem;
             border-bottom: 1px solid var(--border);
             vertical-align: top;
+            white-space: nowrap;
         }
 
         tr:last-child td {
@@ -215,6 +224,7 @@
             display: block;
             margin-bottom: 0.2rem;
             font-weight: 500;
+            white-space: nowrap;
         }
 
         .product-name {
@@ -222,12 +232,14 @@
             color: var(--text);
             margin-bottom: 0.25rem;
             line-height: 1.4;
+            white-space: nowrap !important;
         }
 
         .product-code {
             font-size: 0.72rem;
             color: #9ca3af;
             font-family: 'SF Mono', 'Consolas', monospace;
+            white-space: nowrap;
         }
 
         .remarks {
@@ -239,6 +251,7 @@
             border-left: 3px solid #f59e0b;
             margin-top: 0.4rem;
             display: inline-block;
+            white-space: nowrap !important;
         }
 
         /* ─── ステータスバッジ ─── */
@@ -282,6 +295,7 @@
             font-size: 0.78rem;
             color: var(--text-secondary);
             margin-top: 0.35rem;
+            white-space: nowrap;
         }
 
         .qty-block div {
