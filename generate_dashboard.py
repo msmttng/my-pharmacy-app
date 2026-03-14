@@ -29,17 +29,12 @@ def generate_html(data):
             status = item.get('status', '')
             badge_cls = get_badge_class(status)
             
-            # EPIボタンの追加条件：未納・未定系のステータス
-            is_pending = "調達中" in status or "入荷未定" in status or "出荷準備中" in status or "欠品" in status or "未納" in status or "未定" in status
-            epi_btn_html = f'''
-                            <div style="margin-top: 0.3rem;">
-                                <a href="#" onclick="openOrderEpi('{item.get("name", "")}'); return false;" style="color: #4f46e5; font-size: 0.8rem; text-decoration: underline; cursor: pointer;">
-                                    EPI発注
-                                </a>
-                            </div>''' if is_pending else ""
+            # EPI機能：見た目を変えずに行をクリック可能にする
+            is_pending = "調達中" in status or "入荷未定" in status or "出荷準備中" in status or "欠品" in status or "未納" in status or "未定" in status or "受注辞退" in status
+            tr_attr = f''' onclick="openOrderEpi('{item.get("name", "")}')" style="cursor: pointer;" title="クリックしてEPI発注"''' if is_pending else ""
 
             rows += f"""
-                    <tr>
+                    <tr{tr_attr}>
                         <td>
                             <span class="maker-name">{item.get('maker', '')}</span>
                             <div class="product-name">{item.get('name', '')}</div>
@@ -53,7 +48,6 @@ def generate_html(data):
                         <td class="qty-block">
                             <div>発注: <b>{item.get('order_qty', '')}</b></div>
                             <div>納品予定: <b>{item.get('deliv_qty', '')}</b></div>
-                            {epi_btn_html}
                         </td>
                     </tr>"""
         return rows
@@ -65,17 +59,12 @@ def generate_html(data):
             badge_cls = 'badge-unavailable' if is_danger else 'badge-default'
             status_text = "入荷未定" if is_danger else "通常"
             
-            # EPIボタンの追加条件：未納・未定系のステータス
+            # EPI機能：見た目を変えずに行をクリック可能にする
             is_pending = "入荷未定" in status_text or "調整" in item.get('remarks', '')
-            epi_btn_html = f'''
-                            <div style="margin-top: 0.3rem;">
-                                <a href="#" onclick="openOrderEpi('{item.get("name", "")}'); return false;" style="color: #4f46e5; font-size: 0.8rem; text-decoration: underline; cursor: pointer;">
-                                    EPI発注
-                                </a>
-                            </div>''' if is_pending else ""
+            tr_attr = f''' onclick="openOrderEpi('{item.get("name", "")}')" style="cursor: pointer;" title="クリックしてEPI発注"''' if is_pending else ""
 
             rows += f"""
-                    <tr>
+                    <tr{tr_attr}>
                         <td>
                             <span class="maker-name">{item.get('code', '')}</span>
                             <div class="product-name">{item.get('name', '')}</div>
@@ -84,7 +73,6 @@ def generate_html(data):
                         <td>
                             <span class="status-badge {badge_cls}">{status_text}</span>
                             <div class="receipt-date">{item.get('remarks', '')}</div>
-                            {epi_btn_html}
                         </td>
                     </tr>"""
         return rows
@@ -92,14 +80,10 @@ def generate_html(data):
     def get_alfweb_rows(items):
         rows = ""
         for item in items:
-            epi_btn_html = f'''
-                            <div style="margin-top: 0.3rem;">
-                                <a href="#" onclick="openOrderEpi('{item.get("name", "")}'); return false;" style="color: #4f46e5; font-size: 0.8rem; text-decoration: underline; cursor: pointer;">
-                                    EPI発注
-                                </a>
-                            </div>'''
+            # EPI機能：見た目を変えずに行をクリック可能にする
+            tr_attr = f''' onclick="openOrderEpi('{item.get("name", "")}')" style="cursor: pointer;" title="クリックしてEPI発注"'''
             rows += f"""
-                    <tr>
+                    <tr{tr_attr}>
                         <td>
                             <span class="maker-name">{item.get('maker', '')}</span>
                             <div class="product-name">{item.get('name', '')}</div>
@@ -110,7 +94,6 @@ def generate_html(data):
                         </td>
                         <td class="qty-block">
                             <b>{item.get('order_qty', '')}</b>
-                            {epi_btn_html}
                         </td>
                     </tr>"""
         return rows
@@ -491,7 +474,7 @@ def generate_html(data):
                     const badge = row.querySelector('.status-badge');
                     if (!badge) return;
                     const status = badge.textContent.trim();
-                    const isPending = status.includes('調達中') || status.includes('入荷未定') || status.includes('出荷準備中');
+                    const isPending = status.includes('調達中') || status.includes('入荷未定') || status.includes('出荷準備中') || status.includes('受注辞退') || status.includes('欠品');
                     row.style.display = isPending ? '' : 'none';
                 }});
                 btnAll.classList.remove('active');
