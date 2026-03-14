@@ -32,9 +32,11 @@ def generate_html(data):
             # EPIボタンの追加条件：未納・未定系のステータス
             is_pending = "調達中" in status or "入荷未定" in status or "出荷準備中" in status or "欠品" in status or "未納" in status or "未定" in status
             epi_btn_html = f'''
-                            <button onclick="openOrderEpi('{item.get("name", "")}')" class="epi-btn">
-                                💊 EPI発注
-                            </button>''' if is_pending else ""
+                            <div style="margin-top: 0.3rem;">
+                                <a href="#" onclick="openOrderEpi('{item.get("name", "")}'); return false;" style="color: #4f46e5; font-size: 0.8rem; text-decoration: underline; cursor: pointer;">
+                                    EPI発注
+                                </a>
+                            </div>''' if is_pending else ""
 
             rows += f"""
                     <tr>
@@ -66,10 +68,10 @@ def generate_html(data):
             # EPIボタンの追加条件：未納・未定系のステータス
             is_pending = "入荷未定" in status_text or "調整" in item.get('remarks', '')
             epi_btn_html = f'''
-                            <div style="margin-top: 0.5rem;">
-                                <button onclick="openOrderEpi('{item.get("name", "")}')" class="epi-btn">
-                                    💊 EPI発注
-                                </button>
+                            <div style="margin-top: 0.3rem;">
+                                <a href="#" onclick="openOrderEpi('{item.get("name", "")}'); return false;" style="color: #4f46e5; font-size: 0.8rem; text-decoration: underline; cursor: pointer;">
+                                    EPI発注
+                                </a>
                             </div>''' if is_pending else ""
 
             rows += f"""
@@ -91,10 +93,10 @@ def generate_html(data):
         rows = ""
         for item in items:
             epi_btn_html = f'''
-                            <div style="margin-top: 0.5rem;">
-                                <button onclick="openOrderEpi('{item.get("name", "")}')" class="epi-btn">
-                                    💊 EPI発注
-                                </button>
+                            <div style="margin-top: 0.3rem;">
+                                <a href="#" onclick="openOrderEpi('{item.get("name", "")}'); return false;" style="color: #4f46e5; font-size: 0.8rem; text-decoration: underline; cursor: pointer;">
+                                    EPI発注
+                                </a>
                             </div>'''
             rows += f"""
                     <tr>
@@ -407,29 +409,6 @@ def generate_html(data):
         .qty-block b {{
             color: var(--text);
             font-weight: 700;
-        }}
-
-        .epi-btn {{
-            margin-top: 0.4rem;
-            background: #ffffff;
-            color: #4f46e5;
-            border: 1px solid #c7d2fe;
-            padding: 0.3rem 0.6rem;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            white-space: nowrap;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }}
-
-        .epi-btn:hover {{
-            background: #e0e7ff;
-            border-color: #a5b4fc;
         }}
 
         .empty-state {{
