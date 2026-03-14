@@ -28,6 +28,14 @@ def generate_html(data):
         for item in items:
             status = item.get('status', '')
             badge_cls = get_badge_class(status)
+            
+            # EPIボタンの追加条件：未納・未定系のステータス
+            is_pending = "調達中" in status or "入荷未定" in status or "出荷準備中" in status or "欠品" in status or "未納" in status or "未定" in status
+            epi_btn_html = f'''
+                            <button onclick="openOrderEpi('{item.get("name", "")}')" class="epi-btn">
+                                💊 EPI発注
+                            </button>''' if is_pending else ""
+
             rows += f"""
                     <tr>
                         <td>
@@ -43,6 +51,7 @@ def generate_html(data):
                         <td class="qty-block">
                             <div>発注: <b>{item.get('order_qty', '')}</b></div>
                             <div>納品予定: <b>{item.get('deliv_qty', '')}</b></div>
+                            {epi_btn_html}
                         </td>
                     </tr>"""
         return rows
@@ -53,6 +62,16 @@ def generate_html(data):
             is_danger = "調整" in item.get('remarks', '')
             badge_cls = 'badge-unavailable' if is_danger else 'badge-default'
             status_text = "入荷未定" if is_danger else "通常"
+            
+            # EPIボタンの追加条件：未納・未定系のステータス
+            is_pending = "入荷未定" in status_text or "調整" in item.get('remarks', '')
+            epi_btn_html = f'''
+                            <div style="margin-top: 0.5rem;">
+                                <button onclick="openOrderEpi('{item.get("name", "")}')" class="epi-btn">
+                                    💊 EPI発注
+                                </button>
+                            </div>''' if is_pending else ""
+
             rows += f"""
                     <tr>
                         <td>
@@ -63,6 +82,7 @@ def generate_html(data):
                         <td>
                             <span class="status-badge {badge_cls}">{status_text}</span>
                             <div class="receipt-date">{item.get('remarks', '')}</div>
+                            {epi_btn_html}
                         </td>
                     </tr>"""
         return rows
@@ -70,6 +90,12 @@ def generate_html(data):
     def get_alfweb_rows(items):
         rows = ""
         for item in items:
+            epi_btn_html = f'''
+                            <div style="margin-top: 0.5rem;">
+                                <button onclick="openOrderEpi('{item.get("name", "")}')" class="epi-btn">
+                                    💊 EPI発注
+                                </button>
+                            </div>'''
             rows += f"""
                     <tr>
                         <td>
@@ -82,6 +108,7 @@ def generate_html(data):
                         </td>
                         <td class="qty-block">
                             <b>{item.get('order_qty', '')}</b>
+                            {epi_btn_html}
                         </td>
                     </tr>"""
         return rows
@@ -207,7 +234,7 @@ def generate_html(data):
             margin: 1.5rem auto;
             padding: 0 1.25rem;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
             gap: 1.25rem;
         }}
 
@@ -382,6 +409,29 @@ def generate_html(data):
             font-weight: 700;
         }}
 
+        .epi-btn {{
+            margin-top: 0.4rem;
+            background: #ffffff;
+            color: #4f46e5;
+            border: 1px solid #c7d2fe;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            white-space: nowrap;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }}
+
+        .epi-btn:hover {{
+            background: #e0e7ff;
+            border-color: #a5b4fc;
+        }}
+
         .empty-state {{
             padding: 3rem;
             text-align: center;
@@ -423,7 +473,7 @@ def generate_html(data):
 
         <div class="card">
             <div class="card-header card-medipal">
-                <span>🔶 MEDIPAL（メーカー出荷調整品：入荷未定）</span>
+                <span>🔶 MEDIPAL（出荷調整・入荷未定）</span>
                 <span class="item-count">{len(medipal_items)}件</span>
             </div>
             <div class="table-container">
@@ -462,13 +512,43 @@ def generate_html(data):
                     const badge = row.querySelector('.status-badge');
                     if (!badge) return;
                     const status = badge.textContent.trim();
-                    const isPending = status.includes('調達中') || status.includes('入荷未定');
+                    const isPending = status.includes('調達中') || status.includes('入荷未定') || status.includes('出荷準備中');
                     row.style.display = isPending ? '' : 'none';
                 }});
                 btnAll.classList.remove('active');
                 btnPending.classList.add('active');
             }}
         }}
+
+        const openOrderEpi = async (itemName) => {{
+            if (!itemName) return;
+            
+            // (先)や(後)などの接頭辞を削除
+            let searchKeyword = itemName.replace(/^\\([前後]\\)\\s*/, '');
+            
+            try {{
+                if (navigator.clipboard) {{
+                    await navigator.clipboard.writeText(searchKeyword);
+                }} else {{
+                    const textArea = document.createElement("textarea");
+                    textArea.value = searchKeyword;
+                    textArea.style.position = "fixed";
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    try {{
+                        document.execCommand('copy');
+                    }} catch (err) {{
+                        console.error('Fallback: Oops, unable to copy', err);
+                    }}
+                    document.body.removeChild(textArea);
+                }}
+            }} catch (err) {{
+                console.error('Failed to copy text: ', err);
+            }}
+            
+            window.open("https://www.order-epi.com/order/", "_blank");
+        }};
     </script>
 </body>
 </html>"""
