@@ -456,7 +456,7 @@ def generate_html(data):
         /* ─── Table ─── */
         .table-container {{
             overflow-x: auto;
-            max-height: 680px;
+            max-height: 1000px; /* 1.5x larger for big monitors */
             overflow-y: auto;
             scrollbar-width: thin;
             scrollbar-color: var(--border-mid) transparent;
