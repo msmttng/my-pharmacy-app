@@ -183,7 +183,7 @@
 
         th {
             background-color: #f9fafb;
-            padding: 0.7rem 1rem;
+            padding: 0.4rem 0.75rem;
             font-weight: 600;
             font-size: 0.8rem;
             color: var(--text-secondary);
@@ -196,7 +196,7 @@
         }
 
         td {
-            padding: 0.8rem 1rem;
+            padding: 0.45rem 0.75rem;
             border-bottom: 1px solid var(--border);
             vertical-align: top;
         }
@@ -214,15 +214,15 @@
             font-size: 0.75rem;
             color: var(--text-secondary);
             display: block;
-            margin-bottom: 0.2rem;
+            margin-bottom: 0.1rem;
             font-weight: 500;
         }
 
         .product-name {
             font-weight: 600;
             color: var(--text);
-            margin-bottom: 0.25rem;
-            line-height: 1.4;
+            margin-bottom: 0.1rem;
+            line-height: 1.35;
         }
 
         .product-code {
@@ -235,10 +235,10 @@
             font-size: 0.78rem;
             color: #92400e;
             background-color: #fef3c7;
-            padding: 0.25rem 0.6rem;
+            padding: 0.15rem 0.4rem;
             border-radius: 6px;
             border-left: 3px solid #f59e0b;
-            margin-top: 0.4rem;
+            margin-top: 0.2rem;
             display: inline-block;
         }
 
@@ -5029,8 +5029,8 @@
             // 2. PTPやバラなどの包装形態以降を削除
             searchKeyword = searchKeyword.replace(/\s+(?:PTP|ﾊﾞﾗ)\s*.*$/i, '');
             
-            // 3. 末尾の数量・単位の連続を削除 (例: " 9mg 18g×5", " 100T", " 5mL×5")
-            searchKeyword = searchKeyword.replace(/(?:\s+\d+(?:\.\d+)?(?:mg|g|mL|T|管|カプセル|錠|包|瓶|本|枚|キット|シリンジ|V)?(?:[×x*]\s*\d+)?)+$/i, '');
+            // 3. 末尾の数量・単位の連続を削除 (例: " 9mg 18GX5", " 100T", " 10ﾎﾝ", " 100カプセル")
+            searchKeyword = searchKeyword.replace(/(?:\s+\d+(?:\.\d+)?(?:mg|g|mL|ml|T|管|カプセル|カプ|錠|包|瓶|本|ﾎﾝ|枚|ﾏｲ|キット|シリンジ|V)?(?:\s*[×xX*]\s*\d+)?)+$/i, '');
             
             // 4. 前後の余分な空白を削除
             searchKeyword = searchKeyword.trim();
