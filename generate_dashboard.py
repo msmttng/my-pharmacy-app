@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from datetime import datetime, timezone, timedelta
 
 INPUT_FILE = "pharma_data.json"
@@ -11,6 +12,27 @@ def generate_html(data):
     collabo_items = data.get("collabo", [])
     medipal_items = data.get("medipal", [])
     alfweb_items = data.get("alfweb", [])
+
+    def normalize_units(name):
+        if not name: return ""
+        def replacer_multi(match):
+            num = match.group(1)
+            space = match.group(2)
+            unit = match.group(3).upper()
+            if unit == 'MG': unit = 'mg'
+            elif unit == 'ML': unit = 'mL'
+            elif unit == 'KG': unit = 'kg'
+            elif unit == 'UG': unit = 'μg'
+            elif unit == 'MCG': unit = 'μg'
+            elif unit == 'G': unit = 'g'
+            return f"{num}{space}{unit}"
+        
+        return re.sub(r'(\d+(?:\.\d+)?)(\s*)(MG|ML|KG|UG|MCG|G)(?=[^A-Za-z]|[Xx]|$)', replacer_multi, name, flags=re.IGNORECASE)
+
+    for items in [collabo_items, medipal_items, alfweb_items]:
+        for item in items:
+            if 'name' in item:
+                item['name'] = normalize_units(item['name'])
 
     def get_badge_info(status):
         if '納品済' in status:
@@ -69,7 +91,7 @@ def generate_html(data):
             
             qty = item.get('order_qty', '')
             qty_num = f'<div class="qty-num">{qty}</div>' if qty else '<div class="qty-num">-</div>'
-            qty_cell = f'<td class="qty-cell">{qty_num}<div class="qty-label">数量</div></td>'
+            qty_cell = f'<td class="qty-cell">{qty_num}</td>'
 
             rows += f"""
                         <tr{tr_attr}>
