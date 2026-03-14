@@ -29,12 +29,8 @@ def generate_html(data):
             status = item.get('status', '')
             badge_cls = get_badge_class(status)
             
-            # EPI機能：見た目を変えずに行をクリック可能にする
-            is_pending = "調達中" in status or "入荷未定" in status or "出荷準備中" in status or "欠品" in status or "未納" in status or "未定" in status or "受注辞退" in status
-            tr_attr = f''' onclick="openOrderEpi('{item.get("name", "")}')" style="cursor: pointer;" title="クリックしてEPI発注"''' if is_pending else ""
-
             rows += f"""
-                    <tr{tr_attr}>
+                    <tr>
                         <td>
                             <span class="maker-name">{item.get('maker', '')}</span>
                             <div class="product-name">{item.get('name', '')}</div>
@@ -59,12 +55,8 @@ def generate_html(data):
             badge_cls = 'badge-unavailable' if is_danger else 'badge-default'
             status_text = "入荷未定" if is_danger else "通常"
             
-            # EPI機能：見た目を変えずに行をクリック可能にする
-            is_pending = "入荷未定" in status_text or "調整" in item.get('remarks', '')
-            tr_attr = f''' onclick="openOrderEpi('{item.get("name", "")}')" style="cursor: pointer;" title="クリックしてEPI発注"''' if is_pending else ""
-
             rows += f"""
-                    <tr{tr_attr}>
+                    <tr>
                         <td>
                             <span class="maker-name">{item.get('code', '')}</span>
                             <div class="product-name">{item.get('name', '')}</div>
@@ -80,10 +72,8 @@ def generate_html(data):
     def get_alfweb_rows(items):
         rows = ""
         for item in items:
-            # EPI機能：見た目を変えずに行をクリック可能にする
-            tr_attr = f''' onclick="openOrderEpi('{item.get("name", "")}')" style="cursor: pointer;" title="クリックしてEPI発注"'''
             rows += f"""
-                    <tr{tr_attr}>
+                    <tr>
                         <td>
                             <span class="maker-name">{item.get('maker', '')}</span>
                             <div class="product-name">{item.get('name', '')}</div>
@@ -271,6 +261,7 @@ def generate_html(data):
             overflow-x: auto;
             flex-grow: 1;
             max-height: 1200px;
+            width: 100%;
         }}
 
         table {{
@@ -350,7 +341,6 @@ def generate_html(data):
             border-radius: 20px;
             font-size: 0.78rem;
             font-weight: 600;
-            white-space: nowrap;
         }}
 
         .badge-preparing {{
@@ -474,43 +464,13 @@ def generate_html(data):
                     const badge = row.querySelector('.status-badge');
                     if (!badge) return;
                     const status = badge.textContent.trim();
-                    const isPending = status.includes('調達中') || status.includes('入荷未定') || status.includes('出荷準備中') || status.includes('受注辞退') || status.includes('欠品');
+                    const isPending = status.includes('調達中') || status.includes('入荷未定') || status.includes('出荷準備中');
                     row.style.display = isPending ? '' : 'none';
                 }});
                 btnAll.classList.remove('active');
                 btnPending.classList.add('active');
             }}
         }}
-
-        const openOrderEpi = async (itemName) => {{
-            if (!itemName) return;
-            
-            // (先)や(後)などの接頭辞を削除
-            let searchKeyword = itemName.replace(/^\\([前後]\\)\\s*/, '');
-            
-            try {{
-                if (navigator.clipboard) {{
-                    await navigator.clipboard.writeText(searchKeyword);
-                }} else {{
-                    const textArea = document.createElement("textarea");
-                    textArea.value = searchKeyword;
-                    textArea.style.position = "fixed";
-                    document.body.appendChild(textArea);
-                    textArea.focus();
-                    textArea.select();
-                    try {{
-                        document.execCommand('copy');
-                    }} catch (err) {{
-                        console.error('Fallback: Oops, unable to copy', err);
-                    }}
-                    document.body.removeChild(textArea);
-                }}
-            }} catch (err) {{
-                console.error('Failed to copy text: ', err);
-            }}
-            
-            window.open("https://www.order-epi.com/order/", "_blank");
-        }};
     </script>
 </body>
 </html>"""

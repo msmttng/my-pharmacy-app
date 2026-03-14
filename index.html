@@ -179,7 +179,6 @@
             border-collapse: collapse;
             text-align: left;
             font-size: 0.88rem;
-            white-space: nowrap;
         }
 
         th {
@@ -194,19 +193,12 @@
             z-index: 10;
             letter-spacing: 0.03em;
             text-transform: uppercase;
-            white-space: nowrap;
-        }
-        
-        /* 品名 / メーカー の列の幅を強制的に確保して折り返しを防ぐ */
-        th:first-child, td:first-child {
-            min-width: 350px;
         }
 
         td {
             padding: 0.8rem 1rem;
             border-bottom: 1px solid var(--border);
             vertical-align: top;
-            white-space: nowrap;
         }
 
         tr:last-child td {
@@ -224,7 +216,6 @@
             display: block;
             margin-bottom: 0.2rem;
             font-weight: 500;
-            white-space: nowrap;
         }
 
         .product-name {
@@ -232,14 +223,12 @@
             color: var(--text);
             margin-bottom: 0.25rem;
             line-height: 1.4;
-            white-space: nowrap !important;
         }
 
         .product-code {
             font-size: 0.72rem;
             color: #9ca3af;
             font-family: 'SF Mono', 'Consolas', monospace;
-            white-space: nowrap;
         }
 
         .remarks {
@@ -251,7 +240,6 @@
             border-left: 3px solid #f59e0b;
             margin-top: 0.4rem;
             display: inline-block;
-            white-space: nowrap !important;
         }
 
         /* ─── ステータスバッジ ─── */
@@ -263,7 +251,6 @@
             border-radius: 20px;
             font-size: 0.78rem;
             font-weight: 600;
-            white-space: nowrap;
         }
 
         .badge-preparing {
@@ -295,7 +282,6 @@
             font-size: 0.78rem;
             color: var(--text-secondary);
             margin-top: 0.35rem;
-            white-space: nowrap;
         }
 
         .qty-block div {
@@ -343,7 +329,7 @@
             <div class="table-container">
                 <table><thead><tr><th>品名 / メーカー</th><th>ステータス</th><th>数量</th></tr></thead><tbody>
                 
-                    <tr onclick="openOrderEpi('ﾋﾞｵﾌｪﾙﾐﾝR散              　           ﾊﾞﾗ 500g')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">大正製薬</span>
                             <div class="product-name">ﾋﾞｵﾌｪﾙﾐﾝR散              　           ﾊﾞﾗ 500g</div>
@@ -359,7 +345,7 @@
                             <div>納品予定: <b>1</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾘｻﾞﾍﾞﾝｶﾌﾟｾﾙ100mg         　   100mg PTP  100CAP')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">キッセイ薬品</span>
                             <div class="product-name">ﾘｻﾞﾍﾞﾝｶﾌﾟｾﾙ100mg         　   100mg PTP  100CAP</div>
@@ -375,7 +361,7 @@
                             <div>納品予定: <b>1</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾚﾎﾞｾﾁﾘｼﾞﾝ塩酸塩錠5MGﾄ-ﾜ  　       5mg PTP  500T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">東和薬品</span>
                             <div class="product-name">ﾚﾎﾞｾﾁﾘｼﾞﾝ塩酸塩錠5MGﾄ-ﾜ  　       5mg PTP  500T</div>
@@ -391,7 +377,7 @@
                             <div>納品予定: <b>2</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｶﾙﾅｸﾘﾝ錠50               　     50単位 PTP 100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">三和化学</span>
                             <div class="product-name">ｶﾙﾅｸﾘﾝ錠50               　     50単位 PTP 100T</div>
@@ -407,7 +393,7 @@
                             <div>納品予定: <b>3</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｱﾑﾛｼﾞﾋﾟﾝ錠5mg｢ﾄ-ﾜ｣       　       5mg PTP  100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">東和薬品</span>
                             <div class="product-name">ｱﾑﾛｼﾞﾋﾟﾝ錠5mg｢ﾄ-ﾜ｣       　       5mg PTP  100T</div>
@@ -423,7 +409,7 @@
                             <div>納品予定: <b>1</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｵﾛﾊﾟﾀｼﾞﾝ塩酸塩OD錠5MG    　     ｢ﾄ-ﾜ｣ PTP  500T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">東和薬品</span>
                             <div class="product-name">ｵﾛﾊﾟﾀｼﾞﾝ塩酸塩OD錠5MG    　     ｢ﾄ-ﾜ｣ PTP  500T</div>
@@ -439,7 +425,7 @@
                             <div>納品予定: <b>1</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾆｺﾗﾝｼﾞﾙ錠5mg｢ｻﾜｲ｣        　       5mg PTP  100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">沢井製薬</span>
                             <div class="product-name">ﾆｺﾗﾝｼﾞﾙ錠5mg｢ｻﾜｲ｣        　       5mg PTP  100T</div>
@@ -455,7 +441,7 @@
                             <div>納品予定: <b>2</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾋﾞｿﾌﾟﾛﾛ-ﾙﾌﾏﾙ酸塩錠2.5MG  　      ｢JG｣ PTP  100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">日本ジェネリ</span>
                             <div class="product-name">ﾋﾞｿﾌﾟﾛﾛ-ﾙﾌﾏﾙ酸塩錠2.5MG  　      ｢JG｣ PTP  100T</div>
@@ -471,7 +457,7 @@
                             <div>納品予定: <b>2</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾐｺﾝﾋﾞ配合錠BP            　           PTP  100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">日本ベーリン</span>
                             <div class="product-name">ﾐｺﾝﾋﾞ配合錠BP            　           PTP  100T</div>
@@ -487,7 +473,7 @@
                             <div>納品予定: <b>1</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾒﾄﾄﾚｷｻ-ﾄｶﾌﾟｾﾙ2mg｢ﾄ-ﾜ｣    　     2mg PTP   20CAP')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">東和薬品</span>
                             <div class="product-name">ﾒﾄﾄﾚｷｻ-ﾄｶﾌﾟｾﾙ2mg｢ﾄ-ﾜ｣    　     2mg PTP   20CAP</div>
@@ -503,7 +489,7 @@
                             <div>納品予定: <b>1</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾘｸｼｱﾅOD錠30mg            　      30mg PTP  100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">第一三共</span>
                             <div class="product-name">ﾘｸｼｱﾅOD錠30mg            　      30mg PTP  100T</div>
@@ -519,7 +505,7 @@
                             <div>納品予定: <b>1</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾘﾊﾞｽﾁｸﾞﾐﾝﾃ-ﾌﾟ4.5mg｢ﾄ-ﾜ｣  　          4.5mg 14枚')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">東和薬品</span>
                             <div class="product-name">ﾘﾊﾞｽﾁｸﾞﾐﾝﾃ-ﾌﾟ4.5mg｢ﾄ-ﾜ｣  　          4.5mg 14枚</div>
@@ -535,7 +521,7 @@
                             <div>納品予定: <b>2</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾚﾎﾞﾌﾛｷｻｼﾝ錠500mgDSEP     　     500mg PTP   50T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">第一三共</span>
                             <div class="product-name">ﾚﾎﾞﾌﾛｷｻｼﾝ錠500mgDSEP     　     500mg PTP   50T</div>
@@ -551,7 +537,7 @@
                             <div>納品予定: <b>1</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾛｷｿﾆﾝﾃ-ﾌﾟ100mg           　      10X14cm 7枚X10')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">第一三共</span>
                             <div class="product-name">ﾛｷｿﾆﾝﾃ-ﾌﾟ100mg           　      10X14cm 7枚X10</div>
@@ -567,7 +553,7 @@
                             <div>納品予定: <b>2</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｳﾙｿﾃﾞｵｷｼｺ-ﾙ酸錠100MGﾄ-ﾜ  　     100mg PTP  100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">東和薬品</span>
                             <div class="product-name">ｳﾙｿﾃﾞｵｷｼｺ-ﾙ酸錠100MGﾄ-ﾜ  　     100mg PTP  100T</div>
@@ -583,7 +569,7 @@
                             <div>納品予定: <b>1</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾃﾞｭﾋﾟｸｾﾝﾄ皮下注300mg     　    ｼﾘﾝｼﾞ 2MLX1ｼﾘﾝｼﾞ')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">サノフィ</span>
                             <div class="product-name">ﾃﾞｭﾋﾟｸｾﾝﾄ皮下注300mg     　    ｼﾘﾝｼﾞ 2MLX1ｼﾘﾝｼﾞ</div>
@@ -599,7 +585,7 @@
                             <div>納品予定: <b>5</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾍﾞﾎﾟﾀｽﾁﾝﾍﾞｼﾙ酸塩錠10MG   　    ｢ﾀﾅﾍﾞ｣ PTP  500T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">ニプロファマ</span>
                             <div class="product-name">ﾍﾞﾎﾟﾀｽﾁﾝﾍﾞｼﾙ酸塩錠10MG   　    ｢ﾀﾅﾍﾞ｣ PTP  500T</div>
@@ -615,7 +601,7 @@
                             <div>納品予定: <b>1</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾌﾟﾚｶﾞﾊﾞﾘﾝOD錠75mgﾄ-ﾜ     　      75mg PTP  100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">東和薬品</span>
                             <div class="product-name">ﾌﾟﾚｶﾞﾊﾞﾘﾝOD錠75mgﾄ-ﾜ     　      75mg PTP  100T</div>
@@ -631,7 +617,7 @@
                             <div>納品予定: <b>3</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｸﾗﾘｽﾛﾏｲｼﾝ錠50mg小児用    　    ｢大正｣ PTP  100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">大正製薬</span>
                             <div class="product-name">ｸﾗﾘｽﾛﾏｲｼﾝ錠50mg小児用    　    ｢大正｣ PTP  100T</div>
@@ -647,7 +633,7 @@
                             <div>納品予定: <b>5</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾕﾍﾞﾗ錠50mg               　      50mg PTP  100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">エーザイ</span>
                             <div class="product-name">ﾕﾍﾞﾗ錠50mg               　      50mg PTP  100T</div>
@@ -663,7 +649,7 @@
                             <div>納品予定: <b>2</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('SG配合顆粒               　           1gX105包')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">塩野義製薬</span>
                             <div class="product-name">SG配合顆粒               　           1gX105包</div>
@@ -679,7 +665,7 @@
                             <div>納品予定: <b>1</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｶﾙﾅｸﾘﾝ錠50               　     50単位 PTP 100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">三和化学</span>
                             <div class="product-name">ｶﾙﾅｸﾘﾝ錠50               　     50単位 PTP 100T</div>
@@ -695,7 +681,7 @@
                             <div>納品予定: <b>1</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾚﾎﾞｾﾁﾘｼﾞﾝ塩酸塩錠5MGﾄ-ﾜ  　       5mg PTP  500T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">東和薬品</span>
                             <div class="product-name">ﾚﾎﾞｾﾁﾘｼﾞﾝ塩酸塩錠5MGﾄ-ﾜ  　       5mg PTP  500T</div>
@@ -711,7 +697,7 @@
                             <div>納品予定: <b>1</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾛｷｿﾌﾟﾛﾌｪﾝNａ錠60mgﾄ-ﾜ    　      60mg PTP 1000T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">東和薬品</span>
                             <div class="product-name">ﾛｷｿﾌﾟﾛﾌｪﾝNａ錠60mgﾄ-ﾜ    　      60mg PTP 1000T</div>
@@ -791,7 +777,7 @@
                             <div>納品予定: <b>15</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｺﾀﾛ-腸廱湯ｴｷｽ細粒        　       N320 2gX42包')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">小太郎漢方</span>
                             <div class="product-name">ｺﾀﾛ-腸廱湯ｴｷｽ細粒        　       N320 2gX42包</div>
@@ -823,7 +809,7 @@
                             <div>納品予定: <b>6</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｵﾛﾊﾟﾀｼﾞﾝ塩酸塩顆粒0.5%   　    ｢ﾄ-ﾜ｣0.5gX200包')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">東和薬品</span>
                             <div class="product-name">ｵﾛﾊﾟﾀｼﾞﾝ塩酸塩顆粒0.5%   　    ｢ﾄ-ﾜ｣0.5gX200包</div>
@@ -903,7 +889,7 @@
                             <div>納品予定: <b>1</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｱﾚｻｶﾞﾃ-ﾌﾟ4mg             　            4mg 70枚')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">久光製薬</span>
                             <div class="product-name">ｱﾚｻｶﾞﾃ-ﾌﾟ4mg             　            4mg 70枚</div>
@@ -983,7 +969,7 @@
                             <div>納品予定: <b>1</b></div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾐﾔBM錠                   　           PTP  400T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">ミヤリサン製</span>
                             <div class="product-name">ﾐﾔBM錠                   　           PTP  400T</div>
@@ -1150,7 +1136,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾁﾓﾛ-ﾙ XE点眼液0.5% ｢ﾆｯﾄ-｣        0.5%  2.5MLX5')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987497300819</span>
                             <div class="product-name">ﾁﾓﾛ-ﾙ XE点眼液0.5% ｢ﾆｯﾄ-｣        0.5%  2.5MLX5</div>
@@ -1205,7 +1191,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('パターン表No：48')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name"></span>
                             <div class="product-name">パターン表No：48</div>
@@ -1403,7 +1389,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｶﾙﾎﾞｼｽﾃｲﾝ ｼﾛｯﾌﾟ小児用5%｢NIG｣          5%    500ML')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987376732120</span>
                             <div class="product-name">ｶﾙﾎﾞｼｽﾃｲﾝ ｼﾛｯﾌﾟ小児用5%｢NIG｣          5%    500ML</div>
@@ -1436,7 +1422,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｼﾞﾌｪﾆﾄﾞ-ﾙ塩酸塩錠25MG ｢NIG｣   PTP   25MG    100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987123873755</span>
                             <div class="product-name">ｼﾞﾌｪﾆﾄﾞ-ﾙ塩酸塩錠25MG ｢NIG｣   PTP   25MG    100T</div>
@@ -1557,7 +1543,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾌﾛｼﾞﾝ外用液5%          5%  30MLX10')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987190595932</span>
                             <div class="product-name">ﾌﾛｼﾞﾝ外用液5%          5%  30MLX10</div>
@@ -1689,7 +1675,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾍﾞﾗﾊﾟﾐﾙ塩酸塩錠40MG ｢ﾀｲﾖ-｣   PTP   40MG    100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987123409695</span>
                             <div class="product-name">ﾍﾞﾗﾊﾟﾐﾙ塩酸塩錠40MG ｢ﾀｲﾖ-｣   PTP   40MG    100T</div>
@@ -1711,7 +1697,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾒﾄﾎﾙﾐﾝ塩酸塩錠250MG MT｢ﾆﾌﾟﾛ｣   PTP  250MG    100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987190067309</span>
                             <div class="product-name">ﾒﾄﾎﾙﾐﾝ塩酸塩錠250MG MT｢ﾆﾌﾟﾛ｣   PTP  250MG    100T</div>
@@ -1821,7 +1807,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｸﾞﾘｾﾘﾝ   ｶﾞﾗｽ瓶     500ML')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987286205165</span>
                             <div class="product-name">ｸﾞﾘｾﾘﾝ   ｶﾞﾗｽ瓶     500ML</div>
@@ -2063,7 +2049,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾗﾐｼ-ﾙ ｸﾘ-ﾑ 1%          1%   10GX10')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987047211404</span>
                             <div class="product-name">ﾗﾐｼ-ﾙ ｸﾘ-ﾑ 1%          1%   10GX10</div>
@@ -2118,7 +2104,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾌﾙﾒﾄﾛﾝ点眼液0.1%        0.1%   5MLX10')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987084154245</span>
                             <div class="product-name">ﾌﾙﾒﾄﾛﾝ点眼液0.1%        0.1%   5MLX10</div>
@@ -2206,7 +2192,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾋﾞｵｽﾘ-配合錠   PTP         21TX30')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987158701566</span>
                             <div class="product-name">ﾋﾞｵｽﾘ-配合錠   PTP         21TX30</div>
@@ -2217,7 +2203,7 @@
                             <div class="receipt-date">メーカー出荷調整品：入荷未定</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾋﾞｵﾌｪﾙﾐﾝ錠剤   PTP          21TX6')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987306066189</span>
                             <div class="product-name">ﾋﾞｵﾌｪﾙﾐﾝ錠剤   PTP          21TX6</div>
@@ -2294,7 +2280,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｴﾋﾟﾅｽﾁﾝ塩酸塩錠20MG ｢NIG｣   PTP   20MG    100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987123873724</span>
                             <div class="product-name">ｴﾋﾟﾅｽﾁﾝ塩酸塩錠20MG ｢NIG｣   PTP   20MG    100T</div>
@@ -2327,7 +2313,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｹﾄﾌﾟﾛﾌｪﾝﾃ-ﾌﾟ 40MG ｢日医工｣    10CMX14CM    70ﾏｲ')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987376156209</span>
                             <div class="product-name">ｹﾄﾌﾟﾛﾌｪﾝﾃ-ﾌﾟ 40MG ｢日医工｣    10CMX14CM    70ﾏｲ</div>
@@ -2382,7 +2368,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｱｽﾀｯﾄ軟膏1%          1%   10GX10')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987213109061</span>
                             <div class="product-name">ｱｽﾀｯﾄ軟膏1%          1%   10GX10</div>
@@ -2448,7 +2434,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｹﾄｺﾅｿﾞ-ﾙ ﾛ-ｼｮﾝ 2% ｢JG｣          2%   10GX10')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987792214118</span>
                             <div class="product-name">ｹﾄｺﾅｿﾞ-ﾙ ﾛ-ｼｮﾝ 2% ｢JG｣          2%   10GX10</div>
@@ -2459,7 +2445,7 @@
                             <div class="receipt-date">メーカー出荷調整品：入荷未定</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾆｿﾞﾗ-ﾙ ﾛ-ｼｮﾝ 2%          2%   10GX10')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987020018952</span>
                             <div class="product-name">ﾆｿﾞﾗ-ﾙ ﾛ-ｼｮﾝ 2%          2%   10GX10</div>
@@ -2492,7 +2478,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｼﾀﾞｷｭｱ ｽｷﾞ花粉舌下錠2000JAU ﾌﾞﾘｽﾀ- 2000JAU    7T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987158290404</span>
                             <div class="product-name">ｼﾀﾞｷｭｱ ｽｷﾞ花粉舌下錠2000JAU ﾌﾞﾘｽﾀ- 2000JAU    7T</div>
@@ -2514,7 +2500,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾍﾞﾀﾋｽﾁﾝﾒｼﾙ酸塩錠6MG｢日医工 P｣ PTP   6MG    100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987376711002</span>
                             <div class="product-name">ﾍﾞﾀﾋｽﾁﾝﾒｼﾙ酸塩錠6MG｢日医工 P｣ PTP   6MG    100T</div>
@@ -2624,7 +2610,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｱﾙﾌｧｶﾙｼﾄﾞ-ﾙ ｶﾌﾟｾﾙ0.5μG｢BMD｣   PTP  0.5μG 100P')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987809157216</span>
                             <div class="product-name">ｱﾙﾌｧｶﾙｼﾄﾞ-ﾙ ｶﾌﾟｾﾙ0.5μG｢BMD｣   PTP  0.5μG 100P</div>
@@ -2635,7 +2621,7 @@
                             <div class="receipt-date">メーカー出荷調整品：入荷未定</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｴﾁｿﾞﾗﾑ錠1MG ｢NIG｣   PTP    1MG    100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987123875483</span>
                             <div class="product-name">ｴﾁｿﾞﾗﾑ錠1MG ｢NIG｣   PTP    1MG    100T</div>
@@ -2657,7 +2643,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾃﾞﾊﾟｹﾝ R錠200MG   PTP  200MG    100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987057592623</span>
                             <div class="product-name">ﾃﾞﾊﾟｹﾝ R錠200MG   PTP  200MG    100T</div>
@@ -2800,7 +2786,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｼｱﾉｺﾊﾞﾗﾐﾝ点眼液0.02% ｢ﾆｯﾄ-｣       0.02%    5MLX5')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987497305616</span>
                             <div class="product-name">ｼｱﾉｺﾊﾞﾗﾐﾝ点眼液0.02% ｢ﾆｯﾄ-｣       0.02%    5MLX5</div>
@@ -2932,7 +2918,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾒﾘｽﾛﾝ錠6MG   PTP    6MG    100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987042231001</span>
                             <div class="product-name">ﾒﾘｽﾛﾝ錠6MG   PTP    6MG    100T</div>
@@ -2943,7 +2929,7 @@
                             <div class="receipt-date">メーカー出荷調整品：入荷未定</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾌｽｺﾃﾞ配合錠   PTP          1000T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987901118009</span>
                             <div class="product-name">ﾌｽｺﾃﾞ配合錠   PTP          1000T</div>
@@ -2976,7 +2962,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｾﾌｶﾍﾟﾝ ﾋﾟﾎﾞｷｼﾙ塩酸塩錠100MG ｢SW｣ PTP 100MG  100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987080008214</span>
                             <div class="product-name">ｾﾌｶﾍﾟﾝ ﾋﾟﾎﾞｷｼﾙ塩酸塩錠100MG ｢SW｣ PTP 100MG  100T</div>
@@ -3119,7 +3105,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾘｻﾞﾍﾞﾝ ｶﾌﾟｾﾙ 100MG   PTP  100MG    100P')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987051901322</span>
                             <div class="product-name">ﾘｻﾞﾍﾞﾝ ｶﾌﾟｾﾙ 100MG   PTP  100MG    100P</div>
@@ -3141,7 +3127,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾌｪﾛ･ｸﾞﾗﾃﾞｭﾒｯﾄ錠105MG   PTP           100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987901117507</span>
                             <div class="product-name">ﾌｪﾛ･ｸﾞﾗﾃﾞｭﾒｯﾄ錠105MG   PTP           100T</div>
@@ -3163,7 +3149,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾓﾝﾃﾙｶｽﾄ ﾁｭｱﾌﾞﾙ錠5MG ｢ﾀｶﾀ｣   PTP    5MG  14TX10')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987120447430</span>
                             <div class="product-name">ﾓﾝﾃﾙｶｽﾄ ﾁｭｱﾌﾞﾙ錠5MG ｢ﾀｶﾀ｣   PTP    5MG  14TX10</div>
@@ -3240,7 +3226,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾍﾊﾟﾘﾝ類似物質ｸﾘ-ﾑ0.3%｢ﾆﾁｲｺｳ｣               25GX10')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987376559802</span>
                             <div class="product-name">ﾍﾊﾟﾘﾝ類似物質ｸﾘ-ﾑ0.3%｢ﾆﾁｲｺｳ｣               25GX10</div>
@@ -3284,7 +3270,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾌﾟﾘﾝﾍﾟﾗﾝ錠5   PTP    5MG    100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987376244401</span>
                             <div class="product-name">ﾌﾟﾘﾝﾍﾟﾗﾝ錠5   PTP    5MG    100T</div>
@@ -3372,7 +3358,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾋﾞｵﾌｪﾙﾐﾝ R散                 500G')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987306066929</span>
                             <div class="product-name">ﾋﾞｵﾌｪﾙﾐﾝ R散                 500G</div>
@@ -3482,7 +3468,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｴﾋﾞｽﾀ錠60MG (ｲ-ﾗｲﾘﾘ-)   PTP   60MG  14TX10')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987428416527</span>
                             <div class="product-name">ｴﾋﾞｽﾀ錠60MG (ｲ-ﾗｲﾘﾘ-)   PTP   60MG  14TX10</div>
@@ -3548,7 +3534,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｼﾞｸﾛﾌｪﾅｸNA錠25MG ｢NIG｣   PTP   25MG    100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987123875902</span>
                             <div class="product-name">ｼﾞｸﾛﾌｪﾅｸNA錠25MG ｢NIG｣   PTP   25MG    100T</div>
@@ -3713,7 +3699,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('D-ｸﾛﾙﾌｪﾆﾗﾐﾝﾏﾚｲﾝ酸塩錠2MG｢NI G｣ PTP   2MG   1000T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987123875551</span>
                             <div class="product-name">D-ｸﾛﾙﾌｪﾆﾗﾐﾝﾏﾚｲﾝ酸塩錠2MG｢NI G｣ PTP   2MG   1000T</div>
@@ -3779,7 +3765,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾋﾞｵﾌｪﾙﾐﾝ R錠   PTP           100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987306066981</span>
                             <div class="product-name">ﾋﾞｵﾌｪﾙﾐﾝ R錠   PTP           100T</div>
@@ -3812,7 +3798,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｱﾛﾁﾉﾛ-ﾙ塩酸塩錠5MG ｢JG｣   PTP    5MG    100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987792216112</span>
                             <div class="product-name">ｱﾛﾁﾉﾛ-ﾙ塩酸塩錠5MG ｢JG｣   PTP    5MG    100T</div>
@@ -3889,7 +3875,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｵｾﾙﾀﾐﾋﾞﾙ DS 3% ｢ﾄ-ﾜ｣          3%      30G')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987155161417</span>
                             <div class="product-name">ｵｾﾙﾀﾐﾋﾞﾙ DS 3% ｢ﾄ-ﾜ｣          3%      30G</div>
@@ -3922,7 +3908,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('商品が特定できませんでした（発注コード：4987185806961）')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name"></span>
                             <div class="product-name">商品が特定できませんでした（発注コード：4987185806961）</div>
@@ -3977,7 +3963,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾋﾟﾄﾞｷｻ-ﾙ錠20MG   PTP   20MG    100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987925119723</span>
                             <div class="product-name">ﾋﾟﾄﾞｷｻ-ﾙ錠20MG   PTP   20MG    100T</div>
@@ -3988,7 +3974,7 @@
                             <div class="receipt-date">メーカー出荷調整品：入荷未定</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾋﾟﾘﾄﾞｷｻ-ﾙ錠20MG ｢ﾂﾙﾊﾗ｣   PTP   20MG    100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987792101586</span>
                             <div class="product-name">ﾋﾟﾘﾄﾞｷｻ-ﾙ錠20MG ｢ﾂﾙﾊﾗ｣   PTP   20MG    100T</div>
@@ -4032,7 +4018,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｾﾞｽﾀｯｸ ｸﾘ-ﾑ               25GX10')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987387597725</span>
                             <div class="product-name">ｾﾞｽﾀｯｸ ｸﾘ-ﾑ               25GX10</div>
@@ -4340,7 +4326,7 @@
                             <div class="receipt-date">通常</div>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾒｼﾞｺﾝ錠15MG   PTP   15MG    100T')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">14987087025559</span>
                             <div class="product-name">ﾒｼﾞｺﾝ錠15MG   PTP   15MG    100T</div>
@@ -4407,7 +4393,7 @@
             <div class="table-container">
                 <table><thead><tr><th>品名 / メーカー</th><th>状況</th><th>数量</th></tr></thead><tbody>
                 
-                    <tr onclick="openOrderEpi('ｹﾄｺﾅｿﾞｰﾙﾛｰｼｮﾝ2%｢JG｣')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">日本ｼﾞｪﾈﾘｯｸ</span>
                             <div class="product-name">ｹﾄｺﾅｿﾞｰﾙﾛｰｼｮﾝ2%｢JG｣</div>
@@ -4420,7 +4406,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">共和薬品</span>
                             <div class="product-name">ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg</div>
@@ -4433,7 +4419,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾋﾞｵｽﾘｰ配合錠')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">鳥居薬品</span>
                             <div class="product-name">ﾋﾞｵｽﾘｰ配合錠</div>
@@ -4446,7 +4432,7 @@
                             <b>2</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｼﾀﾞｷｭｱｽｷﾞ花粉舌下錠2000')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">鳥居薬品</span>
                             <div class="product-name">ｼﾀﾞｷｭｱｽｷﾞ花粉舌下錠2000</div>
@@ -4459,7 +4445,7 @@
                             <b>10</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｶﾙﾎﾞｼｽﾃｲﾝｼﾛｯﾌﾟ小児用5%')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">日医工（武田</span>
                             <div class="product-name">ｶﾙﾎﾞｼｽﾃｲﾝｼﾛｯﾌﾟ小児用5%</div>
@@ -4472,7 +4458,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｼﾀﾞｷｭｱｽｷﾞ花粉舌下錠2000')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">鳥居薬品</span>
                             <div class="product-name">ｼﾀﾞｷｭｱｽｷﾞ花粉舌下錠2000</div>
@@ -4485,7 +4471,7 @@
                             <b>10</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾋﾞｵｽﾘｰ配合錠')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">鳥居薬品</span>
                             <div class="product-name">ﾋﾞｵｽﾘｰ配合錠</div>
@@ -4498,7 +4484,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾋﾞｵｽﾘｰ配合錠')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">鳥居薬品</span>
                             <div class="product-name">ﾋﾞｵｽﾘｰ配合錠</div>
@@ -4511,7 +4497,7 @@
                             <b>2</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾋﾞｵｽﾘｰ配合錠')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">鳥居薬品</span>
                             <div class="product-name">ﾋﾞｵｽﾘｰ配合錠</div>
@@ -4524,7 +4510,7 @@
                             <b>2</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｱｽﾀｯﾄ軟膏1%')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">マルホ</span>
                             <div class="product-name">ｱｽﾀｯﾄ軟膏1%</div>
@@ -4537,7 +4523,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">共和薬品</span>
                             <div class="product-name">ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg</div>
@@ -4550,7 +4536,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾋﾞｵｽﾘｰ配合錠')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">鳥居薬品</span>
                             <div class="product-name">ﾋﾞｵｽﾘｰ配合錠</div>
@@ -4563,7 +4549,7 @@
                             <b>2</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｼﾀﾞｷｭｱｽｷﾞ花粉舌下錠2000')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">鳥居薬品</span>
                             <div class="product-name">ｼﾀﾞｷｭｱｽｷﾞ花粉舌下錠2000</div>
@@ -4576,7 +4562,7 @@
                             <b>10</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｻﾝﾍﾞﾀｿﾞﾝ眼耳鼻科用液0.1%')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">参天製薬</span>
                             <div class="product-name">ｻﾝﾍﾞﾀｿﾞﾝ眼耳鼻科用液0.1%</div>
@@ -4589,7 +4575,7 @@
                             <b>3</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾋﾞｵｽﾘｰ配合錠')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">鳥居薬品</span>
                             <div class="product-name">ﾋﾞｵｽﾘｰ配合錠</div>
@@ -4602,7 +4588,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾌﾟｿﾌｪｷ配合錠｢ｻﾜｲ｣')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">沢井製薬</span>
                             <div class="product-name">ﾌﾟｿﾌｪｷ配合錠｢ｻﾜｲ｣</div>
@@ -4615,7 +4601,7 @@
                             <b>2</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾌﾟｿﾌｪｷ配合錠｢ｻﾜｲ｣')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">沢井製薬</span>
                             <div class="product-name">ﾌﾟｿﾌｪｷ配合錠｢ｻﾜｲ｣</div>
@@ -4628,7 +4614,7 @@
                             <b>2</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾌﾟｿﾌｪｷ配合錠｢ｻﾜｲ｣')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">沢井製薬</span>
                             <div class="product-name">ﾌﾟｿﾌｪｷ配合錠｢ｻﾜｲ｣</div>
@@ -4641,7 +4627,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">共和薬品</span>
                             <div class="product-name">ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg</div>
@@ -4654,7 +4640,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾋﾞｵｽﾘｰ配合OD錠')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">鳥居薬品</span>
                             <div class="product-name">ﾋﾞｵｽﾘｰ配合OD錠</div>
@@ -4667,7 +4653,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾋﾞｵｽﾘｰ配合錠')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">鳥居薬品</span>
                             <div class="product-name">ﾋﾞｵｽﾘｰ配合錠</div>
@@ -4680,7 +4666,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">共和薬品</span>
                             <div class="product-name">ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg</div>
@@ -4693,7 +4679,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">共和薬品</span>
                             <div class="product-name">ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg</div>
@@ -4706,7 +4692,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾌﾟｿﾌｪｷ配合錠｢ｻﾜｲ｣')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">沢井製薬</span>
                             <div class="product-name">ﾌﾟｿﾌｪｷ配合錠｢ｻﾜｲ｣</div>
@@ -4719,7 +4705,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">共和薬品</span>
                             <div class="product-name">ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg</div>
@@ -4732,7 +4718,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾋﾞｵｽﾘｰ配合錠')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">鳥居薬品</span>
                             <div class="product-name">ﾋﾞｵｽﾘｰ配合錠</div>
@@ -4745,7 +4731,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾋﾞｵｽﾘｰ配合錠')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">鳥居薬品</span>
                             <div class="product-name">ﾋﾞｵｽﾘｰ配合錠</div>
@@ -4758,7 +4744,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾋﾞｵｽﾘｰ配合OD錠')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">鳥居薬品</span>
                             <div class="product-name">ﾋﾞｵｽﾘｰ配合OD錠</div>
@@ -4771,7 +4757,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾋﾞｵｽﾘｰ配合錠')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">鳥居薬品</span>
                             <div class="product-name">ﾋﾞｵｽﾘｰ配合錠</div>
@@ -4784,7 +4770,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾌﾟｿﾌｪｷ配合錠｢ｻﾜｲ｣')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">沢井製薬</span>
                             <div class="product-name">ﾌﾟｿﾌｪｷ配合錠｢ｻﾜｲ｣</div>
@@ -4797,7 +4783,7 @@
                             <b>3</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">ﾉﾎﾞﾉﾙﾃﾞｨｽｸ</span>
                             <div class="product-name">ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ</div>
@@ -4810,7 +4796,7 @@
                             <b>2</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">共和薬品</span>
                             <div class="product-name">ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg</div>
@@ -4823,7 +4809,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾋﾞｵｽﾘｰ配合OD錠')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">鳥居薬品</span>
                             <div class="product-name">ﾋﾞｵｽﾘｰ配合OD錠</div>
@@ -4836,7 +4822,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾋﾞｵｽﾘｰ配合錠')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">鳥居薬品</span>
                             <div class="product-name">ﾋﾞｵｽﾘｰ配合錠</div>
@@ -4849,7 +4835,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">ﾉﾎﾞﾉﾙﾃﾞｨｽｸ</span>
                             <div class="product-name">ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ</div>
@@ -4862,7 +4848,7 @@
                             <b>3</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">共和薬品</span>
                             <div class="product-name">ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg</div>
@@ -4875,7 +4861,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">ﾉﾎﾞﾉﾙﾃﾞｨｽｸ</span>
                             <div class="product-name">ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ</div>
@@ -4888,7 +4874,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">共和薬品</span>
                             <div class="product-name">ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg</div>
@@ -4901,7 +4887,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">ﾉﾎﾞﾉﾙﾃﾞｨｽｸ</span>
                             <div class="product-name">ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ</div>
@@ -4914,7 +4900,7 @@
                             <b>3</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">ﾉﾎﾞﾉﾙﾃﾞｨｽｸ</span>
                             <div class="product-name">ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ</div>
@@ -4927,7 +4913,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">ﾉﾎﾞﾉﾙﾃﾞｨｽｸ</span>
                             <div class="product-name">ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ</div>
@@ -4940,7 +4926,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">共和薬品</span>
                             <div class="product-name">ｹﾌﾚｯｸｽｶﾌﾟｾﾙ250mg</div>
@@ -4953,7 +4939,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">ﾉﾎﾞﾉﾙﾃﾞｨｽｸ</span>
                             <div class="product-name">ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ</div>
@@ -4966,7 +4952,7 @@
                             <b>1</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ｻﾝﾍﾞﾀｿﾞﾝ眼耳鼻科用液0.1%')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">参天製薬</span>
                             <div class="product-name">ｻﾝﾍﾞﾀｿﾞﾝ眼耳鼻科用液0.1%</div>
@@ -4979,7 +4965,7 @@
                             <b>3</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾍﾊﾟﾘﾝ類似物質ﾛｰｼｮﾝ0.3%')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">日東ﾒﾃﾞｨｯｸ</span>
                             <div class="product-name">ﾍﾊﾟﾘﾝ類似物質ﾛｰｼｮﾝ0.3%</div>
@@ -4992,7 +4978,7 @@
                             <b>3</b>
                         </td>
                     </tr>
-                    <tr onclick="openOrderEpi('ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ')" style="cursor: pointer;" title="クリックしてEPI発注">
+                    <tr>
                         <td>
                             <span class="maker-name">ﾉﾎﾞﾉﾙﾃﾞｨｽｸ</span>
                             <div class="product-name">ﾗｲｿﾞﾃﾞｸﾞ配合注ﾌﾚｯｸｽﾀｯﾁ</div>
@@ -5026,43 +5012,13 @@
                     const badge = row.querySelector('.status-badge');
                     if (!badge) return;
                     const status = badge.textContent.trim();
-                    const isPending = status.includes('調達中') || status.includes('入荷未定') || status.includes('出荷準備中') || status.includes('受注辞退') || status.includes('欠品');
+                    const isPending = status.includes('調達中') || status.includes('入荷未定') || status.includes('出荷準備中');
                     row.style.display = isPending ? '' : 'none';
                 });
                 btnAll.classList.remove('active');
                 btnPending.classList.add('active');
             }
         }
-
-        const openOrderEpi = async (itemName) => {
-            if (!itemName) return;
-            
-            // (先)や(後)などの接頭辞を削除
-            let searchKeyword = itemName.replace(/^\([前後]\)\s*/, '');
-            
-            try {
-                if (navigator.clipboard) {
-                    await navigator.clipboard.writeText(searchKeyword);
-                } else {
-                    const textArea = document.createElement("textarea");
-                    textArea.value = searchKeyword;
-                    textArea.style.position = "fixed";
-                    document.body.appendChild(textArea);
-                    textArea.focus();
-                    textArea.select();
-                    try {
-                        document.execCommand('copy');
-                    } catch (err) {
-                        console.error('Fallback: Oops, unable to copy', err);
-                    }
-                    document.body.removeChild(textArea);
-                }
-            } catch (err) {
-                console.error('Failed to copy text: ', err);
-            }
-            
-            window.open("https://www.order-epi.com/order/", "_blank");
-        };
     </script>
 </body>
 </html>
