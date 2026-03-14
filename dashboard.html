@@ -5023,8 +5023,17 @@
         const openOrderEpi = async (itemName) => {
             if (!itemName) return;
             
-            // (先)や(後)などの接頭辞を削除
+            // 1. (先)や(後)などの接頭辞を削除
             let searchKeyword = itemName.replace(/^\([前後]\)\s*/, '');
+            
+            // 2. PTPやバラなどの包装形態以降を削除
+            searchKeyword = searchKeyword.replace(/\s+(?:PTP|ﾊﾞﾗ)\s*.*$/i, '');
+            
+            // 3. 末尾の数量・単位の連続を削除 (例: " 9mg 18g×5", " 100T", " 5mL×5")
+            searchKeyword = searchKeyword.replace(/(?:\s+\d+(?:\.\d+)?(?:mg|g|mL|T|管|カプセル|錠|包|瓶|本|枚|キット|シリンジ|V)?(?:[×x*]\s*\d+)?)+$/i, '');
+            
+            // 4. 前後の余分な空白を削除
+            searchKeyword = searchKeyword.trim();
             
             try {
                 if (navigator.clipboard) {
